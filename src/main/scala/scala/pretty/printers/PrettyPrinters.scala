@@ -14,11 +14,17 @@ import nsc.Global
  * To change this template use File | Settings | File Templates.
  */
 
+object PrettyPrinters{
+  def apply(global: Global) = {
+    new PrettyPrinters(global)
+  }
+}
+
 class PrettyPrinters(val global: Global) {
 
   import global._
 
-  def show(what: Any) = {
+  def show(what: nsc.Global#Tree) = {
     val buffer = new StringWriter()
     val writer = new PrintWriter(buffer)
 
@@ -39,15 +45,15 @@ class PrettyPrinters(val global: Global) {
     override def printModifiers(tree: Tree, mods: Modifiers): Unit = printModifiers(tree, mods, false)
 
     def printModifiers(tree: Tree, mods: Modifiers, isCtr: Boolean): Unit =
-      if (modsAccepted)
+      if (getCurrentContext().isEmpty || modsAccepted)
         printFlags(mods.flags, "" + mods.privateWithin, isCtr)
       else
         List(IMPLICIT, CASE, LAZY).foreach{flag => if(mods.hasFlag(flag))  printFlags(flag, "", isCtr)}
 
-    def modsAccepted = getCurrentContext() match {
+    def modsAccepted = getCurrentContext() map {
       case _:ClassDef | _:ModuleDef | _:Template | _:PackageDef => true
       case _ => false
-    }
+    } getOrElse false
 
     override def printFlags(flags: Long, privateWithin: String) =
       printFlags(flags, privateWithin, false)
@@ -177,7 +183,7 @@ class PrettyPrinters(val global: Global) {
       contextStack.pop()
     }
 
-    def getCurrentContext(): Tree = if (!contextStack.isEmpty) contextStack.top else null
+    def getCurrentContext() = if (!contextStack.isEmpty) Some(contextStack.top) else None
 
     def removeDefaultTypesFromList(trees: List[Tree])(classesToRemove: List[String])(traitsToRemove: List[String]) =
       removeDefaultTraitsFromList(removeDefaultClassesFromList(trees, classesToRemove), traitsToRemove)
@@ -383,12 +389,12 @@ class PrettyPrinters(val global: Global) {
           if (tree.symbol != NoSymbol) currentOwner = tree.symbol.owner
 
           val printedParents =
-            getCurrentContext() match {
+            getCurrentContext() map {
               //val example: Option[AnyRef => Product1[Any] with AnyRef] = ... - CompoundTypeTree with template
               case _: CompoundTypeTree => parents
               case ClassDef(mods, name, _, _) if mods.hasFlag(CASE) => removeDefaultTypesFromList(parents)(List("AnyRef"))(List("Product", "Serializable"))
               case _ => removeDefaultClassesFromList(parents, List("AnyRef"))
-            }
+            } getOrElse(parents)
 
           val primaryCtrOpt = getPrimaryConstr(body)
           var ap: Option[Apply] = None
