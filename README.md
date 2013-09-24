@@ -1,5 +1,5 @@
-scala-pretty-printer
-====================
+sprinter
+========
 
 Tool for generating source code from Scala ASTs.
 
@@ -20,7 +20,7 @@ $ sbt publish-local
 Target jar should have similar path:
 
 ```shell
-/path/to/.ivy2/local/org.scala-lang/scala-pretty-printer_2.10/0.2.0/jars/scala-pretty-printer_2.10.jar
+/path/to/.ivy2/local/org.scala-lang/sprinter_2.10/0.2.0/jars/sprinter_2.10.jar
 ```
 
 See <http://scala-sbt.org/release/docs/Getting-Started/Setup.html> for instructions to setup sbt.
@@ -33,10 +33,10 @@ In the target project add to project's build file following options:
 
 ```scala
 libraryDependencies ++= Seq("org.scala-lang" % "scala-compiler" % "2.10.2",
-	"org.scala-lang" %% "scala-pretty-printer" % "0.2.0")
+	"org.scala-lang" %% "sprinter" % "0.2.0")
 ```
 
-If you use scala-pretty-printer as a dependency for compiler plugin it's required to add lib's jar to scalac toolcp or include printer's classes to project's jar.
+If you use sprinter as a dependency for compiler plugin it's required to add lib's jar to scalac toolcp or include printer's classes to project's jar.
 
 In the case of sbt-based project you can use assembly plugin - <https://github.com/sbt/sbt-assembly> to create common jar. 
 
@@ -44,18 +44,18 @@ Example can be found in printPlugin's build file - <https://github.com/VladimirN
 
 #### Standalone projects:
 
-For default projects to add scala-pretty-printer's jar to scalac toolcp you can use compiler's toolcp option:
+For default projects to add sprinter's jar to scalac toolcp you can use compiler's toolcp option:
 
 ```shell
-$ scalac -toolcp /path/to/jar/scala-pretty-printer_2.10.jar -Xplugin:/path/to/plugin/printplugin-2.10.jar hello/world/*.scala
+$ scalac -toolcp /path/to/jar/sprinter_2.10.jar -Xplugin:/path/to/plugin/printplugin-2.10.jar hello/world/*.scala
 ```
 
 #### API:
 
-To use pretty-printer import PrettyPrinters class:
+To use sprinter import PrettyPrinters class:
 
 ```scala
-import scala.pretty.printers.PrettyPrinters
+import scala.sprinter.printers.PrettyPrinters
 ```
 
 Create its instance (using object of type nsc.Global):
@@ -110,6 +110,6 @@ package hello.world {
 
 ### Resources
 
- - <https://github.com/VladimirNik/printPlugin> - plugin that uses scala-pretty-printer to regenerate project's sources based on ASTs.
+ - <https://github.com/VladimirNik/printPlugin> - plugin that uses sprinter to regenerate project's sources based on ASTs.
  - <https://github.com/VladimirNik/treePrintTester> - example of printPlugin usage.
  - <http://scala-sbt.org/release/docs/Getting-Started/Setup.html> - sbt setup

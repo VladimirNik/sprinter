@@ -2,7 +2,7 @@
  * Copyright 2007-2013 LAMP/EPFL
  */
 
-package scala.pretty.printers
+package scala.sprinter.printers
 
 import java.io.{StringWriter, PrintWriter}
 import scala.reflect.internal.Flags._
