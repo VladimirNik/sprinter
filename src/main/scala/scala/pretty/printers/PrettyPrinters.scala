@@ -1,3 +1,7 @@
+/* sprinter
+ * Copyright 2007-2013 LAMP/EPFL
+ */
+
 package scala.pretty.printers
 
 import java.io.{StringWriter, PrintWriter}
@@ -5,14 +9,6 @@ import scala.reflect.internal.Flags._
 import scala.tools.nsc
 import scala.tools.nsc.ast.Printers
 import nsc.Global
-
-/**
- * Created with IntelliJ IDEA.
- * User: vova
- * Date: 7/15/13
- * Time: 2:38 AM
- * To change this template use File | Settings | File Templates.
- */
 
 object PrettyPrinters{
   def apply(global: Global) = {
