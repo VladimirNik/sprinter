@@ -1,8 +1,8 @@
 import sbt._
 import Keys._
 
-object PrettyPrinterBuild extends Build {
-   val prettyPrinter = Project("sprinter", file(".")) settings (
+object SprinterBuild extends Build {
+   val sprinter = Project("sprinter", file(".")) settings (
     organization := "org.scala-lang",
     name := "sprinter",
     version := "0.2.0",
