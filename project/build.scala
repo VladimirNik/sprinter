@@ -1,5 +1,10 @@
 import sbt._
 import Keys._
+import com.typesafe.sbt.SbtSite.site
+import com.typesafe.sbt.SbtSite.SiteKeys._
+import com.typesafe.sbt.site.JekyllSupport.Jekyll
+import com.typesafe.sbt.SbtGhPages.ghpages
+import com.typesafe.sbt.SbtGit.git
 
 object SprinterBuild extends Build {
    val sprinter = Project("sprinter", file(".")) settings (
@@ -11,6 +16,19 @@ object SprinterBuild extends Build {
     //crossVersion := CrossVersion.full,
     //exportJars := true,
     libraryDependencies <++= scalaVersion apply dependencies
+  ) settings (websiteSettings: _*)
+
+  lazy val websiteSettings: Seq[Setting[_]] = (
+     site.settings ++
+     ghpages.settings ++
+     site.includeScaladoc() ++
+     site.jekyllSupport() ++
+     Seq(
+       git.remoteRepo := "https://github.com/VladimirNik/sprinter.git",
+       includeFilter in Jekyll := ("*.html" | "*.png" | "*.js" | "*.css" | "CNAME")
+       // the migration guide goes to scaladoc
+       //excludeFilter in Jekyll := ("actors-migration-guide.html")
+     )
   )
 
   def dependencies(sv: String) = Seq(

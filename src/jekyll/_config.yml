@@ -1,0 +1,4 @@
+pygments: true
+name: sprinter
+description: Tool for generating source code from Scala ASTs.
+url: https://github.com/VladimirNik/sprinter
