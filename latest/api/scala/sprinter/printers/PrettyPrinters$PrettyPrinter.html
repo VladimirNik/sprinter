@@ -1,0 +1,1133 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>PrettyPrinter - scala.sprinter.printers.PrettyPrinters.PrettyPrinter</title>
+          <meta name="description" content="PrettyPrinter - scala.sprinter.printers.PrettyPrinters.PrettyPrinter" />
+          <meta name="keywords" content="PrettyPrinter scala.sprinter.printers.PrettyPrinters.PrettyPrinter" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'scala.sprinter.printers.PrettyPrinters$PrettyPrinter';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <img src="../../../lib/class_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="scala">scala</a>.<a href="../package.html" class="extype" name="scala.sprinter">sprinter</a>.<a href="package.html" class="extype" name="scala.sprinter.printers">printers</a>.<a href="PrettyPrinters.html" class="extype" name="scala.sprinter.printers.PrettyPrinters">PrettyPrinters</a></p>
+        <h1>PrettyPrinter</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">PrettyPrinter</span><span class="result"> extends <span class="extype" name="scala.tools.nsc.ast.Printers.TreePrinter">tools.nsc.Global.TreePrinter</span></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.tools.nsc.ast.Printers.TreePrinter">tools.nsc.Global.TreePrinter</span>, <span class="extype" name="scala.reflect.internal.Printers.TreePrinter">tools.nsc.Global.TreePrinter</span>, <span class="extype" name="scala.reflect.api.Printers.TreePrinter">tools.nsc.Global.TreePrinter</span>, <a href="../../package.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter"><span>PrettyPrinter</span></li><li class="in" name="scala.tools.nsc.ast.Printers.TreePrinter"><span>TreePrinter</span></li><li class="in" name="scala.reflect.internal.Printers.TreePrinter"><span>TreePrinter</span></li><li class="in" name="scala.reflect.api.Printers.TreePrinter"><span>TreePrinter</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(out:java.io.PrintWriter):PrettyPrinters.this.PrettyPrinter"></a>
+      <a id="&lt;init&gt;:PrettyPrinter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">PrettyPrinter</span><span class="params">(<span name="out">out: <span class="extype" name="java.io.PrintWriter">PrintWriter</span></span>)</span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="../../package.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="../../package.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#backquotedPath" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="backquotedPath(t:PrettyPrinters.this.global.Tree):String"></a>
+      <a id="backquotedPath(tools.nsc.Global.Tree):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">backquotedPath</span><span class="params">(<span name="t">t: <span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="../../package.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#codeInParantheses" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="codeInParantheses(condition:Boolean)(body:=&gt;Unit):Unit"></a>
+      <a id="codeInParantheses(Boolean)(⇒Unit):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">codeInParantheses</span><span class="params">(<span name="condition">condition: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>)</span><span class="params">(<span name="body">body: ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#contextManaged" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="contextManaged(context:PrettyPrinters.this.global.Tree)(body:=&gt;Unit):Unit"></a>
+      <a id="contextManaged(tools.nsc.Global.Tree)(⇒Unit):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">contextManaged</span><span class="params">(<span name="context">context: <span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span></span>)</span><span class="params">(<span name="body">body: ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#contextStack" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="contextStack:scala.collection.mutable.Stack[PrettyPrinters.this.global.Tree]"></a>
+      <a id="contextStack:Stack[tools.nsc.Global.Tree]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">contextStack</span><span class="result">: <span class="extype" name="scala.collection.mutable.Stack">Stack</span>[<span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#doPrintPositions" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="doPrintPositions:Boolean"></a>
+      <a id="doPrintPositions:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">doPrintPositions</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="../../package.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#getCurrentContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="getCurrentContext():Option[PrettyPrinters.this.global.Tree]"></a>
+      <a id="getCurrentContext():Option[tools.nsc.Global.Tree]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getCurrentContext</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#getPrimaryConstr" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="getPrimaryConstr(methods:List[PrettyPrinters.this.global.Tree]):Option[PrettyPrinters.this.global.DefDef]"></a>
+      <a id="getPrimaryConstr(List[tools.nsc.Global.Tree]):Option[tools.nsc.Global.DefDef]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getPrimaryConstr</span><span class="params">(<span name="methods">methods: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.reflect.internal.Trees.DefDef">tools.nsc.Global.DefDef</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#indent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="indent():Unit"></a>
+      <a id="indent():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">indent</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#indentMargin" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="indentMargin:Int"></a>
+      <a id="indentMargin:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">indentMargin</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#indentStep" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="indentStep:Int"></a>
+      <a id="indentStep:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">indentStep</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#indentString" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="indentString:String"></a>
+      <a id="indentString:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">indentString</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#modsAccepted" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="modsAccepted:Boolean"></a>
+      <a id="modsAccepted:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">modsAccepted</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="../../package.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#print" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="print(args:Any*):Unit"></a>
+      <a id="print(Any*):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">print</span><span class="params">(<span name="args">args: <span class="extype" name="scala.Any">Any</span>*</span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a> → TreePrinter → TreePrinter → TreePrinter</dd></dl></div>
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#printAnnotations" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printAnnotations(tree:PrettyPrinters.this.global.Tree):Unit"></a>
+      <a id="printAnnotations(tools.nsc.Global.Tree):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printAnnotations</span><span class="params">(<span name="tree">tree: <span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a> → TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#printBlock" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printBlock(tree:Printers.this.Tree):Unit"></a>
+      <a id="printBlock(tools.nsc.Global.Tree):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printBlock</span><span class="params">(<span name="tree">tree: <span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#printColumn" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printColumn(ts:List[Printers.this.Tree],start:String,sep:String,end:String):Unit"></a>
+      <a id="printColumn(List[tools.nsc.Global.Tree],String,String,String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printColumn</span><span class="params">(<span name="ts">ts: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span>]</span>, <span name="start">start: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="sep">sep: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="end">end: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#printConstrParams" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="printConstrParams(ts:List[PrettyPrinters.this.global.ValDef],isConstr:Boolean):Unit"></a>
+      <a id="printConstrParams(List[tools.nsc.Global.ValDef],Boolean):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printConstrParams</span><span class="params">(<span name="ts">ts: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Trees.ValDef">tools.nsc.Global.ValDef</span>]</span>, <span name="isConstr">isConstr: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#printFlags" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="printFlags(flags:Long,privateWithin:String,isCtr:Boolean):Unit"></a>
+      <a id="printFlags(Long,String,Boolean):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printFlags</span><span class="params">(<span name="flags">flags: <span class="extype" name="scala.Long">Long</span></span>, <span name="privateWithin">privateWithin: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="isCtr">isCtr: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#printFlags" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printFlags(flags:Long,privateWithin:String):Unit"></a>
+      <a id="printFlags(Long,String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printFlags</span><span class="params">(<span name="flags">flags: <span class="extype" name="scala.Long">Long</span></span>, <span name="privateWithin">privateWithin: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a> → TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.api.Printers.TreePrinter#printIds" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printIds:Boolean"></a>
+      <a id="printIds:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printIds</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.api.Printers.TreePrinter#printKinds" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printKinds:Boolean"></a>
+      <a id="printKinds:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printKinds</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#printLabelParam" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printLabelParam(p:&lt;?&gt;):Unit"></a>
+      <a id="printLabelParam(tools.nsc.Global.Ident):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printLabelParam</span><span class="params">(<span name="p">p: <span class="extype" name="scala.reflect.internal.Trees.Ident">tools.nsc.Global.Ident</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#printLabelParams" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printLabelParams(ps:List[Printers.this.Ident]):Unit"></a>
+      <a id="printLabelParams(List[tools.nsc.Global.Ident]):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printLabelParams</span><span class="params">(<span name="ps">ps: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Trees.Ident">tools.nsc.Global.Ident</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.api.Printers.TreePrinter#printMirrors" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printMirrors:Boolean"></a>
+      <a id="printMirrors:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printMirrors</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#printModifiers" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="printModifiers(tree:PrettyPrinters.this.global.Tree,mods:PrettyPrinters.this.global.Modifiers,isCtr:Boolean):Unit"></a>
+      <a id="printModifiers(tools.nsc.Global.Tree,tools.nsc.Global.Modifiers,Boolean):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printModifiers</span><span class="params">(<span name="tree">tree: <span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span></span>, <span name="mods">mods: <span class="extype" name="scala.reflect.internal.Trees.Modifiers">tools.nsc.Global.Modifiers</span></span>, <span name="isCtr">isCtr: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#printModifiers" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printModifiers(tree:PrettyPrinters.this.global.Tree,mods:PrettyPrinters.this.global.Modifiers):Unit"></a>
+      <a id="printModifiers(tools.nsc.Global.Tree,tools.nsc.Global.Modifiers):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printModifiers</span><span class="params">(<span name="tree">tree: <span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span></span>, <span name="mods">mods: <span class="extype" name="scala.reflect.internal.Trees.Modifiers">tools.nsc.Global.Modifiers</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a> → TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#printOpt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printOpt(prefix:String,tree:Printers.this.Tree):Unit"></a>
+      <a id="printOpt(String,tools.nsc.Global.Tree):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printOpt</span><span class="params">(<span name="prefix">prefix: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="tree">tree: <span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#printParam" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printParam(tree:PrettyPrinters.this.global.Tree):Unit"></a>
+      <a id="printParam(tools.nsc.Global.Tree):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printParam</span><span class="params">(<span name="tree">tree: <span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a> → TreePrinter</dd></dl></div>
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#printParam" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="printParam(tree:PrettyPrinters.this.global.Tree,isConstr:Boolean):Unit"></a>
+      <a id="printParam(tools.nsc.Global.Tree,Boolean):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printParam</span><span class="params">(<span name="tree">tree: <span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span></span>, <span name="isConstr">isConstr: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#printPosition" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printPosition(tree:Printers.this.Tree):Unit"></a>
+      <a id="printPosition(tools.nsc.Global.Tree):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printPosition</span><span class="params">(<span name="tree">tree: <span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#printRow" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printRow(ts:List[Printers.this.Tree],sep:String):Unit"></a>
+      <a id="printRow(List[tools.nsc.Global.Tree],String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printRow</span><span class="params">(<span name="ts">ts: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span>]</span>, <span name="sep">sep: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#printRow" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printRow(ts:List[Printers.this.Tree],start:String,sep:String,end:String):Unit"></a>
+      <a id="printRow(List[tools.nsc.Global.Tree],String,String,String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printRow</span><span class="params">(<span name="ts">ts: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span>]</span>, <span name="start">start: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="sep">sep: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="end">end: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#printSeq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printSeq[a](ls:List[a])(printelem:a=&gt;Unit)(printsep:=&gt;Unit):Unit"></a>
+      <a id="printSeq[a](List[a])((a)⇒Unit)(⇒Unit):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printSeq</span><span class="tparams">[<span name="a">a</span>]</span><span class="params">(<span name="ls">ls: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Printers.TreePrinter.printSeq.a">a</span>]</span>)</span><span class="params">(<span name="printelem">printelem: (<span class="extype" name="scala.reflect.internal.Printers.TreePrinter.printSeq.a">a</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="params">(<span name="printsep">printsep: ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#printTree" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printTree(tree:PrettyPrinters.this.global.Tree):Unit"></a>
+      <a id="printTree(tools.nsc.Global.Tree):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printTree</span><span class="params">(<span name="tree">tree: <span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a> → TreePrinter</dd></dl></div>
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#printTypeParams" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printTypeParams(ts:List[PrettyPrinters.this.global.TypeDef]):Unit"></a>
+      <a id="printTypeParams(List[tools.nsc.Global.TypeDef]):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printTypeParams</span><span class="params">(<span name="ts">ts: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Trees.TypeDef">tools.nsc.Global.TypeDef</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a> → TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.api.Printers.TreePrinter#printTypes" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printTypes:Boolean"></a>
+      <a id="printTypes:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printTypes</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#printValueParams" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="printValueParams(ts:List[PrettyPrinters.this.global.ValDef],isFuncTree:Boolean):Unit"></a>
+      <a id="printValueParams(List[tools.nsc.Global.ValDef],Boolean):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printValueParams</span><span class="params">(<span name="ts">ts: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Trees.ValDef">tools.nsc.Global.ValDef</span>]</span>, <span name="isFuncTree">isFuncTree: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#printValueParams" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="printValueParams(ts:List[PrettyPrinters.this.global.ValDef]):Unit"></a>
+      <a id="printValueParams(List[tools.nsc.Global.ValDef]):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">printValueParams</span><span class="params">(<span name="ts">ts: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Trees.ValDef">tools.nsc.Global.ValDef</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a> → TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#println" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="println():Unit"></a>
+      <a id="println():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">println</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#removeDefaultClassesFromList" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="removeDefaultClassesFromList(trees:List[PrettyPrinters.this.global.Tree],classesToRemove:List[String]):List[PrettyPrinters.this.global.Tree]"></a>
+      <a id="removeDefaultClassesFromList(List[tools.nsc.Global.Tree],List[String]):collection.immutable.List[tools.nsc.Global.Tree]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">removeDefaultClassesFromList</span><span class="params">(<span name="trees">trees: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span>]</span>, <span name="classesToRemove">classesToRemove: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <span class="extype" name="scala.collection.immutable.List">collection.immutable.List</span>[<span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#removeDefaultTraitsFromList" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="removeDefaultTraitsFromList(trees:List[PrettyPrinters.this.global.Tree],traitsToRemove:List[String]):List[PrettyPrinters.this.global.Tree]"></a>
+      <a id="removeDefaultTraitsFromList(List[tools.nsc.Global.Tree],List[String]):List[tools.nsc.Global.Tree]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">removeDefaultTraitsFromList</span><span class="params">(<span name="trees">trees: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span>]</span>, <span name="traitsToRemove">traitsToRemove: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#removeDefaultTypesFromList" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="removeDefaultTypesFromList(trees:List[PrettyPrinters.this.global.Tree])(classesToRemove:List[String])(traitsToRemove:List[String]):List[PrettyPrinters.this.global.Tree]"></a>
+      <a id="removeDefaultTypesFromList(List[tools.nsc.Global.Tree])(List[String])(List[String]):List[tools.nsc.Global.Tree]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">removeDefaultTypesFromList</span><span class="params">(<span name="trees">trees: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span>]</span>)</span><span class="params">(<span name="classesToRemove">classesToRemove: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="params">(<span name="traitsToRemove">traitsToRemove: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../../package.html#List[+A]=List[A]" class="extmbr" name="scala.List">List</a>[<span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#specialTreeContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="specialTreeContext(context:PrettyPrinters.this.global.Tree)(iIf:Boolean,iMatch:Boolean,iTry:Boolean,iAnnotated:Boolean,iBlock:Boolean,iLabelDef:Boolean):Boolean"></a>
+      <a id="specialTreeContext(tools.nsc.Global.Tree)(Boolean,Boolean,Boolean,Boolean,Boolean,Boolean):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">specialTreeContext</span><span class="params">(<span name="context">context: <span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span></span>)</span><span class="params">(<span name="iIf">iIf: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="iMatch">iMatch: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="iTry">iTry: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="iAnnotated">iAnnotated: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="iBlock">iBlock: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="iLabelDef">iLabelDef: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter#symName" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="symName(tree:PrettyPrinters.this.global.Tree,name:PrettyPrinters.this.global.Name,decoded:Boolean):String"></a>
+      <a id="symName(tools.nsc.Global.Tree,tools.nsc.Global.Name,Boolean):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">symName</span><span class="params">(<span name="tree">tree: <span class="extype" name="scala.reflect.internal.Trees.Tree">tools.nsc.Global.Tree</span></span>, <span name="name">name: <span class="extype" name="scala.reflect.internal.Names.Name">tools.nsc.Global.Name</span></span>, <span name="decoded">decoded: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.reflect.internal.Printers.TreePrinter#undent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="undent():Unit"></a>
+      <a id="undent():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">undent</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.reflect.api.Printers.TreePrinter#withIds" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withIds:TreePrinter.this.type"></a>
+      <a id="withIds:PrettyPrinter.this.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withIds</span><span class="result">: <a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a>.this.type</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.api.Printers.TreePrinter#withKinds" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withKinds:TreePrinter.this.type"></a>
+      <a id="withKinds:PrettyPrinter.this.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withKinds</span><span class="result">: <a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a>.this.type</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.api.Printers.TreePrinter#withMirrors" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withMirrors:TreePrinter.this.type"></a>
+      <a id="withMirrors:PrettyPrinter.this.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withMirrors</span><span class="result">: <a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a>.this.type</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.api.Printers.TreePrinter#withTypes" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withTypes:TreePrinter.this.type"></a>
+      <a id="withTypes:PrettyPrinter.this.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withTypes</span><span class="result">: <a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a>.this.type</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.api.Printers.TreePrinter#withoutIds" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withoutIds:TreePrinter.this.type"></a>
+      <a id="withoutIds:PrettyPrinter.this.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withoutIds</span><span class="result">: <a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a>.this.type</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.api.Printers.TreePrinter#withoutKinds" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withoutKinds:TreePrinter.this.type"></a>
+      <a id="withoutKinds:PrettyPrinter.this.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withoutKinds</span><span class="result">: <a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a>.this.type</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.api.Printers.TreePrinter#withoutMirrors" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withoutMirrors:TreePrinter.this.type"></a>
+      <a id="withoutMirrors:PrettyPrinter.this.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withoutMirrors</span><span class="result">: <a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a>.this.type</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li><li name="scala.reflect.api.Printers.TreePrinter#withoutTypes" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withoutTypes:TreePrinter.this.type"></a>
+      <a id="withoutTypes:PrettyPrinter.this.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withoutTypes</span><span class="result">: <a href="" class="extype" name="scala.sprinter.printers.PrettyPrinters.PrettyPrinter">PrettyPrinter</a>.this.type</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>TreePrinter</dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.tools.nsc.ast.Printers.TreePrinter">
+              <h3>Inherited from <span class="extype" name="scala.tools.nsc.ast.Printers.TreePrinter">tools.nsc.Global.TreePrinter</span></h3>
+            </div><div class="parent" name="scala.reflect.internal.Printers.TreePrinter">
+              <h3>Inherited from <span class="extype" name="scala.reflect.internal.Printers.TreePrinter">tools.nsc.Global.TreePrinter</span></h3>
+            </div><div class="parent" name="scala.reflect.api.Printers.TreePrinter">
+              <h3>Inherited from <span class="extype" name="scala.reflect.api.Printers.TreePrinter">tools.nsc.Global.TreePrinter</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="../../package.html#AnyRef=Object" class="extmbr" name="scala.AnyRef">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../../lib/template.js"></script>
+    </body>
+      </html>

@@ -1,0 +1,1 @@
+Index.PACKAGES = {"scala" : [], "scala.sprinter" : [], "scala.sprinter.printers" : [{"class" : "scala\/sprinter\/printers\/PrettyPrinters.html", "object" : "scala\/sprinter\/printers\/PrettyPrinters$.html", "name" : "scala.sprinter.printers.PrettyPrinters"}]};
