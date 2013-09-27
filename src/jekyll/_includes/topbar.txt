@@ -5,11 +5,11 @@
         <div class="container">
           <a class="brand" href="index.html">sprinter</a>
           <ul class="nav">
-           <li><a target="_blank" href="https://github.com/vladimirnik/sprinter">Build and usage</a></li>
+           <li><a target="_blank" href="sprinter-guide.html">Build and usage</a></li>
            <li><a target="_blank" href="latest/api/index.html">Scaladoc</a></li>
            <li><a target="_blank" href="https://github.com/vladimirnik/sprinter">Code</a></li>
            <li><a target="_blank" href="https://github.com/vladimirnik/sprinter/issues">Bug Tracker</a></li>
-           <li><a target="_blank" href="https://github.com/vladimirnik/sprinter">Examples</a></li>
+           <li><a target="_blank" href="sprinter-examples.html">Examples</a></li>
           </ul>
         </div>
       </div>

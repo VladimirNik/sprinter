@@ -3,7 +3,15 @@ layout: default
 title: sprinter
 ---
 
-Welcome to the sprinter project! 
+Welcome to the Sprinter project! 
+<br>
+<br>
+Sprinter can be used to:
 
-The [sprinter usage](https://github.com/VladimirNik/sprinter) will explain how to use printer library. [Scaladoc API](latest/api/index.html) can also be helpful.
+ - increase macros support in the IDE 
+ - simplify macro debugging
+ - generate code from transformed trees
+
+The [Guide](sprinter-guide.html) will explain how to use Sprinter. [Scaladoc API](latest/api/index.html) can also be helpful. In [Examples](sprinter-examples.html) you can see real code that can be generated with Sprinter. Source code of the project can be found [here](https://github.com/vladimirnik/sprinter).
+
 

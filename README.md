@@ -9,6 +9,8 @@ Can be used to:
  - simplify macro debugging
  - generate code from transformed trees
 
+For information on Sprinter please refer to the [project page](http://vladimirnik.github.io/sprinter).
+
 ### Build process
 
 To publish library to local repo run (from project's root directory):
