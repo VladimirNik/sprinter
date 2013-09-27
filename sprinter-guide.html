@@ -36,7 +36,7 @@
 
 
 <div class="row">
-  <div class="span4 columns"><p>&nbsp;</p></div>
+  <div class="span5 columns"><p>&nbsp;</p></div>
   <div class="span14 columns content">
     <h1 id='sprinter_guide'>Sprinter Guide</h1>
 
@@ -44,64 +44,50 @@
 
 <p>To publish library to local repo run (from project&#8217;s root directory):</p>
 
-<p><code>shell
-$ sbt publish-local
-</code></p>
+<pre><code>$ sbt publish-local</code></pre>
 
 <p>Target jar should have similar path:</p>
 
-<p><code>shell
-/path/to/.ivy2/local/org.scala-lang/sprinter_2.10/0.2.0/jars/sprinter_2.10.jar
-</code></p>
+<pre><code>/path/to/.ivy2/local/org.scala-lang/sprinter_2.10/0.2.0/jars/sprinter_2.10.jar</code></pre>
 
-<p>See <a href='http://scala-sbt.org/release/docs/Getting-Started/Setup.html'>http://scala-sbt.org/release/docs/Getting-Started/Setup.html</a> for instructions to setup sbt.</p>
+<p>See <a href='http://scala-sbt.org/release/docs/Getting-Started/Setup.html'>sbt pages</a> for instructions to setup sbt. <br /> <br /></p>
 
 <h2 id='usage'>Usage</h2>
 
-<h3 id='sbt_projects'>Sbt projects:</h3>
+<h4 id='1_sbt_projects'>1. Sbt projects:</h4>
 
 <p>In the target project add to project&#8217;s build file following options:</p>
 
-<p><code>scala
-libraryDependencies ++= Seq(&quot;org.scala-lang&quot; % &quot;scala-compiler&quot; % &quot;2.10.2&quot;,
-	&quot;org.scala-lang&quot; %% &quot;sprinter&quot; % &quot;0.2.0&quot;)
-</code></p>
+<pre><code>libraryDependencies ++= Seq(&quot;org.scala-lang&quot; % &quot;scala-compiler&quot; % &quot;2.10.2&quot;,
+  &quot;org.scala-lang&quot; %% &quot;sprinter&quot; % &quot;0.2.0&quot;)</code></pre>
 
 <p>If you use sprinter as a dependency for compiler plugin it&#8217;s required to add lib&#8217;s jar to scalac toolcp or include printer&#8217;s classes to project&#8217;s jar.</p>
 
-<p>In the case of sbt-based project you can use assembly plugin - <a href='https://github.com/sbt/sbt-assembly'>https://github.com/sbt/sbt-assembly</a> to create common jar.</p>
+<p>In the case of sbt-based project you can use <a href='https://github.com/sbt/sbt-assembly'>assembly plugin</a> to create common jar.</p>
 
-<p>Example can be found in printPlugin&#8217;s build file - <a href='https://github.com/VladimirNik/printPlugin/blob/master/project/SourcePrinter.scala'>https://github.com/VladimirNik/printPlugin/blob/master/project/SourcePrinter.scala</a>.</p>
+<p>Example can be found in printPlugin&#8217;s <a href='https://github.com/VladimirNik/printPlugin/blob/master/project/SourcePrinter.scala'>build file</a>.</p>
 
-<h3 id='standalone_projects'>Standalone projects:</h3>
+<h4 id='2_standalone_projects'>2. Standalone projects:</h4>
 
 <p>For default projects to add sprinter&#8217;s jar to scalac toolcp you can use compiler&#8217;s toolcp option:</p>
 
-<p><code>shell
-$ scalac -toolcp /path/to/jar/sprinter_2.10.jar -Xplugin:/path/to/plugin/printplugin-2.10.jar hello/world/*.scala
-</code></p>
-
-<h3 id='api'>API:</h3>
+<pre><code>$ scalac -toolcp /path/to/jar/sprinter_2.10.jar -Xplugin:/path/to/plugin/printplugin-2.10.jar hello/world/*.scala</code></pre>
+<br />
+<h2 id='api'>API</h2>
 
 <p>To use sprinter import PrettyPrinters class:</p>
 
-<p><code>scala
-import scala.sprinter.printers.PrettyPrinters
-</code></p>
+<pre><code>import scala.sprinter.printers.PrettyPrinters</code></pre>
 
 <p>Create its instance (using object of type nsc.Global):</p>
 
-<p><code>scala
-val printers = PrettyPrinters(global)
-</code></p>
+<pre><code>val printers = PrettyPrinters(global)</code></pre>
 
 <p>and then pass to printers show method required AST:</p>
 
-<p><code>scala
-printers.show(tree)
-</code></p>   
+<pre><code>printers.show(tree)</code></pre>   
   </div>
-  <div class="span6 columns blogroll">
+  <div class="span8 columns blogroll">
     <!-- TODO - links here -->
   </div>
 </div>

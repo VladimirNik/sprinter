@@ -36,17 +36,45 @@
 
 
 <div class="row">
-  <div class="span4 columns"><p>&nbsp;</p></div>
+  <div class="span5 columns"><p>&nbsp;</p></div>
   <div class="span14 columns content">
-    <h1 id='example'>Example</h1>
+    <h1 id='examples'>Examples</h1>
 
-<h2 id='hello_world'>Hello world</h2>
+<p><strong>1. Hello world program</strong></p>
 
-<p>For tree:</p>
+<p>For tree: <br /></p>
+
+<pre><code>PackageDef(
+  Select(Ident(newTermName(&quot;hello&quot;)), newTermName(&quot;world&quot;)), 
+  List(
+    ModuleDef(Modifiers(), newTermName(&quot;Main&quot;), 
+      Template(List(Select(Ident(scala), newTypeName(&quot;AnyRef&quot;))),
+        emptyValDef, 
+        List(
+          DefDef(Modifiers(), nme.CONSTRUCTOR, List(), 
+            List(List()), TypeTree(), 
+            Block(List(Apply(Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR), List())), 
+            Literal(Constant(())))), 
+              DefDef(Modifiers(), newTermName(&quot;main&quot;), List(), 
+                List(List(ValDef(Modifiers(PARAM), newTermName(&quot;args&quot;), 
+                AppliedTypeTree(Ident(newTypeName(&quot;Array&quot;)), List(Ident(newTypeName(&quot;String&quot;)))), EmptyTree))), 
+                Select(Ident(scala), newTypeName(&quot;Unit&quot;)), 
+                Apply(Ident(newTermName(&quot;println&quot;)), 
+                List(Literal(Constant(&quot;Hello, world!&quot;))))))
+      )
+    )
+  )
+)</code></pre>
 
 <p>we&#8217;ll have the following generated source (version 0.2.0):</p>
 
-<h2 id='resources'>Resources</h2>
+<pre><code>package hello.world {
+  object Main  {
+    def main(args: Array[String]): scala.Unit = println(&quot;Hello, world!&quot;)
+  }
+}</code></pre>
+<br />
+<h1 id='resources'>Resources</h1>
 
 <ul>
 <li><a href='https://github.com/VladimirNik/printPlugin'>printPlugin</a> - plugin that uses sprinter to regenerate project&#8217;s sources based on ASTs.</li>
@@ -56,7 +84,7 @@
 <li><a href='http://scala-sbt.org/release/docs/Getting-Started/Setup.html'>sbt setup</a></li>
 </ul>   
   </div>
-  <div class="span6 columns blogroll">
+  <div class="span8 columns blogroll">
     <!-- TODO - links here -->
   </div>
 </div>
