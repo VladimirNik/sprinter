@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Sprinter Guide </title>
+   <meta name="author" content="Josh Suereth" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
+   <link rel="stylesheet" href="css/syntax.css" type="text/css" />
+   <link rel="stylesheet" href="css/colors.css" type="text/css" />
+   <link rel="stylesheet" href="css/custom.css" type="text/css" />
+
+</head>
+<body>
+
+
+    <!-- Topbar
+    ================================================== -->
+    <div class="topbar" >
+      <div class="topbar-inner">
+        <div class="container">
+          <a class="brand" href="index.html">sprinter</a>
+          <ul class="nav">
+           <li><a target="_blank" href="sprinter-guide.html">Build and usage</a></li>
+           <li><a target="_blank" href="latest/api/index.html">Scaladoc</a></li>
+           <li><a target="_blank" href="https://github.com/vladimirnik/sprinter">Code</a></li>
+           <li><a target="_blank" href="https://github.com/vladimirnik/sprinter/issues">Bug Tracker</a></li>
+           <li><a target="_blank" href="sprinter-examples.html">Examples</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+<div class="row">
+  <div class="span2 columns"><p>&nbsp;</p></div>
+  <div class="span10 columns content">
+    <h1 id='sprinter_guide'>Sprinter Guide</h1>
+
+<h2 id='build_process'>Build process</h2>
+
+<p>To publish library to local repo run (from project&#8217;s root directory):</p>
+
+<p><code>shell
+$ sbt publish-local
+</code></p>
+
+<p>Target jar should have similar path:</p>
+
+<p><code>shell
+/path/to/.ivy2/local/org.scala-lang/sprinter_2.10/0.2.0/jars/sprinter_2.10.jar
+</code></p>
+
+<p>See <a href='http://scala-sbt.org/release/docs/Getting-Started/Setup.html'>http://scala-sbt.org/release/docs/Getting-Started/Setup.html</a> for instructions to setup sbt.</p>
+
+<h2 id='usage'>Usage</h2>
+
+<h3 id='sbt_projects'>Sbt projects:</h3>
+
+<p>In the target project add to project&#8217;s build file following options:</p>
+
+<p><code>scala
+libraryDependencies ++= Seq(&quot;org.scala-lang&quot; % &quot;scala-compiler&quot; % &quot;2.10.2&quot;,
+	&quot;org.scala-lang&quot; %% &quot;sprinter&quot; % &quot;0.2.0&quot;)
+</code></p>
+
+<p>If you use sprinter as a dependency for compiler plugin it&#8217;s required to add lib&#8217;s jar to scalac toolcp or include printer&#8217;s classes to project&#8217;s jar.</p>
+
+<p>In the case of sbt-based project you can use assembly plugin - <a href='https://github.com/sbt/sbt-assembly'>https://github.com/sbt/sbt-assembly</a> to create common jar.</p>
+
+<p>Example can be found in printPlugin&#8217;s build file - <a href='https://github.com/VladimirNik/printPlugin/blob/master/project/SourcePrinter.scala'>https://github.com/VladimirNik/printPlugin/blob/master/project/SourcePrinter.scala</a>.</p>
+
+<h3 id='standalone_projects'>Standalone projects:</h3>
+
+<p>For default projects to add sprinter&#8217;s jar to scalac toolcp you can use compiler&#8217;s toolcp option:</p>
+
+<p><code>shell
+$ scalac -toolcp /path/to/jar/sprinter_2.10.jar -Xplugin:/path/to/plugin/printplugin-2.10.jar hello/world/*.scala
+</code></p>
+
+<h3 id='api'>API:</h3>
+
+<p>To use sprinter import PrettyPrinters class:</p>
+
+<p><code>scala
+import scala.sprinter.printers.PrettyPrinters
+</code></p>
+
+<p>Create its instance (using object of type nsc.Global):</p>
+
+<p><code>scala
+val printers = PrettyPrinters(global)
+</code></p>
+
+<p>and then pass to printers show method required AST:</p>
+
+<p><code>scala
+printers.show(tree)
+</code></p>   
+  </div>
+  <div class="span6 columns blogroll">
+    <!-- TODO - links here -->
+  </div>
+</div>
+
+</script>
+</body>
+</html>
+
