@@ -36,48 +36,16 @@
 
 
 <div class="row">
-  <div class="span2 columns"><p>&nbsp;</p></div>
-  <div class="span10 columns content">
+  <div class="span4 columns"><p>&nbsp;</p></div>
+  <div class="span14 columns content">
     <h1 id='example'>Example</h1>
 
 <h2 id='hello_world'>Hello world</h2>
 
 <p>For tree:</p>
-<pre>
-	<code class='shell'>
-PackageDef(
-  Select(Ident(newTermName("hello")), newTermName("world")), 
-  List(
-	ModuleDef(Modifiers(), newTermName("Main"), 
-	  Template(List(Select(Ident(scala), newTypeName("AnyRef"))),
-		emptyValDef, 
-		List(
-		  DefDef(Modifiers(), nme.CONSTRUCTOR, List(), 
-			List(List()), TypeTree(), 
-			Block(List(Apply(Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR), List())), 
-			Literal(Constant(())))), 
-		  DefDef(Modifiers(), newTermName("main"), List(), 
-			List(List(ValDef(Modifiers(PARAM), newTermName("args"), 
-			AppliedTypeTree(Ident(newTypeName("Array")), List(Ident(newTypeName("String")))), EmptyTree))), 
-			Select(Ident(scala), newTypeName("Unit")), 
-			Apply(Ident(newTermName("println")), 
-			List(Literal(Constant("Hello, world!"))))))
-	  )
-	)
-  )
-)
-	</code>
-</pre>
+
 <p>we&#8217;ll have the following generated source (version 0.2.0):</p>
-<pre>
-	<code class='java'>
-package hello.world {
-  object Main  {
-    def main(args: Array[String]): scala.Unit = println("Hello, world!")
-  }
-}
-	</code>
-</pre>
+
 <h2 id='resources'>Resources</h2>
 
 <ul>
