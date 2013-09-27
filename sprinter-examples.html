@@ -43,41 +43,41 @@
 <h2 id='hello_world'>Hello, world</h2>
 
 <p>For tree:</p>
-
-<p><code>shell
+<pre>
+	<code class='shell'>
 PackageDef(
-	Select(Ident(newTermName(&quot;hello&quot;)), newTermName(&quot;world&quot;)), 
+	Select(Ident(newTermName("hello")), newTermName("world")), 
 	List(
-		ModuleDef(Modifiers(), newTermName(&quot;Main&quot;), 
-			Template(List(Select(Ident(scala), newTypeName(&quot;AnyRef&quot;))),
+		ModuleDef(Modifiers(), newTermName("Main"), 
+			Template(List(Select(Ident(scala), newTypeName("AnyRef"))),
 				emptyValDef, 
 				List(
 					DefDef(Modifiers(), nme.CONSTRUCTOR, List(), 
 						List(List()), TypeTree(), 
 						Block(List(Apply(Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR), List())), 
 							Literal(Constant(())))), 
-					DefDef(Modifiers(), newTermName(&quot;main&quot;), List(), 
-						List(List(ValDef(Modifiers(PARAM), newTermName(&quot;args&quot;), 
-						AppliedTypeTree(Ident(newTypeName(&quot;Array&quot;)), List(Ident(newTypeName(&quot;String&quot;)))), EmptyTree))), 
-						Select(Ident(scala), newTypeName(&quot;Unit&quot;)), 
-						Apply(Ident(newTermName(&quot;println&quot;)), 
-						List(Literal(Constant(&quot;Hello, world!&quot;))))))
+					DefDef(Modifiers(), newTermName("main"), List(), 
+						List(List(ValDef(Modifiers(PARAM), newTermName("args"), 
+						AppliedTypeTree(Ident(newTypeName("Array")), List(Ident(newTypeName("String")))), EmptyTree))), 
+						Select(Ident(scala), newTypeName("Unit")), 
+						Apply(Ident(newTermName("println")), 
+						List(Literal(Constant("Hello, world!"))))))
 			)
 		)
 	)
 )
-</code></p>
-
+	</code>
+</pre>
 <p>we&#8217;ll have the following generated source (version 0.2.0):</p>
-
-<p><code>scala
+<pre>
+	<code class='shell'>
 package hello.world {
   object Main  {
-    def main(args: Array[String]): scala.Unit = println(&quot;Hello, world!&quot;)
+    def main(args: Array[String]): scala.Unit = println("Hello, world!")
   }
 }
-</code></p>
-
+	</code>
+</pre>
 <h2 id='resources'>Resources</h2>
 
 <ul>
