@@ -40,9 +40,4 @@ we'll have the following generated source (version 0.2.0):
       }
     }
 
-<br>
-# Resources
 
- - [printPlugin](https://github.com/VladimirNik/printPlugin) - plugin that uses sprinter to regenerate project's sources based on ASTs.
- - [treePrintTester](https://github.com/VladimirNik/treePrintTester) - example of printPlugin usage.
- - [sbt setup](http://scala-sbt.org/release/docs/Getting-Started/Setup.html)

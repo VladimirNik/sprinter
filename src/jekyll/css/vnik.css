@@ -1,0 +1,57 @@
+.vbrand {
+float: left;
+display: block;
+padding: 8px 20px 9px;
+margin-left: 0px !important;
+font-size: 26px !important;
+font-weight: 200;
+line-height: 1.3 !important;
+}
+
+.vnav {
+display: block;
+float: left;
+margin: 0 10px 0 0;
+padding-left: 70px !important;
+padding-top: 7px !important;
+line-height: 1.5;
+position: relative;
+}
+
+.vcontainer {
+width: 1000px;
+}
+
+p {
+font-size: 15px !important;
+font-weight: normal;
+line-height: 23px !important;
+margin-bottom: 14px !important;
+}
+
+li {
+line-height: 22px !important;
+color: #808080;
+}
+
+body {
+font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+font-size: 15px !important;
+font-weight: normal;
+line-height: 22px !important;
+color: #404040;
+}
+
+h2 {
+padding-bottom: 10px !important;
+padding-top: 12px !important;
+}
+
+h3, h4 {
+padding-bottom: 6px !important;
+padding-top: 6px !important;
+}
+
+code, pre {
+font-size: 14px !important;
+}

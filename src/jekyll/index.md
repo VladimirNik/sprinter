@@ -6,6 +6,8 @@ title: sprinter
 Welcome to the Sprinter project! 
 <br>
 <br>
+Sprinter is a tool for generating source code from Scala abstract syntax trees. 
+<br>
 Sprinter can be used to:
 
  - increase macros support in the IDE 

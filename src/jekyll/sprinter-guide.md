@@ -15,8 +15,6 @@ Target jar should have similar path:
     /path/to/.ivy2/local/org.scala-lang/sprinter_2.10/0.2.0/jars/sprinter_2.10.jar
 
 See [sbt pages](http://scala-sbt.org/release/docs/Getting-Started/Setup.html) for instructions to setup sbt.
-<br>
-<br>
 
 ## Usage
 ####1. Sbt projects:
@@ -37,7 +35,6 @@ Example can be found in printPlugin's [build file](https://github.com/VladimirNi
 For default projects to add sprinter's jar to scalac toolcp you can use compiler's toolcp option:
 
     $ scalac -toolcp /path/to/jar/sprinter_2.10.jar -Xplugin:/path/to/plugin/printplugin-2.10.jar hello/world/*.scala
-<br>
 
 ## API
 To use sprinter import PrettyPrinters class:
@@ -51,3 +48,10 @@ Create its instance (using object of type nsc.Global):
 and then pass to printers show method required AST:
 
     printers.show(tree)
+
+## Resources
+
+ - [printPlugin](https://github.com/VladimirNik/printPlugin) - plugin that uses sprinter to regenerate project's sources based on ASTs.
+ - [treePrintTester](https://github.com/VladimirNik/treePrintTester) - example of printPlugin usage.
+ - [sbt setup](http://scala-sbt.org/release/docs/Getting-Started/Setup.html)
+

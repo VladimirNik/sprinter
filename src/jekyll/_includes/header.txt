@@ -12,6 +12,7 @@
    <link rel="stylesheet" href="css/syntax.css" type="text/css" />
    <link rel="stylesheet" href="css/colors.css" type="text/css" />
    <link rel="stylesheet" href="css/custom.css" type="text/css" />
+   <link rel="stylesheet" href="css/vnik.css" type="text/css" />
 
 </head>
 <body>
