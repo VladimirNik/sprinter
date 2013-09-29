@@ -12,6 +12,7 @@
    <link rel="stylesheet" href="css/syntax.css" type="text/css" />
    <link rel="stylesheet" href="css/colors.css" type="text/css" />
    <link rel="stylesheet" href="css/custom.css" type="text/css" />
+   <link rel="stylesheet" href="css/vnik.css" type="text/css" />
 
 </head>
 <body>
@@ -21,14 +22,14 @@
     ================================================== -->
     <div class="topbar" >
       <div class="topbar-inner">
-        <div class="container">
-          <a class="brand" href="index.html">sprinter</a>
-          <ul class="nav">
-           <li><a target="_blank" href="sprinter-guide.html">Build and usage</a></li>
+        <div class="vcontainer container">
+          <a class="vbrand brand" href="index.html"><span style="color: red">S</span>printer</a>
+          <ul class="vnav nav">
+           <li><a target="_self" href="sprinter-guide.html">Build and usage</a></li>
            <li><a target="_blank" href="latest/api/index.html">Scaladoc</a></li>
            <li><a target="_blank" href="https://github.com/vladimirnik/sprinter">Code</a></li>
            <li><a target="_blank" href="https://github.com/vladimirnik/sprinter/issues">Bug Tracker</a></li>
-           <li><a target="_blank" href="sprinter-examples.html">Examples</a></li>
+           <li><a target="_self" href="sprinter-examples.html">Examples</a></li>
           </ul>
         </div>
       </div>
@@ -36,8 +37,7 @@
 
 
 <div class="row">
-  <div class="span5 columns"><p>&nbsp;</p></div>
-  <div class="span14 columns content">
+  <div class="container columns content">
     <h1 id='sprinter_guide'>Sprinter Guide</h1>
 
 <h2 id='build_process'>Build process</h2>
@@ -50,7 +50,7 @@
 
 <pre><code>/path/to/.ivy2/local/org.scala-lang/sprinter_2.10/0.2.0/jars/sprinter_2.10.jar</code></pre>
 
-<p>See <a href='http://scala-sbt.org/release/docs/Getting-Started/Setup.html'>sbt pages</a> for instructions to setup sbt. <br /> <br /></p>
+<p>See <a href='http://scala-sbt.org/release/docs/Getting-Started/Setup.html'>sbt pages</a> for instructions to setup sbt.</p>
 
 <h2 id='usage'>Usage</h2>
 
@@ -72,7 +72,7 @@
 <p>For default projects to add sprinter&#8217;s jar to scalac toolcp you can use compiler&#8217;s toolcp option:</p>
 
 <pre><code>$ scalac -toolcp /path/to/jar/sprinter_2.10.jar -Xplugin:/path/to/plugin/printplugin-2.10.jar hello/world/*.scala</code></pre>
-<br />
+
 <h2 id='api'>API</h2>
 
 <p>To use sprinter import PrettyPrinters class:</p>
@@ -85,10 +85,17 @@
 
 <p>and then pass to printers show method required AST:</p>
 
-<pre><code>printers.show(tree)</code></pre>   
-  </div>
-  <div class="span8 columns blogroll">
-    <!-- TODO - links here -->
+<pre><code>printers.show(tree)</code></pre>
+
+<h2 id='resources'>Resources</h2>
+
+<ul>
+<li><a href='https://github.com/VladimirNik/printPlugin'>printPlugin</a> - plugin that uses sprinter to regenerate project&#8217;s sources based on ASTs.</li>
+
+<li><a href='https://github.com/VladimirNik/treePrintTester'>treePrintTester</a> - example of printPlugin usage.</li>
+
+<li><a href='http://scala-sbt.org/release/docs/Getting-Started/Setup.html'>sbt setup</a></li>
+</ul>   
   </div>
 </div>
 

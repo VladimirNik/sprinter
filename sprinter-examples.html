@@ -12,6 +12,7 @@
    <link rel="stylesheet" href="css/syntax.css" type="text/css" />
    <link rel="stylesheet" href="css/colors.css" type="text/css" />
    <link rel="stylesheet" href="css/custom.css" type="text/css" />
+   <link rel="stylesheet" href="css/vnik.css" type="text/css" />
 
 </head>
 <body>
@@ -21,14 +22,14 @@
     ================================================== -->
     <div class="topbar" >
       <div class="topbar-inner">
-        <div class="container">
-          <a class="brand" href="index.html">sprinter</a>
-          <ul class="nav">
-           <li><a target="_blank" href="sprinter-guide.html">Build and usage</a></li>
+        <div class="vcontainer container">
+          <a class="vbrand brand" href="index.html"><span style="color: red">S</span>printer</a>
+          <ul class="vnav nav">
+           <li><a target="_self" href="sprinter-guide.html">Build and usage</a></li>
            <li><a target="_blank" href="latest/api/index.html">Scaladoc</a></li>
            <li><a target="_blank" href="https://github.com/vladimirnik/sprinter">Code</a></li>
            <li><a target="_blank" href="https://github.com/vladimirnik/sprinter/issues">Bug Tracker</a></li>
-           <li><a target="_blank" href="sprinter-examples.html">Examples</a></li>
+           <li><a target="_self" href="sprinter-examples.html">Examples</a></li>
           </ul>
         </div>
       </div>
@@ -36,8 +37,7 @@
 
 
 <div class="row">
-  <div class="span5 columns"><p>&nbsp;</p></div>
-  <div class="span14 columns content">
+  <div class="container columns content">
     <h1 id='examples'>Examples</h1>
 
 <p><strong>1. Hello world program</strong></p>
@@ -72,20 +72,7 @@
   object Main  {
     def main(args: Array[String]): scala.Unit = println(&quot;Hello, world!&quot;)
   }
-}</code></pre>
-<br />
-<h1 id='resources'>Resources</h1>
-
-<ul>
-<li><a href='https://github.com/VladimirNik/printPlugin'>printPlugin</a> - plugin that uses sprinter to regenerate project&#8217;s sources based on ASTs.</li>
-
-<li><a href='https://github.com/VladimirNik/treePrintTester'>treePrintTester</a> - example of printPlugin usage.</li>
-
-<li><a href='http://scala-sbt.org/release/docs/Getting-Started/Setup.html'>sbt setup</a></li>
-</ul>   
-  </div>
-  <div class="span8 columns blogroll">
-    <!-- TODO - links here -->
+}</code></pre>   
   </div>
 </div>
 

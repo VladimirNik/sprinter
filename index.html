@@ -12,6 +12,7 @@
    <link rel="stylesheet" href="css/syntax.css" type="text/css" />
    <link rel="stylesheet" href="css/colors.css" type="text/css" />
    <link rel="stylesheet" href="css/custom.css" type="text/css" />
+   <link rel="stylesheet" href="css/vnik.css" type="text/css" />
 
 </head>
 <body>
@@ -21,14 +22,14 @@
     ================================================== -->
     <div class="topbar" >
       <div class="topbar-inner">
-        <div class="container">
-          <a class="brand" href="index.html">sprinter</a>
-          <ul class="nav">
-           <li><a target="_blank" href="sprinter-guide.html">Build and usage</a></li>
+        <div class="vcontainer container">
+          <a class="vbrand brand" href="index.html"><span style="color: red">S</span>printer</a>
+          <ul class="vnav nav">
+           <li><a target="_self" href="sprinter-guide.html">Build and usage</a></li>
            <li><a target="_blank" href="latest/api/index.html">Scaladoc</a></li>
            <li><a target="_blank" href="https://github.com/vladimirnik/sprinter">Code</a></li>
            <li><a target="_blank" href="https://github.com/vladimirnik/sprinter/issues">Bug Tracker</a></li>
-           <li><a target="_blank" href="sprinter-examples.html">Examples</a></li>
+           <li><a target="_self" href="sprinter-examples.html">Examples</a></li>
           </ul>
         </div>
       </div>
@@ -36,9 +37,8 @@
 
 
 <div class="row">
-  <div class="span5 columns"><p>&nbsp;</p></div>
-  <div class="span14 columns content">
-    <p>Welcome to the Sprinter project! <br /> <br /> Sprinter can be used to:</p>
+  <div class="container columns content">
+    <p>Welcome to the Sprinter project! <br /> <br /> Sprinter is a tool for generating source code from Scala abstract syntax trees. <br /> Sprinter can be used to:</p>
 
 <ul>
 <li>increase macros support in the IDE</li>
@@ -49,9 +49,6 @@
 </ul>
 
 <p>The <a href='sprinter-guide.html'>Guide</a> will explain how to use Sprinter. <a href='latest/api/index.html'>Scaladoc API</a> can also be helpful. In <a href='sprinter-examples.html'>Examples</a> you can see real code that can be generated with Sprinter. Source code of the project can be found <a href='https://github.com/vladimirnik/sprinter'>here</a>.</p>   
-  </div>
-  <div class="span8 columns blogroll">
-    <!-- TODO - links here -->
   </div>
 </div>
 
