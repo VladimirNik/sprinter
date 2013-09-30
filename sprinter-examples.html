@@ -72,7 +72,79 @@
   object Main  {
     def main(args: Array[String]): scala.Unit = println(&quot;Hello, world!&quot;)
   }
-}</code></pre>   
+}</code></pre>
+
+<p><strong>2. Annotations</strong></p>
+
+<p>Original code: <br /></p>
+
+<pre><code>@scala.annotation.implicitNotFound(msg = &quot;The method requires an implicit in scope&quot;)
+trait KeyedEntityDef{
+  def getId(a: String): Int
+}</code></pre>
+
+<p>Generated:</p>
+
+<pre><code>@scala.annotation.implicitNotFound(msg = &quot;The method requires an implicit in scope&quot;) 
+abstract trait KeyedEntityDef  {
+  def getId(a: String): Int
+}</code></pre>
+
+<p><strong>3. Byname parameters</strong></p>
+
+<p>Original code: <br /></p>
+
+<pre><code>class ByNameTest{
+  def test(x: =&gt; Int) = x
+  val fun: (Int, =&gt; Double) =&gt; String = null
+}</code></pre>
+
+<p>Generated:</p>
+
+<pre><code>class ByNameTest  {
+  def test(x: =&gt; Int) = x;
+  val fun: ((Int, =&gt; Double) =&gt; String) = null
+}</code></pre>
+
+<p><strong>4. Inheritance</strong></p>
+
+<p>Original code: <br /></p>
+
+<pre><code>class A1 ()(x: Int)
+
+class C1 ()(x: Int)() extends A1 ()(3) {
+  def this(y: String) = {
+    this()(3)()
+  }
+}</code></pre>
+
+<p>Generated:</p>
+
+<pre><code>class A1 () (private[this] val x: Int) ;
+class C1 () (private[this] val x: Int) () extends A1()(3) {
+  def this(y: String) = {
+    this()(3)();
+    ()
+  }
+}</code></pre>
+
+<p><strong>5. Traits with self-types</strong></p>
+
+<p>Original code: <br /></p>
+
+<pre><code>trait TestTrait {
+  self: KeyedEntity[_] =&gt;
+  protected val versionNumber = 0.2
+}</code></pre>
+
+<p>Generated:</p>
+
+<pre><code>abstract trait TestTrait  { self: (KeyedEntity[_$1] forSome {
+  type _$1 &gt;: _root_.scala.Nothing &lt;: _root_.scala.Any
+    }) =&gt;
+  protected val versionNumber = 0.2
+};
+abstract trait KeyedEntity[K &gt;: _root_.scala.Nothing &lt;: _root_.scala.Any]</code></pre>   
   </div>
 </div>
 
