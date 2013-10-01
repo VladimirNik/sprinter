@@ -6,7 +6,13 @@ title: sprinter
 Welcome to the Sprinter project! 
 <br>
 <br>
-Sprinter is a library for generating correct Scala code from Scala abstract syntax trees (ASTs). The library reverts desugaring performed by the Scala parser. Currently, Sprinter desugars class and method definitions, traits, constructors, TODO(VNik).
+Sprinter is a library for generating correct Scala code from Scala abstract syntax trees (ASTs). The library reverts desugaring performed by the Scala parser. Currently, Sprinter desugars class and method definitions, traits, constructors and other language constructs. Example of generated code for Hello world program is presented below:
+
+    package hello.world {
+      object Main  {
+        def main(args: Array[String]): scala.Unit = println("Hello, world!")
+      }
+    }
 
 Sprinter currently generates correct Scala code from untyped ASTs. This is verified by regenerating source code
 of numerous community projects and successfully executing their test suites. The list of project includes
