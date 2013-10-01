@@ -38,17 +38,43 @@
 
 <div class="row">
   <div class="container columns content">
-    <p>Welcome to the Sprinter project! <br /> <br /> Sprinter is a tool for generating source code from Scala abstract syntax trees. <br /> Sprinter can be used to:</p>
+    <p>Welcome to the Sprinter project! <br /> <br /> Sprinter is a library for generating correct Scala code from Scala abstract syntax trees (ASTs). The library reverts desugaring performed by the Scala parser. Currently, Sprinter desugars class and method definitions, traits, constructors and other language constructs. Example of generated code for Hello world program is presented below:</p>
+
+<pre><code>package hello.world {
+  object Main  {
+    def main(args: Array[String]): scala.Unit = println(&quot;Hello, world!&quot;)
+  }
+}</code></pre>
+
+<p>Sprinter currently generates correct Scala code from untyped ASTs. This is verified by regenerating source code of numerous community projects and successfully executing their test suites. The list of project includes <a href='https://github.com/milessabin/shapeless'>Shapeless</a>, <a href='https://github.com/scalaz/scalaz'>Scalaz</a>, <a href='http://akka.io'>Akka</a>, <a href='http://squeryl.org/'>Squeryl</a>, etc. Future versions will support typed Scala ASTs and will revert transformations performed by the Scala typer phase.</p>
+
+<p>Sprinter can be used in many different contexts. The most important use cases are: * Showing macro expansions in IDEs. For example, users will be able to expand macro invocations to see generated code.</p>
 
 <ul>
-<li>increase macros support in the IDE</li>
+<li>Enable debugging of macros by generating source code with all macros expanded.</li>
 
-<li>simplify macro debugging</li>
+<li>Debugging and error messages in the scalac compiler</li>
 
-<li>generate code from transformed trees</li>
+<li>Generate source code from trees before macro annotations arrive</li>
+
+<li>Generate source of refactored code</li>
 </ul>
 
-<p>The <a href='sprinter-guide.html'>Guide</a> will explain how to use Sprinter. <a href='latest/api/index.html'>Scaladoc API</a> can also be helpful. In <a href='sprinter-examples.html'>Examples</a> you can see real code that can be generated with Sprinter. Source code of the project can be found <a href='https://github.com/vladimirnik/sprinter'>here</a>.</p>   
+<p>Library is in active development. All ideas, bug reports, and contributions are very welcome. If you have an interesting use case for the library do not hesitate to contact the authors.</p>
+
+<p>The road map for Sprinter is:</p>
+
+<ol>
+<li>Support code generation from typed Scala ASTs</li>
+
+<li>Integrate with the Scala IDE to provide macro expansion and debugging</li>
+
+<li>Beautify the code by removing unnecessary qualifiers (type prefixes)</li>
+
+<li>Integrate the library into <code>scalac</code> for debugging and nicer error messages</li>
+</ol>
+<br />
+<p>The <a href='sprinter-guide.html'>Guide</a> will explain how to use Sprinter. <a href='latest/api/index.html'>Scaladoc API</a> can also be helpful. In <a href='sprinter-examples.html'>Examples</a> you can see examples of code generated with Sprinter. Source code of the project can be found <a href='https://github.com/vladimirnik/sprinter'>here</a>.</p>   
   </div>
 </div>
 
