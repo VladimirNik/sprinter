@@ -26,8 +26,6 @@ object SprinterBuild extends Build {
      Seq(
        git.remoteRepo := "https://github.com/VladimirNik/sprinter.git",
        includeFilter in Jekyll := ("*.html" | "*.png" | "*.js" | "*.css" | "CNAME")
-       // the migration guide goes to scaladoc
-       //excludeFilter in Jekyll := ("actors-migration-guide.html")
      )
   )
 
