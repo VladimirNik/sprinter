@@ -11,6 +11,10 @@ import scala.tools.nsc.ast.Printers
 import nsc.Global
 
 object PrettyPrinters{
+  private[PrettyPrinters] trait PrinterDescriptor
+  object AFTER_NAMER extends PrinterDescriptor
+  object AFTER_TYPER extends PrinterDescriptor
+
   def apply(global: Global) = {
     new PrettyPrinters(global)
   }
@@ -20,11 +24,14 @@ class PrettyPrinters(val global: Global) {
 
   import global._
 
-  def show(what: nsc.Global#Tree) = {
+  def show(what: nsc.Global#Tree, printerType: PrettyPrinters.PrinterDescriptor = PrettyPrinters.AFTER_TYPER) = {
     val buffer = new StringWriter()
     val writer = new PrintWriter(buffer)
 
-    var printer = new PrettyPrinter(writer)
+    var printer = printerType match {
+      case PrettyPrinters.AFTER_NAMER => new PrettyPrinter(writer)
+      case PrettyPrinters.AFTER_TYPER | _ => new AfterTyperPrinter(writer)
+    }
 
     printer.print(what)
     writer.flush()
@@ -681,4 +688,6 @@ class PrettyPrinters(val global: Global) {
       case other => super.print(other)
     }
   }
+
+  class AfterTyperPrinter(out: PrintWriter) extends PrettyPrinter(out)
 }
