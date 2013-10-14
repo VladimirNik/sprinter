@@ -817,9 +817,9 @@ class PrettyPrinters(val global: Global) {
                 else
                   ""
             }
-            def isTupleType(in: Type) = true
+            def isTupleType(in: Type) = symbolTable.definitions.isTupleType(in.asInstanceOf[symbolTable.Type])
 
-            def isByNameParamType(in: Type) = true
+            def isByNameParamType(in: Type) = symbolTable.definitions.isByNameParamType(in.asInstanceOf[symbolTable.Type])
 
             def safeToString = {
               val custom = customToString
