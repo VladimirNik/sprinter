@@ -48,6 +48,17 @@ class PrettyPrinters(val global: Global) {
     buffer.toString
   }
 
+  def showType(what: nsc.Global#Tree) = {
+    val buffer = new StringWriter()
+    val writer = new PrintWriter(buffer)
+
+    var printer = new TypePrinter(writer)
+
+    printer.print(what)
+    writer.flush()
+    buffer.toString
+  }
+
   class PrettyPrinter(out: PrintWriter) extends global.TreePrinter(out) {
     //TODO maybe we need to pass this stack when explicitly run show inside print
     val contextStack = scala.collection.mutable.Stack[Tree]()
@@ -699,7 +710,9 @@ class PrettyPrinters(val global: Global) {
     }
   }
 
-  class AfterTyperPrinter(out: PrintWriter) extends PrettyPrinter(out) {
+  class AfterTyperPrinter(out: PrintWriter) extends PrettyPrinter(out)
+
+  class TypePrinter(out: PrintWriter) extends PrettyPrinter(out) {
 
     val defs = global.asInstanceOf[Definitions];
     import defs.definitions._
@@ -713,28 +726,13 @@ class PrettyPrinters(val global: Global) {
         case vd@ValDef(mods, name, tp, rhs) =>
           System.out.println("--- show valdef ---");
           System.out.println("showRaw valdef: " + showRaw(vd))
-//          System.out.println("printTypeTree: " + printTypeTree(tp))
-          System.out.println("=== showTypeTree: " + showTypeTree(tp))
+          System.out.println("printTree: " + showTypeTree(tp))
           super.printTree(vd)
         case _ => super.printTree(tree)
       }
     }
 
-    val MaxFunctionArity = 22
-    def toType(s: Symbol) = s.name
-    import scala.reflect.runtime.universe.definitions.FunctionClass
-    protected def isFunctionType(tp: Type): Boolean = tp.normalize match {
-
-      case TypeRef(pre, sym, args) if args.nonEmpty =>
-        val arity = args.length - 1
-
-        arity <= MaxFunctionArity &&
-          arity >= 0 &&
-          sym.fullName == FunctionClass(arity).fullName
-      case _ =>
-        false
-    }
-
+    //TODO - refactor - use shorthands from import
     val shorthands = Set(
       "scala.collection.immutable.List",
       "scala.collection.immutable.Nil",
@@ -752,23 +750,9 @@ class PrettyPrinters(val global: Global) {
 
     def showType(inType: Type): String = {
       inType match {
-        //          case TypeRef(pre, sym, Nil) => ""
-        //            if rewiredToThis(inType.typeSymbol.name.toString) =>
-        //            SingletonTypeTree(This(tpnme.EMPTY))
-
-        //          case TypeRef(pre, sym, Nil) => ""
-        ////            Select(This(newTypeName(className)), toType(inType.typeSymbol))
-        //
-        //          case TypeRef(pre, sym, args) if isFunctionType(inType) => ""
-        ////            AppliedTypeTree(Select(Ident(newTermName("scala")), toType(sym)),
-        ////              args map { x => constructPolyTree(typeCtx, x) })
 
         case TypeRef(pre, sym, args) => {
-          //            AppliedTypeTree(Select(This(newTypeName(className)), toType(sym)),
-          //              args map { x => constructPolyTree(typeCtx, x) })
           System.out.println("pre.prefixString: " + pre.prefixString)
-          System.out.println("pre.prefixChain: " + pre.prefixChain)
-          System.out.println("pre.prefix: " + pre.prefix)
           System.out.println("pre: " + pre)
 
           def needsPreString = {
@@ -776,20 +760,18 @@ class PrettyPrinters(val global: Global) {
           }
 
           def preString  = if (needsPreString) pre.prefixString else ""
-          def argsString = if (args.isEmpty) "" else args.mkString("[", ",", "]")
-
-
+          def argsString = if (args.isEmpty) "" else args.map(tp => showType(tp)).mkString("[", ",", "]")
 
           def finishPrefix(rest: String) = (
             if (sym.isInitialized && sym.isAnonymousClass && !phase.erasedTypes)
-              symbolTable.definitions.parentsString(sym.asInstanceOf[symbolTable.Symbol].info.parents) //+ inType.refinementString
+              inType.toString
+              //symbolTable.definitions.parentsString(sym.asInstanceOf[symbolTable.Symbol].info.parents) + inType.refinementString
             else rest
-            )
+          )
 
-
-          def customToString = sym.asInstanceOf[symbols.Symbol] match {
-            case defs.definitions.RepeatedParamClass => args.head + "*"
-            case defs.definitions.ByNameParamClass   => "=> " + args.head
+          def customToString(inType: Type) = inType.typeSymbol.asInstanceOf[symbols.Symbol] match {
+            case defs.definitions.RepeatedParamClass => showType(args.head) + "*"
+            case defs.definitions.ByNameParamClass   => "=> " + showType(args.head)
             case _                  =>
               def targs = inType.normalize.typeArgs
 
@@ -802,67 +784,59 @@ class PrettyPrinters(val global: Global) {
                     // A => B => C should be (A => B) => C or A => (B => C).
                     // Also if A is byname, then we want (=> A) => B because => is right associative and => A => B
                     // would mean => (A => B) which is a different type
-                    val in_s  = if (isFunctionType(in) || isByNameParamType(in)) "(" + in + ")" else "" + in
-                    val out_s = if (isFunctionType(out)) "(" + out + ")" else "" + out
+                    val showIn = showType(in)
+                    val showOut = showType(out)
+                    val in_s  = if (isFunctionType(in) || isByNameParamType(in)) "(" + showIn + ")" else "" + showIn
+                    val out_s = if (isFunctionType(out)) "(" + showOut + ")" else "" + showOut
                     in_s + " => " + out_s
                   case xs =>
-                    xs.init.mkString("(", ", ", ")") + " => " + xs.last
+                    xs.init.map(tp => showType(tp)).mkString("(", ", ", ")") + " => " + showType(xs.last)
                 }
               }
               else if (isTupleType(inType))
-                targs.mkString("(", ", ", if (hasLength(targs, 1)) ",)" else ")")
+                targs.map(tp => showType(tp)).mkString("(", ", ", if (hasLength(targs, 1)) ",)" else ")")
               else if (sym.isAliasType && inType.prefixChain.exists(_.termSymbol.isSynthetic) && (inType ne inType.normalize))
-                "" + inType.normalize
+                "" + showType(inType.normalize)
               else
                 ""
           }
-          def isTupleType(in: Type) = symbolTable.definitions.isTupleType(in.asInstanceOf[symbolTable.Type])
 
+          //TODO - refactor just to import
+          def isTupleType(in: Type) = symbolTable.definitions.isTupleType(in.asInstanceOf[symbolTable.Type])
+          def isFunctionType(in: Type) = symbolTable.definitions.isFunctionType(in.asInstanceOf[symbolTable.Type])
           def isByNameParamType(in: Type) = symbolTable.definitions.isByNameParamType(in.asInstanceOf[symbolTable.Type])
 
-          def safeToString = {
-            val custom = customToString
+          def safeToString(inType: Type) = {
+            val custom = customToString(inType)
+            System.out.println(">>> custom: " + custom)
             if (custom != "") custom
 
             else {
               System.out.println("!!! preString: " + preString)
-              finishPrefix(preString + sym.nameString + argsString)
+              finishPrefix(preString + inType.typeSymbol.nameString + argsString)
             }
           }
 
-          safeToString
-          //            tr.toString
+          safeToString(inType)
         }
 
-        case ConstantType(t) => ""
-        //            inType.typeSymbol
-
-        case SingleType(pre, name) => ""
-        //            inType.typeSymbol.name.toString
-
-        case SingleType(pre, name) if inType.typeSymbol.isModuleClass => ""
-        //            pre + name.toString
-        //newTermName(inType.typeSymbol.name.toString)))
-
-        case s @ SingleType(pre, name) if inType.typeSymbol.isClass => ""
-        //              s.asInstanceOf[scala.reflect.internal.Types#SingleType]
-        //                .underlying.asInstanceOf[c.universe.Type]
-        case annTpe @ AnnotatedType(annotations, underlying, selfsym) => ""
-        //            underlying
-        case _ => System.out.println("Type is not found"); inType.toString
+        case ConstantType(t) => "not-implemented(Constant)"
+        case SingleType(pre, name) => "not-implemented(SingleType)"
+        case annTpe @ AnnotatedType(annotations, underlying, selfsym) => "not-implemented(AnnotatedType)"
+        case _ => System.out.println("Type is not found"); "not-implemented(undefined-type)"
       }
     }
 
     def showTypeTree(tr: Tree): String = {
-
-      if (tr.isInstanceOf[TypeTree]) {
-
+      System.out.println("tr.isInstanceOf[TypeTree]: " + tr.isInstanceOf[TypeTree])  //false
+      System.out.println("tr.isType: " + tr.isType)  //true
+      System.out.println("tr.tpe: " + tr.tpe)  //null
+//      if (tr.isInstanceOf[TypeTree]) {
+      if (tr.isType) {
         val inType = tr.tpe
         showType(inType)
       } else
         tr.toString
     }
-
-
   }
 }
