@@ -229,7 +229,7 @@ class PrettyPrinters(val global: Global) {
 
     def getPrimaryConstr(methods: List[Tree]) =
       methods collectFirst {
-        case dd: DefDef if dd.name == nme.CONSTRUCTOR => dd
+        case dd: DefDef if dd.name.toString.trim == nme.CONSTRUCTOR.toString.trim => dd
       }
 
     override def printTree(tree: Tree) {
@@ -269,7 +269,7 @@ class PrettyPrinters(val global: Global) {
                       else vparams map {
                         vparam =>
                           templateVals find {
-                            _._1 == vparam.name
+                            _._1.toString.trim == vparam.name.toString.trim
                           } map {
                             templateVal =>
                               ValDef(Modifiers(vparam.mods.flags | templateVal._2.flags, templateVal._2.privateWithin,
@@ -305,7 +305,7 @@ class PrettyPrinters(val global: Global) {
         case PackageDef(packaged, stats) =>
           contextManaged(tree){
             packaged match {
-              case Ident(name) if name == nme.EMPTY_PACKAGE_NAME =>
+              case Ident(name) if name.toString.trim == nme.EMPTY_PACKAGE_NAME.toString.trim =>
                 printSeq(stats) {
                   print(_)
                 } {
@@ -410,7 +410,8 @@ class PrettyPrinters(val global: Global) {
 
         case Template(parents, self, body) =>
           val currentOwner1 = currentOwner
-          if (tree.symbol != NoSymbol) currentOwner = tree.symbol.owner
+          //TODO repair using of currentOwner
+          //if (tree.symbol != NoSymbol) currentOwner = tree.symbol.owner
 
           val printedParents =
             getCurrentContext() map {
@@ -471,17 +472,17 @@ class PrettyPrinters(val global: Global) {
           val (left, right) = body.filter {
             //remove valdefs defined in constructor and pre-init block
             case vd: ValDef => !vd.mods.hasFlag(PARAMACCESSOR) && !vd.mods.hasFlag(PRESUPER)
-            case dd: DefDef => dd.name != nme.MIXIN_CONSTRUCTOR //remove $this$ from traits
+            case dd: DefDef => dd.name.toString.trim != nme.MIXIN_CONSTRUCTOR.toString.trim //remove $this$ from traits
             case EmptyTree => false
             case _ => true
           } span {
-            case dd: DefDef => dd.name != nme.CONSTRUCTOR
+            case dd: DefDef => dd.name.toString.trim != nme.CONSTRUCTOR.toString.trim
             case _ => true
           }
 
           val modBody = left ::: right.drop(1)//List().drop(1) ==> List()
           if (!modBody.isEmpty || !self.isEmpty) {
-            if (self.name != nme.WILDCARD) {
+            if (self.name.toString.trim != nme.WILDCARD.toString.trim) {
               print(" { ", self.name);
               printOpt(": ", self.tpt);
               print(" => ")
@@ -591,7 +592,7 @@ class PrettyPrinters(val global: Global) {
           tree match {
             //processing methods ending on colons (x \: list)
             case Apply(Block(l1 @ List(sVD :ValDef), a1 @ Apply(Select(_, methodName), l2 @ List(Ident(iVDName)))), l3 @ List(_*))
-              if sVD.mods.hasFlag(SYNTHETIC) && methodName.toString.endsWith("$colon") && (sVD.name == iVDName) =>
+              if sVD.mods.hasFlag(SYNTHETIC) && methodName.toString.endsWith("$colon") && (sVD.name.toString.trim == iVDName.toString.trim) =>
               val printBlock = Block(l1, Apply(a1, l3))
               print(printBlock)
             case Apply(tree1, _) if (specialTreeContext(tree1)(iAnnotated = false)) => codeInParantheses(){print(fun)}; printRow(vargs, "(", ", ", ")")
@@ -662,7 +663,7 @@ class PrettyPrinters(val global: Global) {
           //it's possible to have (=> String) => String type but Function1[=> String, String] is not correct
           def containsByNameTypeParam =
             args exists {
-                case AppliedTypeTree(Select(qual, name), _) => name.toString.equals("<byname>")
+                case AppliedTypeTree(Select(qual, name), _) => name.toString.trim.equals("<byname>")
                 case _ => false
               }
 
@@ -672,12 +673,12 @@ class PrettyPrinters(val global: Global) {
             print(" => ", args.last, ")")
           } else {
             if (tp.exists {
-              case Select(_, name) => name == tpnme.REPEATED_PARAM_CLASS_NAME
+              case Select(_, name) => name.toString.trim == tpnme.REPEATED_PARAM_CLASS_NAME.toString.trim
               case _ => false
             } && !args.isEmpty) {
               print(args(0), "*")
             } else if (tp match {
-              case Select(_, name) => name == tpnme.BYNAME_PARAM_CLASS_NAME
+              case Select(_, name) => name.toString.trim == tpnme.BYNAME_PARAM_CLASS_NAME.toString.trim
               case _ => false
             }) {
               print("=> ", if (args.isEmpty) "()" else args(0))
@@ -703,11 +704,22 @@ class PrettyPrinters(val global: Global) {
       if (name == nme.CONSTRUCTOR) "this"
       else quotedName(name, decoded)
 
-    override def print(args: Any*): Unit = args foreach {
-      case name: Name =>
-        print(quotedName(name))
-      case other => super.print(other)
-    }
+      override def print(args: Any*): Unit = {
+        args foreach {
+          arg =>
+            //TODO repair issue with pattern matching, trees and vals of type Any
+            if (arg.isInstanceOf[Tree]) { //problem with vars of type Any
+              val treeArg = arg.asInstanceOf[Tree]
+              printTree(treeArg)
+            } else {
+              arg match {
+                case name: Name =>
+                  print(quotedName(name))
+                case other => super.print(other)
+              }
+            }
+        }
+      }
   }
 
   class AfterTyperPrinter(out: PrintWriter) extends PrettyPrinter(out)
