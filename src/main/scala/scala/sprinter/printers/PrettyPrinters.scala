@@ -680,7 +680,7 @@ class PrettyPrinters(val global: Global) {
 
     //Danger: it's overwritten method - can be problems with inheritance)
     def symName(tree: Tree, name: Name, decoded: Boolean = false): String =
-      if (name == nme.CONSTRUCTOR) "this"
+      if (name.toString.trim == nme.CONSTRUCTOR.toString.trim) "this"
       else quotedName(name, decoded)
 
       override def print(args: Any*): Unit = {
