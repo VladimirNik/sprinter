@@ -724,7 +724,7 @@ class PrettyPrinters(val global: Global) {
 
   class AfterTyperPrinter(out: PrintWriter) extends PrettyPrinter(out)
 
-  class TypePrinter(out: PrintWriter) extends PrettyPrinter(out) {
+  class TypePrinter(out: PrintWriter) extends AfterTyperPrinter(out) {
 
     val defs = global.asInstanceOf[Definitions];
     import defs.definitions._
