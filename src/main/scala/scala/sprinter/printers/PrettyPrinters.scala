@@ -840,10 +840,10 @@ class PrettyPrinters(val global: Global) {
     }
 
     def showTypeTree(tr: Tree): String = {
-      System.out.println("tr.isInstanceOf[TypeTree]: " + tr.isInstanceOf[TypeTree])  //false
+      System.out.println("tr.isInstanceOf[TypTree]: " + tr.isInstanceOf[TypTree])  //false
       System.out.println("tr.isType: " + tr.isType)  //true
       System.out.println("tr.tpe: " + tr.tpe)  //null
-//      if (tr.isInstanceOf[TypeTree]) {
+//      if (tr.isInstanceOf[TypTree]) {
       if (tr.isType) {
         val inType = tr.tpe
         showType(inType)
