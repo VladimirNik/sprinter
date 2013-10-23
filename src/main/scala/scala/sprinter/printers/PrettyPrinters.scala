@@ -79,6 +79,11 @@ class PrettyPrinters(val global: Global) {
       case _ => false
     } getOrElse false
 
+    def compareNames(name1: Name, name2: Name) = {
+      if (name1 == null || name2 == null) false
+      else name1.toString.trim == name2.toString.trim
+    }
+
     override def printFlags(flags: Long, privateWithin: String) =
       printFlags(flags, privateWithin, false)
 
@@ -391,7 +396,9 @@ class PrettyPrinters(val global: Global) {
 
         case Import(expr, selectors) =>
           // Is this selector remapping a name (i.e, {name1 => name2})
-          def isNotRemap(s: ImportSelector): Boolean = (s.name == nme.WILDCARD || s.name == s.rename)
+          def isNotRemap(s: ImportSelector): Boolean = {
+            (compareNames(s.name, nme.WILDCARD) || compareNames(s.name, s.rename))
+          }
           def selectorToString(s: ImportSelector): String = {
             val from = quotedName(s.name)
             if (isNotRemap(s)) from
@@ -729,17 +736,46 @@ class PrettyPrinters(val global: Global) {
     val defs = global.asInstanceOf[Definitions];
     import defs.definitions._
 
-    def printTypeTree(tpe: Tree) = {
-      tpe.toString()
-    }
+//    def printTypeTree(tpe: Tree) = {
+//      tpe.toString()
+//    }
+
+    var testImportsList: List[Import] = null;
 
     override def printTree(tree: Tree) {
       tree match {
+        case p:PackageDef =>
+          super.printTree(tree)
         case vd@ValDef(mods, name, tp, rhs) =>
-          System.out.println("--- show valdef ---");
+          System.out.println("---------------- show valdef -----------------");
+          System.out.println("name: " + name)
           System.out.println("showRaw valdef: " + showRaw(vd))
-          System.out.println("printTree: " + showTypeTree(tp))
+          System.out.println("imports size: " + testImportsList.size)
+//          System.out.println("printTree: " + showTypeTree(tp, testImportsList))
+          System.out.println("----------------------------------------------")
           super.printTree(vd)
+        case imp@Import(expr, selectors) =>
+          testImportsList = (tree.filter{
+            case i:Import => true
+            case _ => false
+          }).asInstanceOf[List[Import]]
+          expr match {
+            case Ident(name) => System.out.println("Name of ident: " + name.toString)
+            case _ =>
+          }
+          System.out.println("--- show import ---");
+          System.out.println("showRaw import: " + showRaw(imp))
+          System.out.println("import expr: " + backquotedPath(expr))
+          selectors match {
+            case List(s) =>
+              // If there is just one selector and it is not remapping a name, no braces are needed
+              if (isNotRemap(s)) System.out.println("selector: " + selectorToString(s))
+              else System.out.println("selector: " + selectorToString(s))
+            // If there is more than one selector braces are always needed
+            case many =>
+              System.out.println("selector: " + many.map(selectorToString).mkString("{", ", ", "}"))
+          }
+          super.printTree(imp)
         case _ => super.printTree(tree)
       }
     }
@@ -771,15 +807,55 @@ class PrettyPrinters(val global: Global) {
             !shorthands(sym.fullName) || (sym.ownersIterator exists (s => !s.isClass))
           }
 
-          def preString  = if (needsPreString) pre.prefixString else ""
+          def preString(typeName: String) = {
+            //origPreString ends in .
+            val origPreString = pre.prefixString
+            if (needsPreString)
+              if (hasImp(origPreString)) {
+                modifyPrefix(origPreString, typeName)
+              } else origPreString
+            else ""
+          }
+
+          def hasImp(origPrefix: String) =
+            (!importsMap.isEmpty && importsMap.keySet.exists(prefix => origPrefix.startsWith(prefix))) //check if there are entries in map that possible to use for import
+
+          //TODO fix quoted / unquoted names
+          def modifyPrefix(origPrefix: String, typeName: String): String = {
+            def fullTypePrefix(s: ImportSelector, importPrefix: String, typeName: String, origPrefix: String) = {
+              (origPrefix == importPrefix + ".") && (s.name.toString.trim == typeName)
+            }
+            val importPrefix = (importsMap.filterKeys(impPrefix => origPrefix.startsWith(impPrefix)).toSeq.sortWith(_._1.length > _._2.length).find{
+              impEntry => {
+                val (iPrefix, impList) = impEntry
+                impList.exists{
+                  case isel@ImportSelector(name1, pos1, name2, pos2) =>
+                    isWildcard(isel) || origPrefix.startsWith(iPrefix+"."+name1.toString.trim) || fullTypePrefix(isel, iPrefix, typeName, origPrefix)
+                  case _ => false
+                }
+//                impList exists ()
+                //if (origPrefix.startsWith(importPrefix) && selector == _) or (origPrefix.equals.impPrefix && (orig.typeName == impPrefix.name)) or (origPrefix.startsWith(importPrefix + "." + selector.name))
+                true
+              }
+            }).getOrElse(("", List()))._1
+            //importPrefix._1
+
+            val result = origPrefix.replaceFirst(importPrefix, "")
+            result
+
+            //1.get all imports that have prefix equal or startsWith
+            //2.sort prefixes by length - 1st - equal, 2nd - startsWith_1, 3rd - startsWith_2
+            //3.if equal-search imports with wildcard or import.name = type.name => remove all prefix (import.prefix
+            //  if startsWith-search imports with wildcard or startsWith(import.prefix+import.name) => remove import.prefix
+          }
+
           def argsString = if (args.isEmpty) "" else args.map(tp => showType(tp)).mkString("[", ",", "]")
 
-          def finishPrefix(rest: String) = (
+          def finishPrefix(rest: String) =
             if (sym.isInitialized && sym.isAnonymousClass && !phase.erasedTypes)
               inType.toString
               //symbolTable.definitions.parentsString(sym.asInstanceOf[symbolTable.Symbol].info.parents) + inType.refinementString
             else rest
-          )
 
           def customToString(inType: Type) = inType.typeSymbol.asInstanceOf[symbols.Symbol] match {
             case defs.definitions.RepeatedParamClass => showType(args.head) + "*"
@@ -824,8 +900,9 @@ class PrettyPrinters(val global: Global) {
             if (custom != "") custom
 
             else {
-              System.out.println("!!! preString: " + preString)
-              finishPrefix(preString + inType.typeSymbol.nameString + argsString)
+              val typeName = inType.typeSymbol.nameString
+              System.out.println("!!! preString: " + preString(typeName))
+              finishPrefix(preString(typeName) + typeName + argsString)
             }
           }
 
@@ -839,16 +916,54 @@ class PrettyPrinters(val global: Global) {
       }
     }
 
-    def showTypeTree(tr: Tree): String = {
+    def showTypeTree(tr: Tree, imports: List[Import]): String = {
       System.out.println("tr.isInstanceOf[TypTree]: " + tr.isInstanceOf[TypTree])  //false
       System.out.println("tr.isType: " + tr.isType)  //true
       System.out.println("tr.tpe: " + tr.tpe)  //null
 //      if (tr.isInstanceOf[TypTree]) {
+
+      //TODO set checking for empty imports and correct tree
+      initImportsMap(imports)
+
       if (tr.isType) {
         val inType = tr.tpe
         showType(inType)
       } else
         tr.toString
+    }
+
+    //TODO reuse this methods
+    //TODO fix Remap
+    def isNotRemap(s: ImportSelector): Boolean = (compareNames(s.name, nme.WILDCARD) || compareNames(s.name, s.rename))
+    def selectorToString(s: ImportSelector): String = {
+      val from = quotedName(s.name)
+      if (isNotRemap(s)) from
+      else from + "=>" + quotedName(s.rename)
+    }
+    def isWildcard(s: ImportSelector): Boolean = {
+      compareNames(s.name, nme.WILDCARD)
+    }
+
+
+    //TODO change to lazy val and remove null
+    private var imports: List[Import] = List()
+    private var importsMap: scala.collection.mutable.Map[String, List[ImportSelector]] = scala.collection.mutable.Map.empty
+
+    def initImportsMap(imports: List[Import]) = imports map {
+      this.imports = imports
+      imp => {
+        val impName = backquotedPath(imp.expr)
+        //get value or none
+        importsMap(impName) = (importsMap get impName) match {
+          case Some(list) =>
+            //if for some package we have _ than all possible types and packages are imported
+            //if (list.exists(isWildcard _))
+            //  list
+            //else
+              list ::: imp.selectors distinct
+          case None => imp.selectors
+        }
+      }
     }
   }
 }
