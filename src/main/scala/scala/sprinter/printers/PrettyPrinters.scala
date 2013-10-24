@@ -767,7 +767,7 @@ class PrettyPrinters(val global: Global) {
           System.out.println("name: " + name)
           System.out.println("showRaw valdef: " + showRaw(vd))
           System.out.println("imports size: " + testImportsList.size)
-          System.out.println("printTree: " + showTypeTree(tp, testImportsList))
+          System.out.println(">>>>>>>>>>> printTree: " + showTypeTree(tp, testImportsList))
           System.out.println("----------------------------------------------")
           super.printTree(vd)
         case imp@Import(expr, selectors) =>
@@ -909,15 +909,31 @@ class PrettyPrinters(val global: Global) {
           def isByNameParamType(in: Type) = symbolTable.definitions.isByNameParamType(in.asInstanceOf[symbolTable.Type])
 
           def safeToString(inType: Type) = {
+            System.out.println("***** safeToString *****")
+            System.out.println("(1): inType.toString: " + inType.toString())
             val custom = customToString(inType)
             System.out.println(">>> custom: " + custom)
+            System.out.println("(2): inType.toString: " + inType.toString())
             if (custom != "") custom
 
             else {
-              val typeName = inType.typeSymbol.nameString
+              //sym.nameString - check
+//              inType match {
+//                case TypeRef(pre, sym, args) =>
+//                  System.out.println("inType's sym: " + sym.nameString)
+//                  System.out.println("inType's sym(1): " + inType.typeSymbol)
+//                  System.out.println("inType's sym(2): " + inType.typeSymbolDirect)
+//                case _ =>
+//              }
+              val TypeRef(_, tsym, _) = inType
+              val typeName = tsym.nameString
+              System.out.println("inType.typeSymbol.nameString: " + inType.typeSymbol.nameString)
               System.out.println("!!! preString: " + preString(typeName))
-              finishPrefix(preString(typeName) + typeName + argsString)
+              val result = finishPrefix(preString(typeName) + typeName + argsString)
+              System.out.println("************************")
+              result
             }
+
           }
 
           safeToString(inType)
