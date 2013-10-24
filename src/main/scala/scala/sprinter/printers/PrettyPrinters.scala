@@ -48,6 +48,7 @@ class PrettyPrinters(val global: Global) {
     buffer.toString
   }
 
+  //TODO remove - only for test purposes
   def showType(what: nsc.Global#Tree) = {
     val buffer = new StringWriter()
     val writer = new PrintWriter(buffer)
@@ -55,6 +56,17 @@ class PrettyPrinters(val global: Global) {
     var printer = new TypePrinter(writer)
 
     printer.print(what)
+    writer.flush()
+    buffer.toString
+  }
+
+  def showType(what: nsc.Global#Tree, imports: List[nsc.Global#Import]) = {
+    val buffer = new StringWriter()
+    val writer = new PrintWriter(buffer)
+
+    var printer = new TypePrinter(writer)
+
+    printer.showTypeTree(what.asInstanceOf[global.Tree], imports.asInstanceOf[List[global.Import]])
     writer.flush()
     buffer.toString
   }
