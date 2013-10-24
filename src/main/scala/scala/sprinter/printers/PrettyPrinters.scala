@@ -745,20 +745,21 @@ class PrettyPrinters(val global: Global) {
     override def printTree(tree: Tree) {
       tree match {
         case p:PackageDef =>
+          testImportsList = (tree.filter{
+            case i:Import => true
+            case _ => false
+          }).asInstanceOf[List[Import]]
           super.printTree(tree)
         case vd@ValDef(mods, name, tp, rhs) =>
           System.out.println("---------------- show valdef -----------------");
           System.out.println("name: " + name)
           System.out.println("showRaw valdef: " + showRaw(vd))
           System.out.println("imports size: " + testImportsList.size)
-//          System.out.println("printTree: " + showTypeTree(tp, testImportsList))
+          System.out.println("printTree: " + showTypeTree(tp, testImportsList))
           System.out.println("----------------------------------------------")
           super.printTree(vd)
         case imp@Import(expr, selectors) =>
-          testImportsList = (tree.filter{
-            case i:Import => true
-            case _ => false
-          }).asInstanceOf[List[Import]]
+
           expr match {
             case Ident(name) => System.out.println("Name of ident: " + name.toString)
             case _ =>
@@ -825,7 +826,8 @@ class PrettyPrinters(val global: Global) {
             def fullTypePrefix(s: ImportSelector, importPrefix: String, typeName: String, origPrefix: String) = {
               (origPrefix == importPrefix + ".") && (s.name.toString.trim == typeName)
             }
-            val importPrefix = (importsMap.filterKeys(impPrefix => origPrefix.startsWith(impPrefix)).toSeq.sortWith(_._1.length > _._2.length).find{
+            System.out.println("sorting order: " + importsMap.filterKeys(impPrefix => origPrefix.startsWith(impPrefix)).toSeq.sortWith(_._1.length > _._1.length).map{x => x._1})
+            val importPrefix = (importsMap.filterKeys(impPrefix => origPrefix.startsWith(impPrefix)).toSeq.sortWith(_._1.length > _._1.length).find{
               impEntry => {
                 val (iPrefix, impList) = impEntry
                 impList.exists{
@@ -833,15 +835,15 @@ class PrettyPrinters(val global: Global) {
                     isWildcard(isel) || origPrefix.startsWith(iPrefix+"."+name1.toString.trim) || fullTypePrefix(isel, iPrefix, typeName, origPrefix)
                   case _ => false
                 }
-//                impList exists ()
                 //if (origPrefix.startsWith(importPrefix) && selector == _) or (origPrefix.equals.impPrefix && (orig.typeName == impPrefix.name)) or (origPrefix.startsWith(importPrefix + "." + selector.name))
-                true
               }
             }).getOrElse(("", List()))._1
             //importPrefix._1
 
-            val result = origPrefix.replaceFirst(importPrefix, "")
-            result
+            if (!importPrefix.isEmpty)
+              origPrefix.replaceFirst(importPrefix + ".", "")
+            else
+              origPrefix
 
             //1.get all imports that have prefix equal or startsWith
             //2.sort prefixes by length - 1st - equal, 2nd - startsWith_1, 3rd - startsWith_2
@@ -929,7 +931,7 @@ class PrettyPrinters(val global: Global) {
         val inType = tr.tpe
         showType(inType)
       } else
-        tr.toString
+        "something wrong"//tr.toString
     }
 
     //TODO reuse this methods
