@@ -864,12 +864,19 @@ class PrettyPrinters(val global: Global) {
           }
 
           def argsString = if (args.isEmpty) "" else args.map(tp => showType(tp)).mkString("[", ",", "]")
-
           def finishPrefix(rest: String) =
-            if (sym.isInitialized && sym.isAnonymousClass && !phase.erasedTypes)
-              inType.toString
-              //symbolTable.definitions.parentsString(sym.asInstanceOf[symbolTable.Symbol].info.parents) + inType.refinementString
-            else rest
+            inType match {
+              case rtr: RefinementTypeRef => "" + rtr.thisInfo //TODO - maybe we need to add customToString(rtr.thisInfo)
+              case ptr: PackageTypeRef => "package " + rest //TODO - it's default implementation
+              case mtr: ModuleTypeRef => "object " + rest //TODO - it's default implementation
+              case tr@ TypeRef(pre, sym, args) =>
+                if (sym.isInitialized && sym.isAnonymousClass && !phase.erasedTypes)
+                  //inType.toString
+                  symbolTable.definitions.parentsString(sym.asInstanceOf[symbolTable.Symbol].info.parents) + tr.refinementString
+                else rest
+              case _ => inType.toString()
+            }
+
 
           def customToString(inType: Type) = inType.typeSymbol.asInstanceOf[symbols.Symbol] match {
             case defs.definitions.RepeatedParamClass => showType(args.head) + "*"
@@ -909,15 +916,22 @@ class PrettyPrinters(val global: Global) {
           def isByNameParamType(in: Type) = symbolTable.definitions.isByNameParamType(in.asInstanceOf[symbolTable.Type])
 
           def safeToString(inType: Type) = {
-            val custom = customToString(inType)
-            System.out.println(">>> custom: " + custom)
-            if (custom != "") custom
+            inType match {
+              case mtr: ModuleTypeRef =>
+                if (sym.isOmittablePrefix) "" else pre.prefixString + sym.nameString + "." + "type"
+              case tr: TypeRef =>
+                val custom = customToString(tr)
+                System.out.println(">>> custom: " + custom)
+                if (custom != "") custom
 
-            else {
-              val typeName = inType.typeSymbol.nameString
-              System.out.println("!!! preString: " + preString(typeName))
-              finishPrefix(preString(typeName) + typeName + argsString)
+                else {
+                  val typeName = tr.typeSymbol.nameString
+                  System.out.println("!!! preString: " + preString(typeName))
+                  finishPrefix(preString(typeName) + typeName + argsString)
+                }
+              case _ => inType.toString()
             }
+
           }
 
           safeToString(inType)
