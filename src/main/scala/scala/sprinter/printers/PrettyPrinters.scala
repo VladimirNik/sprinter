@@ -770,6 +770,10 @@ class PrettyPrinters(val global: Global) {
           System.out.println(">>>>>>>>>>> printTree: " + showTypeTree(tp, testImportsList))
           System.out.println("----------------------------------------------")
           super.printTree(vd)
+        case dd: DefDef =>
+          System.out.println("---------------- show defdef -----------------")
+          System.out.println(">>>>>>>>>>> printTree: " + showTypeTree(dd.vparamss(0)(0).tpt, testImportsList))
+          System.out.println("----------------------------------------------")
         case imp@Import(expr, selectors) =>
 
           expr match {
@@ -820,10 +824,10 @@ class PrettyPrinters(val global: Global) {
             !shorthands(sym.fullName) || (sym.ownersIterator exists (s => !s.isClass))
           }
 
-          def preString(typeName: String) = {
+          def preString(typeName: String, isModuleTypeRef: Boolean = false) = {
             //origPreString ends in .
             val origPreString = pre.prefixString
-            if (needsPreString)
+            if (!isModuleTypeRef && needsPreString)
               if (hasImp(origPreString)) {
                 modifyPrefix(origPreString, typeName)
               } else origPreString
@@ -915,22 +919,25 @@ class PrettyPrinters(val global: Global) {
           def isFunctionType(in: Type) = symbolTable.definitions.isFunctionType(in.asInstanceOf[symbolTable.Type])
           def isByNameParamType(in: Type) = symbolTable.definitions.isByNameParamType(in.asInstanceOf[symbolTable.Type])
 
+          //TODO - clean the code
           def safeToString(inType: Type) = {
             System.out.println("***** safeToString *****")
             System.out.println("(1): inType.toString: " + inType.toString())
             inType match {
-              case mtr: ModuleTypeRef =>
-                if (sym.isOmittablePrefix) "" else pre.prefixString + sym.nameString + "." + "type"
-              case tr: TypeRef =>
-                val TypeRef(_, tsym, _) = inType
-                val custom = customToString(tr)
-                System.out.println(">>> custom: " + custom)
-                if (custom != "") custom
-
-                else {
-                  val typeName = tsym.nameString
-                  System.out.println("!!! preString: " + preString(typeName))
-                  finishPrefix(preString(typeName) + typeName + argsString)
+              case tr@ TypeRef(tpre, tsym, targs) =>
+                tr match {
+                  case mtr: ModuleTypeRef =>
+                    val tName = tsym.nameString
+                    if (tsym.isOmittablePrefix) "" else if (tName.isEmpty) tr.toString() else preString(tName) + tName + "." + "type"
+                  case _ =>
+                    val custom = customToString(tr)
+                    System.out.println(">>> custom: " + custom)
+                    if (custom != "") custom
+                    else {
+                      val typeName = tsym.nameString
+                      System.out.println("!!! preString: " + preString(typeName))
+                      finishPrefix(preString(typeName) + typeName + argsString)
+                    }
                 }
               case _ => inType.toString()
             }
@@ -940,9 +947,26 @@ class PrettyPrinters(val global: Global) {
           safeToString(inType)
         }
 
-        case ConstantType(t) => "not-implemented(Constant)"
+        case ConstantType(t) => "not-implemented(Constant)" //do we need to implement it?
         case SingleType(pre, name) => "not-implemented(SingleType)"
-        case annTpe @ AnnotatedType(annotations, underlying, selfsym) => "not-implemented(AnnotatedType)"
+        case annTpe @ AnnotatedType(annotations, underlying, selfsym) => "not-implemented(AnnotatedType)" //annotations.mkString(underlying + " @", " @", "") - i think we don't need them in the current state
+        case ext: ExistentialType => "not-implemented(Existential Type)" //??? - i think we don't need them in the current state
+//          override def safeToString: String = {
+//      def clauses = {
+//      val str = quantified map (_.existentialToString) mkString (" forSome { ", "; ", " }")
+//      if (settings.explaintypes.value) "(" + str + ")" else str
+//      }
+//      underlying match {
+//      case TypeRef(pre, sym, args) if !settings.debug.value && isRepresentableWithWildcards =>
+//      "" + TypeRef(pre, sym, Nil) + wildcardArgsString(quantified.toSet, args).mkString("[", ", ", "]")
+//      case MethodType(_, _) | NullaryMethodType(_) | PolyType(_, _) =>
+//      "(" + underlying + ")" + clauses
+//      case _ =>
+//      "" + underlying + clauses
+//      }
+//      }
+        case pt: PolyType => "not-implemented(PolyType)" //Do we need to implement it? - it's not a TypeRef but it contains a type
+        case tb: TypeBounds => "not-implemented(TypeBounds)" //??? - i think we don't need them in the current state
         case _ => System.out.println("Type is not found"); "not-implemented(undefined-type)"
       }
     }
