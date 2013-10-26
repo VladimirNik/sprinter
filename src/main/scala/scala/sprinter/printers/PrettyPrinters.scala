@@ -767,7 +767,7 @@ class PrettyPrinters(val global: Global) {
           System.out.println("name: " + name)
           System.out.println("showRaw valdef: " + showRaw(vd))
           System.out.println("imports size: " + testImportsList.size)
-          System.out.println("printTree: " + showTypeTree(tp, testImportsList))
+          System.out.println(">>>>>>>>>>> printTree: " + showTypeTree(tp, testImportsList))
           System.out.println("----------------------------------------------")
           super.printTree(vd)
         case imp@Import(expr, selectors) =>
@@ -916,16 +916,19 @@ class PrettyPrinters(val global: Global) {
           def isByNameParamType(in: Type) = symbolTable.definitions.isByNameParamType(in.asInstanceOf[symbolTable.Type])
 
           def safeToString(inType: Type) = {
+            System.out.println("***** safeToString *****")
+            System.out.println("(1): inType.toString: " + inType.toString())
             inType match {
               case mtr: ModuleTypeRef =>
                 if (sym.isOmittablePrefix) "" else pre.prefixString + sym.nameString + "." + "type"
               case tr: TypeRef =>
+                val TypeRef(_, tsym, _) = inType
                 val custom = customToString(tr)
                 System.out.println(">>> custom: " + custom)
                 if (custom != "") custom
 
                 else {
-                  val typeName = tr.typeSymbol.nameString
+                  val typeName = tsym.nameString
                   System.out.println("!!! preString: " + preString(typeName))
                   finishPrefix(preString(typeName) + typeName + argsString)
                 }
