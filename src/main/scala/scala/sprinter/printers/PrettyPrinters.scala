@@ -770,10 +770,10 @@ class PrettyPrinters(val global: Global) {
           System.out.println(">>>>>>>>>>> printTree: " + showTypeTree(tp, testImportsList))
           System.out.println("----------------------------------------------")
           super.printTree(vd)
-        case dd: DefDef =>
-          System.out.println("---------------- show defdef -----------------")
-          System.out.println(">>>>>>>>>>> printTree: " + showTypeTree(dd.vparamss(0)(0).tpt, testImportsList))
-          System.out.println("----------------------------------------------")
+//        case dd: DefDef =>
+//          System.out.println("---------------- show defdef -----------------")
+//          System.out.println(">>>>>>>>>>> printTree: " + showTypeTree(dd.vparamss(0)(0).tpt, testImportsList))
+//          System.out.println("----------------------------------------------")
         case imp@Import(expr, selectors) =>
 
           expr match {
