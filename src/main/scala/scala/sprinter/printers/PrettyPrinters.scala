@@ -249,6 +249,16 @@ class PrettyPrinters(val global: Global) {
         case dd: DefDef if dd.name.toString.trim == nme.CONSTRUCTOR.toString.trim => dd
       }
 
+    // Is this selector remapping a name (i.e, {name1 => name2})
+    protected def isNotRemap(s: ImportSelector): Boolean =
+      (compareNames(s.name, nme.WILDCARD) || compareNames(s.name, s.rename))
+
+    protected def selectorToString(s: ImportSelector): String = {
+      val from = quotedName(s.name)
+      if (isNotRemap(s)) from
+      else from + "=>" + quotedName(s.rename)
+    }
+
     override def printTree(tree: Tree) {
       tree match {
         case EmptyTree =>
@@ -407,15 +417,6 @@ class PrettyPrinters(val global: Global) {
           }
 
         case Import(expr, selectors) =>
-          // Is this selector remapping a name (i.e, {name1 => name2})
-          def isNotRemap(s: ImportSelector): Boolean = {
-            (compareNames(s.name, nme.WILDCARD) || compareNames(s.name, s.rename))
-          }
-          def selectorToString(s: ImportSelector): String = {
-            val from = quotedName(s.name)
-            if (isNotRemap(s)) from
-            else from + "=>" + quotedName(s.rename)
-          }
           print("import ", backquotedPath(expr), ".")
           selectors match {
             case List(s) =>
@@ -743,17 +744,27 @@ class PrettyPrinters(val global: Global) {
 
   class AfterTyperPrinter(out: PrintWriter) extends PrettyPrinter(out)
 
-  class TypePrinter(out: PrintWriter) extends AfterTyperPrinter(out) {
+  class TypePrinter(out: PrintWriter) extends AfterTyperPrinter(out) { //TODO shouldn't extend AfterTyperPrinter, remove after testing
 
-    val defs = global.asInstanceOf[Definitions];
-    import defs.definitions._
+    import global.shorthands
+    //    from Types
+    //    val shorthands = Set(
+    //      "scala.collection.immutable.List",
+    //      "scala.collection.immutable.Nil",
+    //      "scala.collection.Seq",
+    //      "scala.collection.Traversable",
+    //      "scala.collection.Iterable",
+    //      "scala.collection.mutable.StringBuilder",
+    //      "scala.collection.IndexedSeq",
+    //      "scala.collection.Iterator")
 
-//    def printTypeTree(tpe: Tree) = {
-//      tpe.toString()
-//    }
+    import global.definitions.{isFunctionType, isTupleType, isByNameParamType, parentsString}
+    import global.definitions.{ByNameParamClass, RepeatedParamClass}
 
+    //TODO remove after testing
     var testImportsList: List[Import] = null;
 
+    //TODO remove after testing
     override def printTree(tree: Tree) {
       tree match {
         case p:PackageDef =>
@@ -775,7 +786,6 @@ class PrettyPrinters(val global: Global) {
 //          System.out.println(">>>>>>>>>>> printTree: " + showTypeTree(dd.vparamss(0)(0).tpt, testImportsList))
 //          System.out.println("----------------------------------------------")
         case imp@Import(expr, selectors) =>
-
           expr match {
             case Ident(name) => System.out.println("Name of ident: " + name.toString)
             case _ =>
@@ -797,28 +807,10 @@ class PrettyPrinters(val global: Global) {
       }
     }
 
-    //TODO - refactor - use shorthands from import
-    val shorthands = Set(
-      "scala.collection.immutable.List",
-      "scala.collection.immutable.Nil",
-      "scala.collection.Seq",
-      "scala.collection.Traversable",
-      "scala.collection.Iterable",
-      "scala.collection.mutable.StringBuilder",
-      "scala.collection.IndexedSeq",
-      "scala.collection.Iterator")
-
-    val symbols = global.asInstanceOf[Symbols]
-    val types = global.asInstanceOf[Types]
-    val typesInt = global.asInstanceOf[scala.reflect.internal.Types]
-    val symbolTable = global.asInstanceOf[scala.tools.nsc.symtab.SymbolTable]
-
-    def showType(inType: Type): String = {
+    private def showType(inType: Type): String = {
       inType match {
-
-        case TypeRef(pre, sym, args) => {
+        case typeRef@TypeRef(pre, sym, args) => {
           System.out.println("pre.prefixString: " + pre.prefixString)
-          System.out.println("pre: " + pre)
 
           def needsPreString = {
             !shorthands(sym.fullName) || (sym.ownersIterator exists (s => !s.isClass))
@@ -867,6 +859,10 @@ class PrettyPrinters(val global: Global) {
             //  if startsWith-search imports with wildcard or startsWith(import.prefix+import.name) => remove import.prefix
           }
 
+          def isWildcard(s: ImportSelector): Boolean = {
+            compareNames(s.name, nme.WILDCARD)
+          }
+
           def argsString = if (args.isEmpty) "" else args.map(tp => showType(tp)).mkString("[", ",", "]")
           def finishPrefix(rest: String) =
             inType match {
@@ -875,16 +871,15 @@ class PrettyPrinters(val global: Global) {
               case mtr: ModuleTypeRef => "object " + rest //TODO - it's default implementation
               case tr@ TypeRef(pre, sym, args) =>
                 if (sym.isInitialized && sym.isAnonymousClass && !phase.erasedTypes)
-                  //inType.toString
-                  symbolTable.definitions.parentsString(sym.asInstanceOf[symbolTable.Symbol].info.parents) + tr.refinementString
+                  parentsString(sym.info.parents) + tr.refinementString
                 else rest
               case _ => inType.toString()
             }
 
 
-          def customToString(inType: Type) = inType.typeSymbol.asInstanceOf[symbols.Symbol] match {
-            case defs.definitions.RepeatedParamClass => showType(args.head) + "*"
-            case defs.definitions.ByNameParamClass   => "=> " + showType(args.head)
+          def customToString = inType.typeSymbol match {
+            case RepeatedParamClass => showType(args.head) + "*"
+            case ByNameParamClass   => "=> " + showType(args.head)
             case _                  =>
               def targs = inType.normalize.typeArgs
 
@@ -914,57 +909,34 @@ class PrettyPrinters(val global: Global) {
                 ""
           }
 
-          //TODO - refactor just to import
-          def isTupleType(in: Type) = symbolTable.definitions.isTupleType(in.asInstanceOf[symbolTable.Type])
-          def isFunctionType(in: Type) = symbolTable.definitions.isFunctionType(in.asInstanceOf[symbolTable.Type])
-          def isByNameParamType(in: Type) = symbolTable.definitions.isByNameParamType(in.asInstanceOf[symbolTable.Type])
-
           //TODO - clean the code
-          def safeToString(inType: Type) = {
+          def safeToString = {
             System.out.println("***** safeToString *****")
-            System.out.println("(1): inType.toString: " + inType.toString())
-            inType match {
-              case tr@ TypeRef(tpre, tsym, targs) =>
-                tr match {
-                  case mtr: ModuleTypeRef =>
-                    val tName = tsym.nameString
-                    if (tsym.isOmittablePrefix) "" else if (tName.isEmpty) tr.toString() else preString(tName) + tName + "." + "type"
-                  case _ =>
-                    val custom = customToString(tr)
-                    System.out.println(">>> custom: " + custom)
-                    if (custom != "") custom
-                    else {
-                      val typeName = tsym.nameString
-                      System.out.println("!!! preString: " + preString(typeName))
-                      finishPrefix(preString(typeName) + typeName + argsString)
-                    }
-                }
-              case _ => inType.toString()
-            }
+            System.out.println("inType.toString: " + inType.toString())
 
+            typeRef match {
+              case mtr: ModuleTypeRef =>
+                val tName = sym.nameString
+                if (sym.isOmittablePrefix) "" else if (tName.isEmpty) typeRef.toString() else preString(tName, true) + tName + "." + "type"
+              case _ => //other TypeRef
+                val custom = customToString
+                System.out.println(">>> custom: " + custom)
+                if (custom != "") custom
+                else {
+                  val typeName = sym.nameString
+                  System.out.println("!!! preString: " + preString(typeName))
+                  finishPrefix(preString(typeName) + typeName + argsString)
+                }
+            }
           }
 
-          safeToString(inType)
+          safeToString
         }
 
         case ConstantType(t) => "not-implemented(Constant)" //do we need to implement it?
         case SingleType(pre, name) => "not-implemented(SingleType)"
         case annTpe @ AnnotatedType(annotations, underlying, selfsym) => "not-implemented(AnnotatedType)" //annotations.mkString(underlying + " @", " @", "") - i think we don't need them in the current state
         case ext: ExistentialType => "not-implemented(Existential Type)" //??? - i think we don't need them in the current state
-//          override def safeToString: String = {
-//      def clauses = {
-//      val str = quantified map (_.existentialToString) mkString (" forSome { ", "; ", " }")
-//      if (settings.explaintypes.value) "(" + str + ")" else str
-//      }
-//      underlying match {
-//      case TypeRef(pre, sym, args) if !settings.debug.value && isRepresentableWithWildcards =>
-//      "" + TypeRef(pre, sym, Nil) + wildcardArgsString(quantified.toSet, args).mkString("[", ", ", "]")
-//      case MethodType(_, _) | NullaryMethodType(_) | PolyType(_, _) =>
-//      "(" + underlying + ")" + clauses
-//      case _ =>
-//      "" + underlying + clauses
-//      }
-//      }
         case pt: PolyType => "not-implemented(PolyType)" //Do we need to implement it? - it's not a TypeRef but it contains a type
         case tb: TypeBounds => "not-implemented(TypeBounds)" //??? - i think we don't need them in the current state
         case _ => System.out.println("Type is not found"); "not-implemented(undefined-type)"
@@ -975,33 +947,19 @@ class PrettyPrinters(val global: Global) {
       System.out.println("tr.isInstanceOf[TypTree]: " + tr.isInstanceOf[TypTree])  //false
       System.out.println("tr.isType: " + tr.isType)  //true
       System.out.println("tr.tpe: " + tr.tpe)  //null
-//      if (tr.isInstanceOf[TypTree]) {
 
-      //TODO set checking for empty imports and correct tree
+      //TODO set checking for empty imports and correct tree/type
       initImportsMap(imports)
 
       if (tr.isType) {
         val inType = tr.tpe
         showType(inType)
       } else
-        "something wrong"//tr.toString
+        "passed tree is not tree"//TODO - change to tr.toString after testing
     }
 
-    //TODO reuse this methods
-    //TODO fix Remap
-    def isNotRemap(s: ImportSelector): Boolean = (compareNames(s.name, nme.WILDCARD) || compareNames(s.name, s.rename))
-    def selectorToString(s: ImportSelector): String = {
-      val from = quotedName(s.name)
-      if (isNotRemap(s)) from
-      else from + "=>" + quotedName(s.rename)
-    }
-    def isWildcard(s: ImportSelector): Boolean = {
-      compareNames(s.name, nme.WILDCARD)
-    }
-
-
-    //TODO change to lazy val and remove null
-    private var imports: List[Import] = List()
+    //TODO change to lazy val
+    private var imports: List[Import] = List() //TODO - maybe we don't need this list and can remove it
     private var importsMap: scala.collection.mutable.Map[String, List[ImportSelector]] = scala.collection.mutable.Map.empty
 
     def initImportsMap(imports: List[Import]) = imports map {
@@ -1011,11 +969,8 @@ class PrettyPrinters(val global: Global) {
         //get value or none
         importsMap(impName) = (importsMap get impName) match {
           case Some(list) =>
-            //if for some package we have _ than all possible types and packages are imported
-            //if (list.exists(isWildcard _))
-            //  list
-            //else
-              list ::: imp.selectors distinct
+            //TODO - maybe add _ (wildcard) checking (if we have _ - we don't need to add another imports)
+            list ::: imp.selectors distinct
           case None => imp.selectors
         }
       }
