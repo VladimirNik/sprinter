@@ -48,27 +48,32 @@ class PrettyPrinters(val global: Global) {
     buffer.toString
   }
 
-  //TODO remove - only for test purposes
-  def showType(what: nsc.Global#Tree) = {
-    val buffer = new StringWriter()
-    val writer = new PrintWriter(buffer)
-
-    var printer = new TypePrinter(writer)
-
-    printer.print(what)
-    writer.flush()
-    buffer.toString
-  }
+//  //TODO remove - only for test purposes
+//  def showType(what: nsc.Global#Tree) = {
+//    val buffer = new StringWriter()
+//    val writer = new PrintWriter(buffer)
+//
+//    var printer = new TypePrinter(writer)
+//
+//    printer.print(what)
+//    writer.flush()
+//    buffer.toString
+//  }
 
   def showType(what: nsc.Global#Tree, imports: List[nsc.Global#Import]) = {
-    val buffer = new StringWriter()
-    val writer = new PrintWriter(buffer)
+//    val buffer = new StringWriter()
+//    val writer = new PrintWriter(buffer)
 
-    var printer = new TypePrinter(writer)
+    var printer = new TypePrinter()
 
     printer.showTypeTree(what.asInstanceOf[global.Tree], imports.asInstanceOf[List[global.Import]])
-    writer.flush()
-    buffer.toString
+//    writer.flush()
+//    buffer.toString
+  }
+
+  private def compareNames(name1: Name, name2: Name) = {
+    if (name1 == null || name2 == null) false
+    else name1.toString.trim == name2.toString.trim
   }
 
   class PrettyPrinter(out: PrintWriter) extends global.TreePrinter(out) {
@@ -90,11 +95,6 @@ class PrettyPrinters(val global: Global) {
       case _:ClassDef | _:ModuleDef | _:Template | _:PackageDef => true
       case _ => false
     } getOrElse false
-
-    def compareNames(name1: Name, name2: Name) = {
-      if (name1 == null || name2 == null) false
-      else name1.toString.trim == name2.toString.trim
-    }
 
     override def printFlags(flags: Long, privateWithin: String) =
       printFlags(flags, privateWithin, false)
@@ -744,7 +744,7 @@ class PrettyPrinters(val global: Global) {
 
   class AfterTyperPrinter(out: PrintWriter) extends PrettyPrinter(out)
 
-  class TypePrinter(out: PrintWriter) extends AfterTyperPrinter(out) { //TODO shouldn't extend AfterTyperPrinter, remove after testing
+  class TypePrinter {//(out: PrintWriter) extends AfterTyperPrinter(out) { //TODO shouldn't extend AfterTyperPrinter, remove after testing
 
     import global.shorthands
     //    from Types
@@ -761,56 +761,56 @@ class PrettyPrinters(val global: Global) {
     import global.definitions.{isFunctionType, isTupleType, isByNameParamType, parentsString}
     import global.definitions.{ByNameParamClass, RepeatedParamClass}
 
-    //TODO remove after testing
-    var testImportsList: List[Import] = null;
-
-    //TODO remove after testing
-    override def printTree(tree: Tree) {
-      tree match {
-        case p:PackageDef =>
-          testImportsList = (tree.filter{
-            case i:Import => true
-            case _ => false
-          }).asInstanceOf[List[Import]]
-          super.printTree(tree)
-        case vd@ValDef(mods, name, tp, rhs) =>
-          System.out.println("---------------- show valdef -----------------");
-          System.out.println("name: " + name)
-          System.out.println("showRaw valdef: " + showRaw(vd))
-          System.out.println("imports size: " + testImportsList.size)
-          System.out.println(">>>>>>>>>>> printTree: " + showTypeTree(tp, testImportsList))
-          System.out.println("----------------------------------------------")
-          super.printTree(vd)
-//        case dd: DefDef =>
-//          System.out.println("---------------- show defdef -----------------")
-//          System.out.println(">>>>>>>>>>> printTree: " + showTypeTree(dd.vparamss(0)(0).tpt, testImportsList))
+//    //TODO remove after testing
+//    var testImportsList: List[Import] = null;
+//
+//    //TODO remove after testing
+//    override def printTree(tree: Tree) {
+//      tree match {
+//        case p:PackageDef =>
+//          testImportsList = (tree.filter{
+//            case i:Import => true
+//            case _ => false
+//          }).asInstanceOf[List[Import]]
+//          super.printTree(tree)
+//        case vd@ValDef(mods, name, tp, rhs) =>
+//          System.out.println("---------------- show valdef -----------------");
+//          System.out.println("name: " + name)
+//          System.out.println("showRaw valdef: " + showRaw(vd))
+//          System.out.println("imports size: " + testImportsList.size)
+//          System.out.println(">>>>>>>>>>> printTree: " + showTypeTree(tp, testImportsList))
 //          System.out.println("----------------------------------------------")
-        case imp@Import(expr, selectors) =>
-          expr match {
-            case Ident(name) => System.out.println("Name of ident: " + name.toString)
-            case _ =>
-          }
-          System.out.println("--- show import ---");
-          System.out.println("showRaw import: " + showRaw(imp))
-          System.out.println("import expr: " + backquotedPath(expr))
-          selectors match {
-            case List(s) =>
-              // If there is just one selector and it is not remapping a name, no braces are needed
-              if (isNotRemap(s)) System.out.println("selector: " + selectorToString(s))
-              else System.out.println("selector: " + selectorToString(s))
-            // If there is more than one selector braces are always needed
-            case many =>
-              System.out.println("selector: " + many.map(selectorToString).mkString("{", ", ", "}"))
-          }
-          super.printTree(imp)
-        case _ => super.printTree(tree)
-      }
-    }
+//          super.printTree(vd)
+////        case dd: DefDef =>
+////          System.out.println("---------------- show defdef -----------------")
+////          System.out.println(">>>>>>>>>>> printTree: " + showTypeTree(dd.vparamss(0)(0).tpt, testImportsList))
+////          System.out.println("----------------------------------------------")
+//        case imp@Import(expr, selectors) =>
+//          expr match {
+//            case Ident(name) => System.out.println("Name of ident: " + name.toString)
+//            case _ =>
+//          }
+//          System.out.println("--- show import ---");
+//          System.out.println("showRaw import: " + showRaw(imp))
+//          System.out.println("import expr: " + backquotedPath(expr))
+//          selectors match {
+//            case List(s) =>
+//              // If there is just one selector and it is not remapping a name, no braces are needed
+//              if (isNotRemap(s)) System.out.println("selector: " + selectorToString(s))
+//              else System.out.println("selector: " + selectorToString(s))
+//            // If there is more than one selector braces are always needed
+//            case many =>
+//              System.out.println("selector: " + many.map(selectorToString).mkString("{", ", ", "}"))
+//          }
+//          super.printTree(imp)
+//        case _ => super.printTree(tree)
+//      }
+//    }
 
     private def showType(inType: Type): String = {
       inType match {
         case typeRef@TypeRef(pre, sym, args) => {
-          System.out.println("pre.prefixString: " + pre.prefixString)
+          //System.out.println("pre.prefixString: " + pre.prefixString)
 
           def needsPreString = {
             !shorthands(sym.fullName) || (sym.ownersIterator exists (s => !s.isClass))
@@ -834,7 +834,7 @@ class PrettyPrinters(val global: Global) {
             def fullTypePrefix(s: ImportSelector, importPrefix: String, typeName: String, origPrefix: String) = {
               (origPrefix == importPrefix + ".") && (s.name.toString.trim == typeName)
             }
-            System.out.println("sorting order: " + importsMap.filterKeys(impPrefix => origPrefix.startsWith(impPrefix)).toSeq.sortWith(_._1.length > _._1.length).map{x => x._1})
+            //System.out.println("sorting order: " + importsMap.filterKeys(impPrefix => origPrefix.startsWith(impPrefix)).toSeq.sortWith(_._1.length > _._1.length).map{x => x._1})
             val importPrefix = (importsMap.filterKeys(impPrefix => origPrefix.startsWith(impPrefix)).toSeq.sortWith(_._1.length > _._1.length).find{
               impEntry => {
                 val (iPrefix, impList) = impEntry
@@ -912,7 +912,7 @@ class PrettyPrinters(val global: Global) {
           //TODO - clean the code
           def safeToString = {
             System.out.println("***** safeToString *****")
-            System.out.println("inType.toString: " + inType.toString())
+            //System.out.println("inType.toString: " + inType.toString())
 
             typeRef match {
               case mtr: ModuleTypeRef =>
@@ -920,11 +920,11 @@ class PrettyPrinters(val global: Global) {
                 if (sym.isOmittablePrefix) "" else if (tName.isEmpty) typeRef.toString() else preString(tName, true) + tName + "." + "type"
               case _ => //other TypeRef
                 val custom = customToString
-                System.out.println(">>> custom: " + custom)
+                //System.out.println(">>> custom: " + custom)
                 if (custom != "") custom
                 else {
                   val typeName = sym.nameString
-                  System.out.println("!!! preString: " + preString(typeName))
+                  //System.out.println("!!! preString: " + preString(typeName))
                   finishPrefix(preString(typeName) + typeName + argsString)
                 }
             }
@@ -936,42 +936,58 @@ class PrettyPrinters(val global: Global) {
         case ConstantType(t) => "not-implemented(Constant)" //do we need to implement it?
         case SingleType(pre, name) => "not-implemented(SingleType)"
         case annTpe @ AnnotatedType(annotations, underlying, selfsym) => "not-implemented(AnnotatedType)" //annotations.mkString(underlying + " @", " @", "") - i think we don't need them in the current state
-        case ext: ExistentialType => "not-implemented(Existential Type)" //??? - i think we don't need them in the current state
+        case ext: ExistentialType => "not-implemented(ExistentialType)" //??? - i think we don't need them in the current state
         case pt: PolyType => "not-implemented(PolyType)" //Do we need to implement it? - it's not a TypeRef but it contains a type
         case tb: TypeBounds => "not-implemented(TypeBounds)" //??? - i think we don't need them in the current state
-        case _ => System.out.println("Type is not found"); "not-implemented(undefined-type)"
+        case _ => "not-implemented(undefined-type)"
       }
     }
 
     def showTypeTree(tr: Tree, imports: List[Import]): String = {
-      System.out.println("tr.isInstanceOf[TypTree]: " + tr.isInstanceOf[TypTree])  //false
-      System.out.println("tr.isType: " + tr.isType)  //true
+      //System.out.println("tr.isInstanceOf[TypTree]: " + tr.isInstanceOf[TypTree])  //false
+      //System.out.println("tr.isType: " + tr.isType)  //true
       System.out.println("tr.tpe: " + tr.tpe)  //null
+      //System.out.println("imports.size: " + imports.size)
 
-      //TODO set checking for empty imports and correct tree/type
-      initImportsMap(imports)
-
-      if (tr.isType) {
+      if (tr.isType && !imports.isEmpty) {
+        //System.out.println("inside if")
+        //TODO set checking for empty imports and correct tree/type
+        initImportsMap(imports)
         val inType = tr.tpe
-        showType(inType)
-      } else
-        "passed tree is not tree"//TODO - change to tr.toString after testing
+        val result = showType(inType)
+        System.out.println("result (showTypeTree(tr: Tree, imports: List[Import])): " + result)
+        result
+      } else {
+        //System.out.println("inside else")
+        if (!tr.isType)
+          "passed_tr_is_not_tree"//TODO - change to tr.toString after testing
+        else if (imports.isEmpty)
+          "imports_are_empty"
+        else "problem_with_showTypeTree"
+      }
     }
 
     //TODO change to lazy val
     private var imports: List[Import] = List() //TODO - maybe we don't need this list and can remove it
     private var importsMap: scala.collection.mutable.Map[String, List[ImportSelector]] = scala.collection.mutable.Map.empty
 
-    def initImportsMap(imports: List[Import]) = imports map {
+    def initImportsMap(imports: List[Import]) = {
       this.imports = imports
-      imp => {
-        val impName = backquotedPath(imp.expr)
-        //get value or none
-        importsMap(impName) = (importsMap get impName) match {
-          case Some(list) =>
-            //TODO - maybe add _ (wildcard) checking (if we have _ - we don't need to add another imports)
-            list ::: imp.selectors distinct
-          case None => imp.selectors
+      imports map {
+        imp => {
+          val shortName = backquotedPath(imp.expr)
+          val fullName = imp.expr.symbol.fullName
+          System.out.println("shortName (in imports) = " + shortName)
+          System.out.println("fullName (in imports) = " + fullName)
+          val impName = if (shortName.length < fullName.length) fullName else shortName
+
+          //get value or none
+          importsMap(impName) = (importsMap get impName) match {
+            case Some(list) =>
+              //TODO - maybe add _ (wildcard) checking (if we have _ - we don't need to add another imports)
+              list ::: imp.selectors distinct
+            case None => imp.selectors
+          }
         }
       }
     }
