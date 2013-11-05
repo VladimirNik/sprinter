@@ -34,7 +34,8 @@ class PrettyPrinters(val global: Global) {
 
   import global._
 
-  def show(what: nsc.Global#Tree, printerType: PrettyPrinters.PrinterDescriptor = PrettyPrinters.AFTER_TYPER) = {
+  //TODO set printMultiline for false
+  def show(what: nsc.Global#Tree, printerType: PrettyPrinters.PrinterDescriptor = PrettyPrinters.AFTER_TYPER, printMultiline: Boolean = true) = {
     val buffer = new StringWriter()
     val writer = new PrintWriter(buffer)
 
@@ -76,7 +77,7 @@ class PrettyPrinters(val global: Global) {
     else name1.toString.trim == name2.toString.trim
   }
 
-  class PrettyPrinter(out: PrintWriter) extends global.TreePrinter(out) {
+  class PrettyPrinter(out: PrintWriter, printMultiline: Boolean = true) extends global.TreePrinter(out) {
     //TODO maybe we need to pass this stack when explicitly run show inside print
     val contextStack = scala.collection.mutable.Stack[Tree]()
 
@@ -356,6 +357,10 @@ class PrettyPrinters(val global: Global) {
           }
 
         case vd@ValDef(mods, name, tp, rhs) =>
+//          System.out.println("============= valDef ===============")
+//          System.out.println("global.show(vd): " + global.show(vd))
+//          System.out.println("showRaw: " + showRaw(vd))
+
           printAnnotations(tree)
           printModifiers(tree, mods)
           print(if (mods.isMutable) "var " else "val ", symName(tree, name))
@@ -655,10 +660,46 @@ class PrettyPrinters(val global: Global) {
             print("")
           }
 
-        case Literal(x) =>
+        case l@Literal(x) =>
+          System.out.println("======== Literal =======")
           //processing Float constants
-          val printValue = x.escapedStringValue + (if (x.value.isInstanceOf[Float]) "F" else "") //correct printing of Float
-          print(printValue)
+//          System.out.println("l.pos.end: " + l.pos.end)
+//          System.out.println("l.pos.isDefined: " + l.pos.isDefined)
+//          System.out.println("l.pos.isOpaqueRange: " + l.pos.isOpaqueRange)
+//          System.out.println("l.pos.isRange: " + l.pos.isRange)
+//          System.out.println("l.pos.isTransparent: " + l.pos.isTransparent)
+//          System.out.println("l.pos.all: " + l.pos.all)
+//          System.out.println("l.pos.show: " + l.pos.show)
+//          System.out.println("l.pos.start: " + l.pos.start)
+          x match {
+            case x: Constant if x.tag == global.StringTag =>
+              System.out.println("Literal(showRaw(l)): " + showRaw(l))
+              System.out.println("x.stringValue: " + x.stringValue)
+              System.out.println("x.stringValue.toCharArray: ");x.stringValue.toCharArray.foreach(sym => System.out.print(sym + " "))
+              System.out.println("\nx.escapedStringValue: " + x.escapedStringValue)
+              System.out.println("x.escapedStringValue.toCharArray: "); x.escapedStringValue.toCharArray.foreach(sym => System.out.print(sym + " "))
+              System.out.println("\n=========================")
+
+//              System.out.println("Constant: ")
+//              System.out.println("x.escapedStringValue: " + x.escapedStringValue)
+//              System.out.println("x.stringValue: " + x.stringValue)
+//              System.out.println("x.symbolValue: " + (if (x.value.isInstanceOf[Symbol]) x.symbolValue else "no"))
+//              System.out.println("x.tpe: " + x.tpe)
+//              System.out.println("x.typeValue: " + (if (x.value.isInstanceOf[Type]) x.typeValue else "no"))
+//              System.out.println("x.tag: " + x.tag)
+//              System.out.println("x.value: " + x.value)
+//              System.out.println("x.value: " + x)
+            case _ =>
+          }
+          val stringValue = x.stringValue
+          if (x.tag == global.StringTag && printMultiline && stringValue.contains("\n") && !stringValue.contains("\n\n\n")) {
+            val multilineStringValue = stringValue.split('\n'.toString)
+            val trQuotes = "\"\"\""
+            print(trQuotes); printSeq(multilineStringValue.toList){print(_)}{print("\n")}; print(trQuotes)
+          } else {
+            val printValue = x.escapedStringValue + (if (x.value.isInstanceOf[Float]) "F" else "") //correct printing of Float
+            print(printValue)
+          }
 
         case Annotated(Apply(Select(New(tpt), nme.CONSTRUCTOR), args), tree) =>
           def printAnnot() {
@@ -742,7 +783,8 @@ class PrettyPrinters(val global: Global) {
       }
   }
 
-  class AfterTyperPrinter(out: PrintWriter) extends PrettyPrinter(out)
+  //TODO change printMultiline for option object - to pass all parameters
+  class AfterTyperPrinter(out: PrintWriter, printMultiline: Boolean = true) extends PrettyPrinter(out, printMultiline)
 
   class TypePrinter {//(out: PrintWriter) extends AfterTyperPrinter(out) { //TODO shouldn't extend AfterTyperPrinter, remove after testing
 
@@ -975,8 +1017,18 @@ class PrettyPrinters(val global: Global) {
       this.imports = imports
       imports map {
         imp => {
+          imp match {
+            case Import(exp, selectors) if selectors.exists(im =>
+              im.name.toString == nme.WILDCARD.toString
+            ) =>
+              val all = exp.tpe.members.filter(_.isPackage).map(_.name).toSet
+              System.out.println(">>>>>>> all: " + all)
+            case _ =>
+          }
           val shortName = backquotedPath(imp.expr)
           val fullName = imp.expr.symbol.fullName
+          System.out.println("imp.symbol.children: " + imp.symbol.children)
+          System.out.println("imp.symbol.ancestors: " + imp.symbol.ancestors)
           System.out.println("shortName (in imports) = " + shortName)
           System.out.println("fullName (in imports) = " + fullName)
           val impName = if (shortName.length < fullName.length) fullName else shortName

@@ -15,7 +15,8 @@ object SprinterBuild extends Build {
     //scalaBinaryVersion <<= scalaVersion,
     //crossVersion := CrossVersion.full,
     //exportJars := true,
-    libraryDependencies <++= scalaVersion apply dependencies
+    libraryDependencies <++= scalaVersion apply dependencies,
+    publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
   ) settings (websiteSettings: _*)
 
   lazy val websiteSettings: Seq[Setting[_]] = (
