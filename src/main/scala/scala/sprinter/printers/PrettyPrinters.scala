@@ -658,10 +658,11 @@ class PrettyPrinters(val global: Global) {
 //              System.out.println("\n=========================")
 //            case _ =>
 //          }
-          val stringValue = x.stringValue
-          if (x.tag == global.StringTag && printMultiline && stringValue.contains("\n") && !stringValue.contains("\n\n\n")) {
-            val splitValue = stringValue.split('\n'.toString).toList
-            val multilineStringValue = if (stringValue.endsWith("\n")) splitValue :+ "" else splitValue
+
+          //TODO refactor multiline string processing - x.stringValue
+          if (x.isInstanceOf[String] && printMultiline && x.stringValue.contains("\n") && !x.stringValue.contains("\n\n\n") && x.stringValue.size > 1) {
+            val splitValue = x.stringValue.split('\n'.toString).toList
+            val multilineStringValue = if (x.stringValue.endsWith("\n")) splitValue :+ "" else splitValue
             val trQuotes = "\"\"\""
             print(trQuotes); printSeq(multilineStringValue){print(_)}{print("\n")}; print(trQuotes)
             System.out.println("=====================================")
