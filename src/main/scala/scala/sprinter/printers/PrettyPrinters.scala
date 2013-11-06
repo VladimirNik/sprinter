@@ -277,7 +277,9 @@ class PrettyPrinters(val global: Global) {
                       else vparams map {
                         vparam =>
                           templateVals find {
-                            _._1.toString.trim == vparam.name.toString.trim
+                            tv =>
+                              compareNames(tv._1, vparam.name)
+//                            _._1.toString.trim == vparam.name.toString.trim
                           } map {
                             templateVal =>
                               ValDef(Modifiers(vparam.mods.flags | templateVal._2.flags, templateVal._2.privateWithin,
@@ -313,7 +315,8 @@ class PrettyPrinters(val global: Global) {
         case PackageDef(packaged, stats) =>
           contextManaged(tree){
             packaged match {
-              case Ident(name) if name.toString.trim == nme.EMPTY_PACKAGE_NAME.toString.trim =>
+              case Ident(name) if compareNames(name, nme.EMPTY_PACKAGE_NAME) =>
+//                if name.toString.trim == nme.EMPTY_PACKAGE_NAME.toString.trim =>
                 printSeq(stats) {
                   print(_)
                 } {
@@ -477,17 +480,20 @@ class PrettyPrinters(val global: Global) {
           val (left, right) = body.filter {
             //remove valdefs defined in constructor and pre-init block
             case vd: ValDef => !vd.mods.hasFlag(PARAMACCESSOR) && !vd.mods.hasFlag(PRESUPER)
-            case dd: DefDef => dd.name.toString.trim != nme.MIXIN_CONSTRUCTOR.toString.trim //remove $this$ from traits
+            case dd: DefDef => compareNames(dd.name, nme.MIXIN_CONSTRUCTOR) //remove $this$ from traits
+//              dd.name.toString.trim != nme.MIXIN_CONSTRUCTOR.toString.trim
             case EmptyTree => false
             case _ => true
           } span {
-            case dd: DefDef => dd.name.toString.trim != nme.CONSTRUCTOR.toString.trim
+            case dd: DefDef => compareNames(dd.name, nme.CONSTRUCTOR)
+//              dd.name.toString.trim != nme.CONSTRUCTOR.toString.trim
             case _ => true
           }
 
           val modBody = left ::: right.drop(1)//List().drop(1) ==> List()
           if (!modBody.isEmpty || !self.isEmpty) {
-            if (self.name.toString.trim != nme.WILDCARD.toString.trim) {
+            if (compareNames(self.name, nme.WILDCARD)) {
+//            if (self.name.toString.trim != nme.WILDCARD.toString.trim) {
               print(" { ", self.name);
               printOpt(": ", self.tpt);
               print(" => ")
@@ -597,7 +603,7 @@ class PrettyPrinters(val global: Global) {
           tree match {
             //processing methods ending on colons (x \: list)
             case Apply(Block(l1 @ List(sVD :ValDef), a1 @ Apply(Select(_, methodName), l2 @ List(Ident(iVDName)))), l3 @ List(_*))
-              if sVD.mods.hasFlag(SYNTHETIC) && methodName.toString.endsWith("$colon") && (sVD.name.toString.trim == iVDName.toString.trim) =>
+              if sVD.mods.hasFlag(SYNTHETIC) && methodName.toString.endsWith("$colon") && compareNames(sVD.name, iVDName) => //&& (sVD.name.toString.trim == iVDName.toString.trim) =>
               val printBlock = Block(l1, Apply(a1, l3))
               print(printBlock)
             case Apply(tree1, _) if (specialTreeContext(tree1)(iAnnotated = false)) => codeInParantheses(){print(fun)}; printRow(vargs, "(", ", ", ")")
@@ -696,12 +702,14 @@ class PrettyPrinters(val global: Global) {
             print(" => ", args.last, ")")
           } else {
             if (tp.exists {
-              case Select(_, name) => name.toString.trim == tpnme.REPEATED_PARAM_CLASS_NAME.toString.trim
+              case Select(_, name) => compareNames(name, tpnme.REPEATED_PARAM_CLASS_NAME)
+                //name.toString.trim == tpnme.REPEATED_PARAM_CLASS_NAME.toString.trim
               case _ => false
             } && !args.isEmpty) {
               print(args(0), "*")
             } else if (tp match {
-              case Select(_, name) => name.toString.trim == tpnme.BYNAME_PARAM_CLASS_NAME.toString.trim
+              case Select(_, name) => compareNames(name, tpnme.BYNAME_PARAM_CLASS_NAME)
+                //name.toString.trim == tpnme.BYNAME_PARAM_CLASS_NAME.toString.trim
               case _ => false
             }) {
               print("=> ", if (args.isEmpty) "()" else args(0))
@@ -724,7 +732,8 @@ class PrettyPrinters(val global: Global) {
 
     //Danger: it's overwritten method - can be problems with inheritance)
     def symName(tree: Tree, name: Name, decoded: Boolean = false): String =
-      if (name == nme.CONSTRUCTOR) "this"
+      if (compareNames(name, nme.CONSTRUCTOR)) "this"
+      //if (name == nme.CONSTRUCTOR) "this"
       else quotedName(name, decoded)
 
       override def print(args: Any*): Unit = {
