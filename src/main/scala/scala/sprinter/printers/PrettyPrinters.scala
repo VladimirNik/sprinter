@@ -279,7 +279,6 @@ class PrettyPrinters(val global: Global) {
                           templateVals find {
                             tv =>
                               compareNames(tv._1, vparam.name)
-//                            _._1.toString.trim == vparam.name.toString.trim
                           } map {
                             templateVal =>
                               ValDef(Modifiers(vparam.mods.flags | templateVal._2.flags, templateVal._2.privateWithin,
@@ -316,7 +315,6 @@ class PrettyPrinters(val global: Global) {
           contextManaged(tree){
             packaged match {
               case Ident(name) if compareNames(name, nme.EMPTY_PACKAGE_NAME) =>
-//                if name.toString.trim == nme.EMPTY_PACKAGE_NAME.toString.trim =>
                 printSeq(stats) {
                   print(_)
                 } {
@@ -340,10 +338,6 @@ class PrettyPrinters(val global: Global) {
           }
 
         case vd@ValDef(mods, name, tp, rhs) =>
-//          System.out.println("============= valDef ===============")
-//          System.out.println("global.show(vd): " + global.show(vd))
-//          System.out.println("showRaw: " + showRaw(vd))
-
           printAnnotations(tree)
           printModifiers(tree, mods)
           print(if (mods.isMutable) "var " else "val ", symName(tree, name))
@@ -481,19 +475,16 @@ class PrettyPrinters(val global: Global) {
             //remove valdefs defined in constructor and pre-init block
             case vd: ValDef => !vd.mods.hasFlag(PARAMACCESSOR) && !vd.mods.hasFlag(PRESUPER)
             case dd: DefDef => !compareNames(dd.name, nme.MIXIN_CONSTRUCTOR) //remove $this$ from traits
-//              dd.name.toString.trim != nme.MIXIN_CONSTRUCTOR.toString.trim
             case EmptyTree => false
             case _ => true
           } span {
             case dd: DefDef => !compareNames(dd.name, nme.CONSTRUCTOR)
-//              dd.name.toString.trim != nme.CONSTRUCTOR.toString.trim
             case _ => true
           }
 
           val modBody = left ::: right.drop(1)//List().drop(1) ==> List()
           if (!modBody.isEmpty || !self.isEmpty) {
             if (!compareNames(self.name, nme.WILDCARD)) {
-//            if (self.name.toString.trim != nme.WILDCARD.toString.trim) {
               print(" { ", self.name);
               printOpt(": ", self.tpt);
               print(" => ")
@@ -647,31 +638,12 @@ class PrettyPrinters(val global: Global) {
           }
 
         case l@Literal(x) =>
-//          System.out.println("======== Literal =======")
-//          x match {
-//            case x: Constant if x.tag == global.StringTag =>
-//              System.out.println("Literal(showRaw(l)): " + showRaw(l))
-//              System.out.println("x.stringValue: " + x.stringValue)
-//              System.out.println("x.stringValue.toCharArray: ");x.stringValue.toCharArray.foreach(sym => System.out.print(sym + " "))
-//              System.out.println("\nx.escapedStringValue: " + x.escapedStringValue)
-//              System.out.println("x.escapedStringValue.toCharArray: "); x.escapedStringValue.toCharArray.foreach(sym => System.out.print(sym + " "))
-//              System.out.println("\n=========================")
-//            case _ =>
-//          }
-
           //TODO refactor multiline string processing - x.stringValue
           if (x.isInstanceOf[String] && printMultiline && x.stringValue.contains("\n") && !x.stringValue.contains("\n\n\n") && x.stringValue.size > 1) {
             val splitValue = x.stringValue.split('\n'.toString).toList
             val multilineStringValue = if (x.stringValue.endsWith("\n")) splitValue :+ "" else splitValue
             val trQuotes = "\"\"\""
             print(trQuotes); printSeq(multilineStringValue){print(_)}{print("\n")}; print(trQuotes)
-            System.out.println("=====================================")
-            System.out.println("originalString: " + x.escapedStringValue)
-            var fString = "";
-            multilineStringValue foreach {x => fString = fString + (x+"\n")}
-            val finalString = trQuotes + fString + trQuotes
-            System.out.println("transformedString: " + finalString)
-            System.out.println("=====================================")
           } else {
             //processing Float constants
             val printValue = x.escapedStringValue + (if (x.value.isInstanceOf[Float]) "F" else "") //correct printing of Float
@@ -712,13 +684,11 @@ class PrettyPrinters(val global: Global) {
           } else {
             if (tp.exists {
               case Select(_, name) => compareNames(name, tpnme.REPEATED_PARAM_CLASS_NAME)
-                //name.toString.trim == tpnme.REPEATED_PARAM_CLASS_NAME.toString.trim
               case _ => false
             } && !args.isEmpty) {
               print(args(0), "*")
             } else if (tp match {
               case Select(_, name) => compareNames(name, tpnme.BYNAME_PARAM_CLASS_NAME)
-                //name.toString.trim == tpnme.BYNAME_PARAM_CLASS_NAME.toString.trim
               case _ => false
             }) {
               print("=> ", if (args.isEmpty) "()" else args(0))
@@ -742,7 +712,6 @@ class PrettyPrinters(val global: Global) {
     //Danger: it's overwritten method - can be problems with inheritance)
     def symName(tree: Tree, name: Name, decoded: Boolean = false): String =
       if (compareNames(name, nme.CONSTRUCTOR)) "this"
-      //if (name == nme.CONSTRUCTOR) "this"
       else quotedName(name, decoded)
 
       override def print(args: Any*): Unit = {
