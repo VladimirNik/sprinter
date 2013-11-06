@@ -35,13 +35,13 @@ class PrettyPrinters(val global: Global) {
   import global._
 
   //TODO set printMultiline for false
-  def show(what: nsc.Global#Tree, printerType: PrettyPrinters.PrinterDescriptor = PrettyPrinters.AFTER_TYPER, printMultiline: Boolean = true) = {
+  def show(what: nsc.Global#Tree, printerType: PrettyPrinters.PrinterDescriptor = PrettyPrinters.AFTER_TYPER, printMultiline: Boolean = false) = {
     val buffer = new StringWriter()
     val writer = new PrintWriter(buffer)
 
     var printer = printerType match {
-      case PrettyPrinters.AFTER_NAMER => new PrettyPrinter(writer)
-      case PrettyPrinters.AFTER_TYPER | _ => new AfterTyperPrinter(writer)
+      case PrettyPrinters.AFTER_NAMER => new PrettyPrinter(writer, printMultiline)
+      case PrettyPrinters.AFTER_TYPER | _ => new AfterTyperPrinter(writer, printMultiline)
     }
 
     printer.print(what)
@@ -57,7 +57,7 @@ class PrettyPrinters(val global: Global) {
 //  }
 
   //TODO change printMultiline for option object - to pass all parameters
-  class PrettyPrinter(out: PrintWriter, printMultiline: Boolean = true) extends global.TreePrinter(out) {
+  class PrettyPrinter(out: PrintWriter, printMultiline: Boolean = false) extends global.TreePrinter(out) {
     //TODO maybe we need to pass this stack when explicitly run show inside print
     val contextStack = scala.collection.mutable.Stack[Tree]()
 
@@ -660,9 +660,17 @@ class PrettyPrinters(val global: Global) {
 //          }
           val stringValue = x.stringValue
           if (x.tag == global.StringTag && printMultiline && stringValue.contains("\n") && !stringValue.contains("\n\n\n")) {
-            val multilineStringValue = stringValue.split('\n'.toString)
+            val splitValue = stringValue.split('\n'.toString).toList
+            val multilineStringValue = if (stringValue.endsWith("\n")) splitValue :+ "" else splitValue
             val trQuotes = "\"\"\""
-            print(trQuotes); printSeq(multilineStringValue.toList){print(_)}{print("\n")}; print(trQuotes)
+            print(trQuotes); printSeq(multilineStringValue){print(_)}{print("\n")}; print(trQuotes)
+            System.out.println("=====================================")
+            System.out.println("originalString: " + x.escapedStringValue)
+            var fString = "";
+            multilineStringValue foreach {x => fString = fString + (x+"\n")}
+            val finalString = trQuotes + fString + trQuotes
+            System.out.println("transformedString: " + finalString)
+            System.out.println("=====================================")
           } else {
             //processing Float constants
             val printValue = x.escapedStringValue + (if (x.value.isInstanceOf[Float]) "F" else "") //correct printing of Float
@@ -755,5 +763,5 @@ class PrettyPrinters(val global: Global) {
   }
 
   //TODO change printMultiline for option object - to pass all parameters
-  class AfterTyperPrinter(out: PrintWriter, printMultiline: Boolean = true) extends PrettyPrinter(out, printMultiline)
+  class AfterTyperPrinter(out: PrintWriter, printMultiline: Boolean = false) extends PrettyPrinter(out, printMultiline)
 }
