@@ -480,19 +480,19 @@ class PrettyPrinters(val global: Global) {
           val (left, right) = body.filter {
             //remove valdefs defined in constructor and pre-init block
             case vd: ValDef => !vd.mods.hasFlag(PARAMACCESSOR) && !vd.mods.hasFlag(PRESUPER)
-            case dd: DefDef => compareNames(dd.name, nme.MIXIN_CONSTRUCTOR) //remove $this$ from traits
+            case dd: DefDef => !compareNames(dd.name, nme.MIXIN_CONSTRUCTOR) //remove $this$ from traits
 //              dd.name.toString.trim != nme.MIXIN_CONSTRUCTOR.toString.trim
             case EmptyTree => false
             case _ => true
           } span {
-            case dd: DefDef => compareNames(dd.name, nme.CONSTRUCTOR)
+            case dd: DefDef => !compareNames(dd.name, nme.CONSTRUCTOR)
 //              dd.name.toString.trim != nme.CONSTRUCTOR.toString.trim
             case _ => true
           }
 
           val modBody = left ::: right.drop(1)//List().drop(1) ==> List()
           if (!modBody.isEmpty || !self.isEmpty) {
-            if (compareNames(self.name, nme.WILDCARD)) {
+            if (!compareNames(self.name, nme.WILDCARD)) {
 //            if (self.name.toString.trim != nme.WILDCARD.toString.trim) {
               print(" { ", self.name);
               printOpt(": ", self.tpt);
