@@ -644,7 +644,7 @@ class PrettyPrinters(val global: Global) {
 
         case l@Literal(x) =>
           //TODO refactor multiline string processing - x.stringValue
-          if (x.isInstanceOf[String] && printMultiline && x.stringValue.contains("\n") && !x.stringValue.contains("\n\n\n") && x.stringValue.size > 1) {
+          if (x.value.isInstanceOf[String] && printMultiline && x.stringValue.contains("\n") && !x.stringValue.contains("\"\"\"") && x.stringValue.size > 1) {
             val splitValue = x.stringValue.split('\n'.toString).toList
             val multilineStringValue = if (x.stringValue.endsWith("\n")) splitValue :+ "" else splitValue
             val trQuotes = "\"\"\""
