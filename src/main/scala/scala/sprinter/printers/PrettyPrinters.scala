@@ -14,7 +14,7 @@ import nsc.Global
 import scala.reflect.internal.Definitions
 import scala.util.control.ControlThrowable
 import scala.annotation.tailrec
-import scala.reflect.internal.util.Statistics
+import scala.reflect.internal.util.{SourceFile, Statistics}
 import scala.runtime.ObjectRef
 import scala.reflect.internal.util.ThreeValues._
 import scala.reflect.api.Symbols
@@ -27,6 +27,15 @@ object PrettyPrinters{
 
   def apply(global: Global) = {
     new PrettyPrinters(global)
+  }
+
+  def showType(global: nsc.Global, what: nsc.interactive.Global#Tree, context: nsc.interactive.Global#Context) = {
+    apply(global).showType(what, context)
+  }
+
+  //TODO implement
+  def showType(global: nsc.interactive.Global, what: nsc.interactive.Global#Tree) = {
+    //TODO implement using toASK method
   }
 }
 
@@ -49,9 +58,15 @@ class PrettyPrinters(val global: Global) {
     buffer.toString
   }
 
-  def showType(what: nsc.Global#Tree, imports: List[nsc.Global#Import]) = {
-    var printer = new TypePrinter()
-    printer.showTypeTree(what.asInstanceOf[global.Tree], imports.asInstanceOf[List[global.Import]])
+  //TODO remove it
+  def showType(what: nsc.Global#Tree, imports: List[nsc.Global#Import], file: SourceFile) = {
+    val printer = new TypePrinter()
+    printer.showTypeTree(what.asInstanceOf[global.Tree], imports.asInstanceOf[List[global.Import]], file)
+  }
+
+  def showType(what: nsc.Global#Tree, context: nsc.interactive.Global#Context) = {
+    val printer = new TypePrinter()
+    //TODO implement
   }
 
   private def compareNames(name1: Name, name2: Name) =
@@ -939,11 +954,209 @@ class PrettyPrinters(val global: Global) {
       }
     }
 
-    def showTypeTree(tr: Tree, imports: List[Import]): String = {
+
+    def showTypeTree(tr: Tree, context: nsc.interactive.Global#Context): String = {
+
+      ""
+    }
+
+    def showTypeTree(tr: Tree, imports: List[Import], file: SourceFile): String = {
       //System.out.println("tr.isInstanceOf[TypTree]: " + tr.isInstanceOf[TypTree])  //false
       //System.out.println("tr.isType: " + tr.isType)  //true
       System.out.println("tr.tpe: " + tr.tpe)  //null
       //System.out.println("imports.size: " + imports.size)
+
+      import scala.tools.nsc._
+      import scala.tools.nsc.util._
+      import scala.tools.nsc.reporters._
+      import scala.tools.nsc.io._
+
+      val globalC: Global = {
+        val settings = new Settings()
+
+        val COLON = System getProperty "path.separator"
+
+        settings.classpath.value = this.getClass.getClassLoader match {
+          case ctx: java.net.URLClassLoader => ctx.getURLs.map(_.getPath).mkString(COLON)
+          case _                            => System.getProperty("java.class.path")
+        }
+
+//        settings.classpath.value = global.classPath.asClasspathString
+
+        settings.bootclasspath.value = Predef.getClass.getClassLoader match {
+          case ctx: java.net.URLClassLoader => ctx.getURLs.map(_.getPath).mkString(COLON)
+          case _                            => System.getProperty("sun.boot.class.path")
+        }
+
+        settings.encoding.value = "UTF-8"
+        settings.outdir.value = "."
+        settings.extdirs.value = ""
+
+        val reporter = new ConsoleReporter(settings, null, new PrintWriter(System.out)) //writer
+        new Global(settings, reporter)
+      }
+
+      System.out.println("========================================================")
+      System.out.println("Parsed tree: " + tr.tpe)
+      System.out.println("global.isInstanceOf[nsc.interactive.Global]: " + global.isInstanceOf[nsc.interactive.Global])
+      val treeType = tr.tpe
+      System.out.println("treeType: " + treeType)
+      val symTree = tr.symbol
+      System.out.println("tr.symbol: " + symTree)
+      val isType = tr.symbol.isType
+      System.out.println("tr.symbol.isType: " + isType)
+      val interactive = new nsc.interactive.Global(globalC.settings, globalC.reporter)
+      System.out.println("interactive: " + interactive)
+
+      //interactive.askReload()
+      //interactive.askParse()
+
+      //interactive.getSourceFile("");
+      //val newUnit = interactive.unitOf(file)
+      //System.out.println("interactive.unitOf(file): " + newUnit)
+
+      //System.out.println("newUnit.contexts: " + newUnit.contexts)
+
+      //      interactive.demandNewCompilerRun()
+
+
+      val allSources = (global.currentRun.units map {unit => unit.source} filter {sf => sf.path.contains("aa/bb")}).toList
+      System.out.println("allSources: " + allSources)
+      System.out.println("allSources.size: " + allSources.size)
+      val file = allSources.find(sf => sf.file.name == "MainTest.scala") getOrElse{
+        System.out.println("Else branch or allSources")
+        global.getSourceFile("/home/vova/scala-projects/GSoC/type-printing/aa/bb/MainTest.scala")}
+//      System.out.println("file: " + file)
+
+//      val file = global.getSourceFile("/home/vova/scala-projects/GSoC/type-printing/aa/bb/MainTest.scala")
+//      val otherFile = global.getSourceFile("/home/vova/scala-projects/GSoC/type-printing/aa/bb/cc/dd/OtherClass.scala")
+      System.out.println("File path: " + file.path)
+
+//      val file = tr.pos.source
+
+      System.out.println("=== before asking reload: ===")
+      import scala.tools.nsc.interactive._
+      val response = new Response[Unit]()
+//      interactive.askReload(List(tr.pos.source), response)
+      interactive.askReload(allSources, response)
+//      interactive.askReload(List(file, otherFile), response)
+//      response.get(10000) match {
+//        case Some(Left(_)) => System.out.println("Success!!")
+//        case Some(Right(e)) => System.out.println("handle exception e")
+//        case None => System.out.println("timed out")
+//      }
+
+      response.get match {
+        case Left(ret) => System.out.println("ret.toString: " + ret.toString);System.out.println("Success!!")
+        case Right(e) => System.out.println("handle exception e")
+        case _ => System.out.println("Something wrong")
+      }
+
+      val loadedResponse = new Response[interactive.Tree]
+      interactive.askLoadedTyped(file, loadedResponse)
+
+      loadedResponse.get match {
+        case Right(e) => System.out.println("Failed to get tree")
+        case Left(_) => {
+          val loadedTree: interactive.Tree = loadedResponse.get.left.get
+          System.out.println("loaded tree: " + loadedTree)
+
+          val typeTrees = (loadedTree.filter{
+            case interactive.ValDef(mods, name, tp, rhs) => true
+            case _ => false
+          }).asInstanceOf[List[ValDef]].distinct.map(_.tpt)
+
+          var inContext1: interactive.Context = null
+          val finalResponse = interactive.askForResponse(() => {
+            typeTrees.foreach{tt =>
+              System.out.println("------------------------------------------")
+              val inContext0 = interactive.locateContext(tt.pos).getOrElse(null)
+              inContext1 = inContext0
+              System.out.println("tt: " + tt.tpe)
+              System.out.println("inContext0: " + inContext0)
+              System.out.println("inContext0.imports: " + inContext0.imports)
+              System.out.println("inContext0.imports.size: " + inContext0.imports.size)
+            }
+          })
+          finalResponse.get
+          System.out.println("inContext1: " + inContext1)
+          System.out.println("inContext1.imports: " + inContext1.imports)
+          System.out.println("inContext1.imports.size: " + inContext1.imports.size)
+          System.out.println("response.isCancelled: " + response.isCancelled)
+          System.out.println("response.isComplete: " + response.isComplete)
+          System.out.println("=== after asking reload: ===")
+        }
+      }
+
+
+//      val parsedTree = interactive.parseTree(file)
+//      System.out.println("interactive.parseTree(file): " + parsedTree)
+
+//      val unit = interactive.getUnitOf(file)
+//      System.out.println("interactive.getUnitOf(file): " + unit)
+
+//      val iff = interactive.unitOf(file)
+//      System.out.println("interactive.unitOf(file): " + iff)
+
+//      val unitOfFile = interactive.unitOfFile
+//      System.out.println("interactive.unitOfFile: " + unitOfFile)
+
+//      val gettedFromUnit = unitOfFile.get(file.file)
+//      System.out.println("gettedFromUnit: " + gettedFromUnit)
+//
+//      val someUnit = unitOfFile.toList
+//      System.out.println("unitOfFile.toList: " + unitOfFile.toList)
+//
+//      System.out.println("someUnit.size: " + someUnit.size)
+
+//      val finalUnit = someUnit(0)
+//      System.out.println("final unit: " + finalUnit)
+
+//      val unitOfFileKey = someUnit(0)._1
+//      System.out.println("unitOfFileKey: " + unitOfFileKey)
+//      val unitOfFileValue = someUnit(0)._2
+//      System.out.println("unitOfFileValue: " + unitOfFileValue)
+
+//      val currentUnit = unit.getOrElse(null)
+//      System.out.println("currentUnit: " + currentUnit)
+
+      //System.out.println("unitOfFileValue.contexts: " + unitOfFileValue.contexts)
+
+//      if (currentUnit != null) {
+//        val inContext = interactive.locateContext(tr.pos).getOrElse(null)
+//        System.out.println("inContext: " + inContext)
+//
+//        System.out.println("currentUnit.contexts: " + currentUnit.contexts)
+//        System.out.println("currentUnit.contexts.size: " + currentUnit.contexts.size)
+//      }
+
+
+//      System.out.println("global.currentSource: " + global.currentSource)
+//      System.out.println("global.currentUnit: " + global.currentUnit)
+//      System.out.println("global.settings: " + global.settings)
+//
+//      System.out.println("interactive.currentSource: " + interactive.currentSource)
+//      System.out.println("interactive.currentUnit: " + interactive.currentUnit)
+//      System.out.println("interactive.settings: " + interactive.settings)
+
+
+
+//      System.out.println("tr.pos.source: " + tr.pos.source)
+//      System.out.println("tr.pos.source.file: " + tr.pos.source.file)
+//      //interactive.newTyperRun()
+//      val context = interactive.locateContext(tr.pos).getOrElse(null)
+//      System.out.println("context: " + context)
+//      if (context != null) {
+//        val importInfoList = context.imports
+//        val size = importInfoList.size
+//        System.out.println("importInfoList size: " + size)
+//        val importList = importInfoList map {x => x.tree}
+//        val ls: List[String] = importList map {tr => tr.expr.toString()}
+//      }
+      interactive.askReset()
+      interactive.askShutdown()
+      System.out.println("========================================================")
+
 
       if (tr.isType && !imports.isEmpty) {
         //System.out.println("inside if")
