@@ -48,24 +48,28 @@ object CompilerRunner {
 
         val resultInfo = interactive.askForResponse(
           () =>
-            typeTrees.foreach{
+            typeTrees.map{
               tt =>
                 val context = interactive.locateContext(tt.pos)
                 val result = typePrinters.showType(tt, context.get)
+                System.out.println("RESULT (PRINT_PLUGIN) = " + result)
                 //add list of imports
                 //add first type
-                System.out.println("RESULT (PRINT_PLUGIN) = " + result)
+                System.out.println(s"(tt: $tt, context: $context)")
+                (tt, context)
             }
         )
 
-//        resultInfo.get match {
-//          case Left(value) =>
-//            value match {
-//              case Some(res) => System.out.println("RESULT (PRINT_PLUGIN) = " + res)
-//              case None => System.out.println("None value returned")
-//            }
-//          case Right(_) => System.out.println("Test is not workable")
-//        }
+        resultInfo.get match {
+          case Left(value) =>
+            value.foreach{
+              case (tree, Some(context)) =>
+                val result = typePrinters.showType(tree, context)
+                System.out.println("RESULT (PRINT_PLUGIN) = " + result)
+              case (tree, None) => System.out.println(s"Context for $tree is not found")
+            }
+          case Right(_) => System.out.println("Test is not workable")
+        }
 
         //TODO try context after askShutdown
       }
