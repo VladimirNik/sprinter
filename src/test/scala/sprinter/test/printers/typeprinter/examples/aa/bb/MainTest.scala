@@ -26,10 +26,10 @@ class MainClass {
   //val c: String = "ggg"
   //import scala.collection.mutable.Map
   import scala.collection.mutable.Map
-  //import scala.collection.mutable.Map
-  //import scala.collection.mutable._
-  //import scala.collection.mutable._
-  //import scala.collection._
+  import scala.collection.mutable.Map
+  import scala.collection.mutable._
+  import scala.collection.mutable._
+  import scala.collection._
   /* {
     import scala.collection
     import scala._
@@ -43,8 +43,13 @@ class MainClass {
   //val ddd: ClassInPackage = null
   //G.a
   //val ggg: aa.bb.G.type = null
-  import aa.bb.cc.dd.G.GType
-  import aa.bb.cc.dd.G
-  import aa.bb.cc._
+  //import aa.bb.cc.dd.G.GType
+  //import aa.bb.cc.dd.G
+  //import aa.bb.cc._
   val a: aa.bb.cc.dd.G.GType = null
+  //val a: dd.G.GType = null
+  //val zm: scala.collection.mutable.Map[Int, Int] = null
+  val zm: mutable.Map[Int, Int] = null
+  //val bo: Object = null
+  //val sm: Manifest[Int] = null
 }

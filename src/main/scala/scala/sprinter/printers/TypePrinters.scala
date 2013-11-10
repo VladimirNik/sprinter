@@ -51,7 +51,6 @@ trait TypePrinters {
     import interactive.definitions.{isFunctionType, isTupleType, isByNameParamType, parentsString}
     import interactive.definitions.{ByNameParamClass, RepeatedParamClass}
 
-
     def showTypeTree(tr: Tree, context: Context): String = {
       val availImports = context.imports
 
@@ -63,114 +62,65 @@ trait TypePrinters {
             }
 
             def preString(typeName: String, isModuleTypeRef: Boolean = false) = {
-              //TODO: try to remove typeSym - we can take it from typeRef pattern matching
-              //TODO: here invoke logic to find imports and ambigious imports
-
-              System.out.println();
+              System.out.println("================================");
               availImports.foreach{
                 imp =>
                   System.out.println("===> " + imp.toString() + " --- depth: " + imp.depth)
               }
 
+              System.out.println("--------")
               System.out.println("inType.toString: " + inType.toString())
               System.out.println("sym.name: " + sym.name)
               System.out.println("--------")
 
-              val findImport = availImports.find{
-                  _.importedSymbol(sym.name).exists
-              }.getOrElse(null)
-
-              System.out.println("foundImport: " + findImport)
-
-//              if (findImport != null) {
-//                System.out.println("findImport.qual.symbol.fullName: " + findImport.qual.symbol.fullName)
-//                System.out.println("findImport.qual.tpe: " + findImport.qual.tpe)
-//                System.out.println("backquotedPath(findImport.qual): " + backquotedPath(findImport.qual))
-//              }
-
-              val gettedImport = getImportForType(sym)
-              System.out.println(">>>>>> gettedImport: " + gettedImport)
-
-              val preImport = getImportForType(pre.termSymbol)
-              System.out.println(">>>>>> preImport: " + preImport)
-
-              val prePreImport = getImportForType(pre.prefix.termSymbol)
-              System.out.println(">>>>>> preImport: " + prePreImport)
-
-//              System.out.println("===== preString =====")
-//              System.out.println("pre.toString: " + pre.toString())
-//              System.out.println("pre.termSymbol: " + pre.termSymbol)
-//              System.out.println("pre.typeSymbol: " + pre.typeSymbol)
-//              System.out.println("pre.typeSymbol.name == pre.termSymbol.name: " + (pre.typeSymbol.name == pre.termSymbol.name))
-//              System.out.println("pre.termSymbol.isRootPackage: " + pre.termSymbol.isRootPackage)
-//              System.out.println("pre.termSymbol.isRootSymbol: " + pre.termSymbol.isRootSymbol)
-//              System.out.println("pre.termSymbol.isRoot: " + pre.termSymbol.isRoot)
-//              System.out.println("pre.typeSymbol: " + pre.typeSymbol)
-//              System.out.println("pre.typeSymbol.isRootPackage: " + pre.typeSymbol.isRootPackage)
-//              System.out.println("pre.typeSymbol.isRootSymbol: " + pre.typeSymbol.isRootSymbol)
-//              System.out.println("pre.typeSymbol.isRoot: " + pre.typeSymbol.isRoot)
-//              System.out.println("pre.typeSymbol.name: " + pre.typeSymbol.name)
-//              System.out.println("---")
-
-//              val findImportPackage = imports.find{
-//                _.importedSymbol(pre.typeSymbol.name).exists
-//              }.getOrElse(null)
-//
-//              System.out.println("findImportPackage: " + findImportPackage)
-//              System.out.println("imports.size: " + imports.size)
-
-//              val findImportPackage1 = availImports.find{
-//                _.importedSymbol(pre.termSymbol.name).exists
-//              }.getOrElse(null)
-//
-//              System.out.println("findImportPackage1: " + findImportPackage1) //finds by term symbol
-//              System.out.println("imports.size: " + availImports.size)
-//
-//              if (findImportPackage1 != null) {
-//                System.out.println("---------------------------")
-//                System.out.println("pre.prefix: " + pre.prefix)
-//                System.out.println("findImportPackage1.qual.tpe: " + findImportPackage1.qual.tpe)
-////                System.out.println("pre.prefix =:= findImportPackage1.qual.tpe: " + (findImportPackage1.qual.tpe.prefix.asInstanceOf[global.Type] =:= findImportPackage1.qual.tpe.asInstanceOf[global.Type]))
-////                System.out.println("pre.prefix =:= findImportPackage1.qual.tpe: " + (pre.prefix =:= findImportPackage1.qual.tpe))
-//                System.out.println("---------------------------")
-//              }
-
-//              System.out.println("pre.prefixString: " + pre.prefixString)
-
-//              if (findImportPackage1 != null) {
-//                //val shortName = backquotedPath(imp.expr)
-//                //val fullName = imp.expr.symbol.fullName
-//                System.out.println("findImportPackage1.qual.symbol.fullName: " + findImportPackage1.qual.symbol.fullName)
-//                System.out.println("backquotedPath(findImportPackage1.qual): " + backquotedPath(findImportPackage1.qual))
-//              }
-//
-//              val pre1 = pre.prefix
-//              System.out.println("pre1.toString: " + pre1.toString())
-//              System.out.println("pre1.termSymbol: " + pre1.termSymbol)
-//              System.out.println("pre1.termSymbol.isRootPackage: " + pre1.termSymbol.isRootPackage)
-//              System.out.println("pre1.termSymbol.isRootSymbol: " + pre1.termSymbol.isRootSymbol)
-//              System.out.println("pre1.termSymbol.isRoot: " + pre1.termSymbol.isRoot)
-//              System.out.println("pre1.typeSymbol: " + pre1.typeSymbol)
-//              System.out.println("pre1.typeSymbol.isRootPackage: " + pre1.typeSymbol.isRootPackage)
-//              System.out.println("pre1.typeSymbol.isRootSymbol: " + pre1.typeSymbol.isRootSymbol)
-//              System.out.println("pre1.typeSymbol.isRoot: " + pre1.typeSymbol.isRoot)
-//              System.out.println("---")
-//              System.out.println("pre1.prefixString: " + pre1.prefixString)
-
+              //preString implementation
               //origPreString ends in .
               val origPreString = pre.prefixString
               //TODO check if origPreString is shorter or empty
 //              System.out.println("-----> origPreString: " + origPreString)
               if (!isModuleTypeRef && needsPreString)
-                if (hasImp(origPreString)) {
-                  modifyPrefix(origPreString, typeName)
+                if (!origPreString.isEmpty) {
+                  val avImp = getAvailableImport()
+                  System.out.println("availableImport: " + avImp.getOrElse("not found"))
+                  avImp match {
+                    case Some(imp) => modifyPrefix(origPreString, imp.tree)
+                    case None => origPreString
+                  }
                 } else origPreString
               else ""
             }
 
-            //TODO get symbol based on curType and pass only type
-            //type we can get - pre.tpe - for typeRef and typeRef
-            def getImportForType(curSymbol: Symbol) = {
+            //TODO fix quoted / unquoted names
+            def modifyPrefix(origPrefix: String, im: Import): String = {
+              val qual = im.expr.symbol.fullName
+              println(s"modifyPrefix: qual: $qual")
+              println(s"modifyPrefix: origPrefix: $origPrefix")
+
+              val result =
+                if (!qual.isEmpty)
+                  origPrefix.replaceFirst(s"$qual.", "")
+                else origPrefix
+              System.out.println(s"modifyPrefix: result: $result")
+              result
+            }
+
+            def getAvailableImport() = {
+              val impOpt = getImportForSymbol(sym)
+              if (impOpt.isEmpty) {
+                getImportForType(pre)
+              } else impOpt
+            }
+
+            def getImportForType(tp: Type): Option[interactive.analyzer.ImportInfo] = {
+              val importOpt = getImportForSymbol(tp.termSymbol)
+              importOpt match {
+                case Some(imp) => importOpt
+                case _ if (tp.termSymbol == NoSymbol || tp.termSymbol.isRoot || tp.termSymbol.isRootSymbol) => None
+                case None => getImportForType(tp.prefix)
+              }
+            }
+
+            def getImportForSymbol(curSymbol: Symbol) = {
               var imports = availImports
               val name = curSymbol.name
               var ambigiousError = false
@@ -218,59 +168,23 @@ trait TypePrinters {
                     imports1 = imports1.tail
                   }
 
-//                  val importToPrint = imports.headOption.getOrElse(null)
+//                val importToPrint = imports.headOption.getOrElse(null)
+//                if (importToPrint != null) {
 //                  System.out.println("->getImportForType-imports.head: " + importToPrint)
 //                  System.out.println("->  importToPrint.qual.symbol.fullName: " + importToPrint.qual.symbol.fullName)
-//                  System.out.println("->  curType.prefixString: " + curType.prefixString)
+//                  System.out.println("->  curType.prefixString: " + curType.prefixString) //results in empty string for some types
 //                  System.out.println("->  curSymbol.fullName: " + curSymbol.fullName)
 //                  System.out.println("->getImportForType-ambigious: " + ambigiousError)
-//                  System.out.println("->  curSymbol.isEmptyPrefix: " + curSymbol.isEmptyPrefix) //false
-//                  System.out.println("->  curSymbol.isOmittablePrefix: " + curSymbol.isOmittablePrefix) //false
+//                  }
                   imports.headOption
                 } else None
 
               resultOpt match {
-                //TODO - fix and test
+                //TODO - fix and test (problem with =:= and synchronization)
                 case Some(impInfo) if (!ambigiousError && (curSymbol.fullName.startsWith(impInfo.qual.symbol.fullName))) => // && (impInfo.qual.tpe =:= curType.prefix)) =>
                   resultOpt
                 case _ => None
               }
-            }
-
-            //TODO reimplement
-            def hasImp(origPrefix: String) = false
-            // (!importsMap.isEmpty && importsMap.keySet.exists(prefix => origPrefix.startsWith(prefix))) //check if there are entries in map that possible to use for import
-
-            //TODO reimplement
-            //TODO fix quoted / unquoted names
-            def modifyPrefix(origPrefix: String, typeName: String): String = {
-              //            def fullTypePrefix(s: ImportSelector, importPrefix: String, typeName: String, origPrefix: String) = {
-              //              (origPrefix == importPrefix + ".") && (s.name.toString.trim == typeName)
-              //            }
-              //            //System.out.println("sorting order: " + importsMap.filterKeys(impPrefix => origPrefix.startsWith(impPrefix)).toSeq.sortWith(_._1.length > _._1.length).map{x => x._1})
-              //            val importPrefix = (importsMap.filterKeys(impPrefix => origPrefix.startsWith(impPrefix)).toSeq.sortWith(_._1.length > _._1.length).find{
-              //              impEntry => {
-              //                val (iPrefix, impList) = impEntry
-              //                impList.exists{
-              //                  case isel@ImportSelector(name1, pos1, name2, pos2) =>
-              //                    isWildcard(isel) || origPrefix.startsWith(iPrefix+"."+name1.toString.trim) || fullTypePrefix(isel, iPrefix, typeName, origPrefix)
-              //                  case _ => false
-              //                }
-              //                //if (origPrefix.startsWith(importPrefix) && selector == _) or (origPrefix.equals.impPrefix && (orig.typeName == impPrefix.name)) or (origPrefix.startsWith(importPrefix + "." + selector.name))
-              //              }
-              //            }).getOrElse(("", List()))._1
-              //            //importPrefix._1
-              //
-              //            if (!importPrefix.isEmpty)
-              //              origPrefix.replaceFirst(importPrefix + ".", "")
-              //            else
-              //              origPrefix
-
-              //1.get all imports that have prefix equal or startsWith
-              //2.sort prefixes by length - 1st - equal, 2nd - startsWith_1, 3rd - startsWith_2
-              //3.if equal-search imports with wildcard or import.name = type.name => remove all prefix (import.prefix
-              //  if startsWith-search imports with wildcard or startsWith(import.prefix+import.name) => remove import.prefix
-              origPrefix
             }
 
             def isWildcard(s: ImportSelector): Boolean = {

@@ -51,8 +51,8 @@ object CompilerRunner {
             typeTrees.map{
               tt =>
                 val context = interactive.locateContext(tt.pos)
-                val result = typePrinters.showType(tt, context.get)
-                System.out.println("RESULT (PRINT_PLUGIN) = " + result)
+//                val result = typePrinters.showType(tt, context.get)
+//                System.out.println("RESULT (PRINT_PLUGIN) = " + result)
                 //add list of imports
                 //add first type
                 System.out.println(s"(tt: $tt, context: $context)")
