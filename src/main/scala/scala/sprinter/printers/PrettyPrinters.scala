@@ -242,15 +242,17 @@ class PrettyPrinters(val global: Global) {
 
     override def printTree(tree: Tree) {
       tree match {
-        case EmptyTree =>
-
         case ClassDef(mods, name, tparams, impl) =>
           contextManaged(tree){
             printAnnotations(tree)
-            printModifiers(tree, mods)
             val word =
-              if (mods.isTrait) "trait"
-              else "class"
+              if (mods.isTrait){
+                printModifiers(tree, mods &~ ABSTRACT) // avoid abstract modifier for traits
+                "trait"
+              } else {
+                printModifiers(tree, mods)
+                "class"
+              }
 
             print(word, " ", symName(tree, name))
             printTypeParams(tparams)
@@ -291,7 +293,7 @@ class PrettyPrinters(val global: Global) {
                 if (cstrMods.hasFlag(AccessFlags)) {
                   print(" ")
                   printModifiers(primaryConstr, cstrMods)
-                } else print(" ")
+                }
 
                 //constructor's params
                 printParamss foreach { printParams =>
@@ -302,7 +304,7 @@ class PrettyPrinters(val global: Global) {
                   }
                 }
               } getOrElse {print(" ")}
-            } else print(" ")
+            }
 
             //get trees without default classes and traits (when they are last)
             val printedParents = removeDefaultTypesFromList(parents)(List("AnyRef"))(if (mods.hasFlag(CASE)) List("Product", "Serializable") else Nil)
@@ -334,14 +336,24 @@ class PrettyPrinters(val global: Global) {
             printModifiers(tree, mods);
             val Template(parents @ List(_*), self, methods) = impl
             val parentsWAnyRef = removeDefaultClassesFromList(parents, List("AnyRef"))
-            print("object " + symName(tree, name), if (!parentsWAnyRef.isEmpty) " extends " else " ", impl)
+            print("object " + symName(tree, name), if (!parentsWAnyRef.isEmpty) " extends " else "", impl)
           }
 
         case vd@ValDef(mods, name, tp, rhs) =>
           printAnnotations(tree)
           printModifiers(tree, mods)
           print(if (mods.isMutable) "var " else "val ", symName(tree, name))
-          if (name.endsWith("_")) print(" "); printOpt(": ", tp)
+          if (name.endsWith("_")) print(" ")
+          
+          printOpt(
+            // place space after symbolic def name (val *: Unit does not compile)
+            (if(symName(tree, name) != symName(tree, name,false) || symName(tree, name) != symName(tree, name, true))
+              " "
+            else
+              "") +
+            ": ",
+            tp
+          )
           contextManaged(tree){
             if (!mods.isDeferred)
               print(" = ", if (rhs.isEmpty) "_" else rhs)
@@ -355,7 +367,15 @@ class PrettyPrinters(val global: Global) {
           vparamss foreach printValueParams
           if (tparams.isEmpty && (vparamss.isEmpty || vparamss(0).isEmpty) && name.endsWith("_"))
             print(" ")
-          printOpt(": ", tp);
+          printOpt(
+            // place space after symbolic def name (def *: Unit does not compile)
+            (if(symName(tree, name) != symName(tree, name,false) || symName(tree, name) != symName(tree, name, true))
+              " "
+            else
+              "") +
+            ": ",
+            tp
+          )
           contextManaged(tree){
             printOpt(" = " + (if (mods.hasFlag(MACRO)) "macro " else ""), rhs)
           }
@@ -483,13 +503,18 @@ class PrettyPrinters(val global: Global) {
           }
 
           val modBody = left ::: right.drop(1)//List().drop(1) ==> List()
-          if (!modBody.isEmpty || !self.isEmpty) {
+          val showBody = !(modBody.isEmpty &&
+            (self match {
+              case ValDef(mods, name, TypeTree(), rhs) if (mods & PRIVATE) != 0 && name.decoded == "_" && rhs.isEmpty => true // workaround for superfluous ValDef when parsing class without body using quasi quotes
+              case _ => self.isEmpty
+            }))
+          if (showBody) {
             if (!compareNames(self.name, nme.WILDCARD)) {
               print(" { ", self.name);
               printOpt(": ", self.tpt);
-              print(" => ")
+              print(" =>")
             } else if (!self.tpt.isEmpty) {
-              print(" { _ : ", self.tpt, " => ")
+              print(" { _ : ", self.tpt, " =>")
             } else {
               print(" {")
             }
@@ -702,6 +727,8 @@ class PrettyPrinters(val global: Global) {
           print("(", tpt);
           printColumn(whereClauses, " forSome { ", ";", "})")
 
+        case emptyTree if emptyTree.toString == "<empty>" => // workaround as case EmptyTree does not work for all universes because of path depedent types
+
         case tree => super.printTree(tree)
       }
       if (printTypes && tree.isTerm && !tree.isEmpty) {
@@ -710,7 +737,7 @@ class PrettyPrinters(val global: Global) {
     }
 
     //Danger: it's overwritten method - can be problems with inheritance)
-    def symName(tree: Tree, name: Name, decoded: Boolean = false): String =
+    def symName(tree: Tree, name: Name, decoded: Boolean = true): String =
       if (compareNames(name, nme.CONSTRUCTOR)) "this"
       else quotedName(name, decoded)
 
