@@ -710,7 +710,7 @@ class PrettyPrinters(val global: Global) {
     }
 
     //Danger: it's overwritten method - can be problems with inheritance)
-    def symName(tree: Tree, name: Name, decoded: Boolean = false): String =
+    def symName(tree: Tree, name: Name, decoded: Boolean = true): String =
       if (compareNames(name, nme.CONSTRUCTOR)) "this"
       else quotedName(name, decoded)
 
