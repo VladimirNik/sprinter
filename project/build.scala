@@ -11,10 +11,18 @@ object SprinterBuild extends Build {
     organization := "org.scala-lang",
     name := "sprinter",
     version := "0.2.0",
-    scalaVersion := "2.10.2",
+    scalaVersion := "2.10.3",
     //scalaBinaryVersion <<= scalaVersion,
     //crossVersion := CrossVersion.full,
     //exportJars := true,
+    testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v", "-s", "-a"),
+    resolvers += Resolver.sonatypeRepo("snapshots"),
+    // quasi quote support // TODO: move this to tests only
+    addCompilerPlugin("org.scala-lang.plugins" % "macro-paradise" % "2.0.0-SNAPSHOT" cross CrossVersion.full),
+    libraryDependencies ++= Seq(
+      "junit" % "junit-dep" % "4.10" % "test",
+      "com.novocode" % "junit-interface" % "0.10-M4" % "test"
+    ),
     libraryDependencies <++= scalaVersion apply dependencies,
     publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
   ) settings (websiteSettings: _*)
