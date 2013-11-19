@@ -5,8 +5,11 @@ package aa.bb
 //import scala.collection.mutable
 //import scala.collection
 
-import aa.bb.cc._
+import aa.bb.cc.{dd => hh}
 import scala.collection.immutable.Map
+import aa.bb.cc.dd.G.{GType => NNN}
+//import aa.bb.cc.dd.G
+import aa._
 
 class OtherClass
 
@@ -17,7 +20,8 @@ object G {
 }
 */
 
-//import aa.bb.cc.dd.G
+import aa.bb.cc.dd.{G => CHANGE}
+import aa.bb.cc.dd.G.{GType => FType}
 
 class MainClass {
   //val a: String = "hhh"
@@ -47,10 +51,10 @@ class MainClass {
   //import aa.bb.cc.dd.G.GType
   //import aa.bb.cc.dd.G
   //import aa.bb.cc._
-  val a: aa.bb.cc.dd.G.GType = null
+  val a: NNN = null
   //val a: dd.G.GType = null
   //val zm: scala.collection.mutable.Map[Int, Int] = null
-  val zm: mutable.Map[Int, Int] = null
+  //val zm: mutable.Map[Int, Int] = null
   //val bo: Object = null
   //val sm: Manifest[Int] = null
 }

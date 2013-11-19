@@ -88,7 +88,6 @@ trait TypePrinters {
                 //origPreString ends in .
                 val origPreString = pre.prefixString
                 //TODO check if origPreString is shorter or empty
-                //              System.out.println("-----> origPreString: " + origPreString)
                 if (!isModuleTypeRef && needsPreString)
                   if (!origPreString.isEmpty) {
                     val avImp = getAvailableImport()
@@ -102,16 +101,14 @@ trait TypePrinters {
               }
 
               //TODO fix quoted / unquoted names
+              //TODO fix {X => Y} - type should be renamed if we use such import
+              //if result.isEmpty - use name from import
               def modifyPrefix(origPrefix: String, im: Import): String = {
                 val qual = im.expr.symbol.fullName
-                println(s"modifyPrefix: qual: $qual")
-                println(s"modifyPrefix: origPrefix: $origPrefix")
-
                 val result =
                   if (!qual.isEmpty)
                     origPrefix.replaceFirst(s"$qual.", "")
                   else origPrefix
-                System.out.println(s"modifyPrefix: result: $result")
                 result
               }
 
@@ -132,15 +129,37 @@ trait TypePrinters {
               }
 
               def getImportForSymbol(curSymbol: Symbol) = {
+
                 var imports = availImports
                 val name = curSymbol.name
+                System.out.println("=== name: " + name + " ===")
+                System.out.println("=== name.isTermName: " + name.isTermName + " ===")
+                System.out.println("=== name.isTypeName: " + name.isTermName + " ===")
                 var ambigiousError = false
                 var impSym: Symbol = NoSymbol
 
                 while (!impSym.exists && !imports.isEmpty) {
+                  System.out.println("impSym.name: " + imports.head.tree.selectors.head.name)
+                  System.out.println("impSym.name.name.isTermName: " + imports.head.tree.selectors.head.name.isTermName)
+                  System.out.println("impSym.name.name.isTypeName: " + imports.head.tree.selectors.head.name.isTypeName)
+                  if (imports.head.tree.selectors.head.rename != null) {
+                    System.out.println("impSym.rename.rename.isTermName: " + imports.head.tree.selectors.head.rename.isTermName)
+                    System.out.println("impSym.rename.rename.isTypeName: " + imports.head.tree.selectors.head.rename.isTypeName)
+                  }
+                  System.out.println("imports.head.tree.selectors.head.name == name.toTerm: " + (imports.head.tree.selectors.head.name == name))
+                  System.out.println("imports.head.tree.selectors.head.name == name.toTermName: " + (imports.head.tree.selectors.head.name == name.toTermName))
+                  System.out.println("imports.head.tree.selectors.head.name == name.toTypeName: " + (imports.head.tree.selectors.head.name == name.toTypeName))
+                  if (imports.head.tree.selectors.head.rename != null) {
+                    System.out.println("imports.head.tree.selectors.head.rename == name.toTermName: " + (imports.head.tree.selectors.head.rename == name.toTermName))
+                    System.out.println("imports.head.tree.selectors.head.rename == name.toTypeName: " + (imports.head.tree.selectors.head.rename == name.toTypeName))
+                  }
+
                   impSym = imports.head.importedSymbol(name)
+                  System.out.println("impSym: " + impSym)
+                  System.out.println("---")
                   if (!impSym.exists) imports = imports.tail
                 }
+                //System.out.println("impSym (after): " + impSym)
 
                 val resultOpt =
                   if (impSym.exists) {
@@ -158,15 +177,20 @@ trait TypePrinters {
                       def mt2 = t2 memberType impSym1
 
                       !(impSym.fullName == impSym1.fullName && impSym.name == impSym1.name) && !(mt1.toString() == mt2.toString() && name.isTypeName && impSym.isMonomorphicType && impSym1.isMonomorphicType)
-                      //TODO problems with context
+                      //TODO resolve problems with context and JVM instances
                       //!(t1 =:= t2 && impSym.name == impSym1.name) && !(mt1 =:= mt2 && name.isTypeName && impSym.isMonomorphicType && impSym1.isMonomorphicType)
                     }
 
                     while (!ambigiousError && !imports1.isEmpty &&
                       (!imports.head.isExplicitImport(name) || imports1.head.depth == imports.head.depth)) {
                       impSym1 = imports1.head.importedSymbol(name)
+                      System.out.println("imports1.head.tree.selectors.head.name: " + imports1.head.tree.selectors.head.name)
+                      System.out.println("imports1.head.tree.selectors.head.rename: " + imports1.head.tree.selectors.head.rename)
+                      System.out.println("name: " + name)
+                      System.out.println("impSym1: " + impSym1)
                       if (impSym1.exists) {
                         if (imports1.head.isExplicitImport(name)) {
+                          System.out.println("imports1.head: " + imports1.head.tree + " isExplicitImport")
                           ambigiousError =
                             if (imports.head.isExplicitImport(name) || imports1.head.depth != imports.head.depth)
                               ambiguousImport()
@@ -179,14 +203,6 @@ trait TypePrinters {
                       imports1 = imports1.tail
                     }
 
-                    //                val importToPrint = imports.headOption.getOrElse(null)
-                    //                if (importToPrint != null) {
-                    //                  System.out.println("->getImportForType-imports.head: " + importToPrint)
-                    //                  System.out.println("->  importToPrint.qual.symbol.fullName: " + importToPrint.qual.symbol.fullName)
-                    //                  System.out.println("->  curType.prefixString: " + curType.prefixString) //results in empty string for some types
-                    //                  System.out.println("->  curSymbol.fullName: " + curSymbol.fullName)
-                    //                  System.out.println("->getImportForType-ambigious: " + ambigiousError)
-                    //                  }
                     imports.headOption
                   } else None
 
@@ -263,7 +279,6 @@ trait TypePrinters {
                     }
                 }
               }
-
               //showType(inType: Type): String implementation
               //case typeRef@TypeRef(pre, sym, args) =>
               safeToString
@@ -282,11 +297,7 @@ trait TypePrinters {
       } else inType.toString
     }
 
-
-
     def showTypeTree(tr: Tree, context: Context): String = {
-
-      //showTypeTree(tr: Tree, context: Context) implementation
       if (tr.isType) {
         val inType = tr.tpe
         val result = showPrettyType(inType, context)
@@ -295,7 +306,6 @@ trait TypePrinters {
       } else {
         "showTypeTree(tr: Tree, context: Context): imports_are_empty"//TODO - change to tr.toString after testing
       }
-
     }
 
 //  val shortName = backquotedPath(imp.expr)

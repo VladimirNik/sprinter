@@ -1,19 +1,24 @@
 package sprinter.test.printers.typeprinter
 
 import scala.tools.nsc
-import java.io.{StringWriter, PrintWriter}
+import java.io.{File, StringWriter, PrintWriter}
 import scala.tools.nsc.interactive.Response
 import scala.sprinter.printers.TypePrinters
 
 object CompilerRunner {
+  val baseDir: String = System.getProperty("user.dir")
+  val col = File.separator
+  val testPath = s"${baseDir}${col}src${col}test${col}scala${col}sprinter${col}test${col}printers${col}typeprinter${col}examples${col}"
+
   def main(args: Array[String]) {
     val compiler = getCompiler
 
-//    println("compiler.settings = " + compiler.settings)
+    System.out.println("baseDir: " + baseDir)
+    System.out.println("testPath: " + testPath)
 
     val sourceFiles = List(
-      "/home/vova/scala-projects/GSoC/type-printing/sprinter/src/test/scala/sprinter/test/printers/typeprinter/examples/aa/bb/MainTest.scala",
-      "/home/vova/scala-projects/GSoC/type-printing/sprinter/src/test/scala/sprinter/test/printers/typeprinter/examples/aa/bb/cc/dd/OtherClass.scala"
+      s"${testPath}aa${col}bb${col}MainTest.scala",
+      s"${testPath}aa${col}bb${col}cc${col}dd${col}OtherClass.scala"
     )
 
     val allSources = sourceFiles map {
@@ -51,8 +56,8 @@ object CompilerRunner {
             typeTrees.map{
               tt =>
                 val context = interactive.locateContext(tt.pos)
-//                val result = typePrinters.showType(tt, context.get)
-//                System.out.println("RESULT (PRINT_PLUGIN) = " + result)
+                val result = typePrinters.showType(tt, context.get)
+                System.out.println("RESULT (PRINT_PLUGIN) = " + result)
                 //add list of imports
                 //add first type
                 System.out.println(s"(tt: $tt, context: $context)")
@@ -64,8 +69,9 @@ object CompilerRunner {
           case Left(value) =>
             value.foreach{
               case (tree, Some(context)) =>
-                val result = typePrinters.showType(tree, context)
-                System.out.println("RESULT (PRINT_PLUGIN) = " + result)
+//                val result = typePrinters.showType(tree, context)
+//                System.out.println("RESULT (PRINT_PLUGIN) = " + result)
+                System.out.println("Executed successfully!!!")
               case (tree, None) => System.out.println(s"Context for $tree is not found")
             }
           case Right(_) => System.out.println("Test is not workable")
