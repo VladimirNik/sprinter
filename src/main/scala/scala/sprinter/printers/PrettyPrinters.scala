@@ -35,13 +35,13 @@ class PrettyPrinters(val global: Global) {
   import global._
 
   //TODO set printMultiline for false
-  def show(what: nsc.Global#Tree, printerType: PrettyPrinters.PrinterDescriptor = PrettyPrinters.AFTER_TYPER, printMultiline: Boolean = false) = {
+  def show(what: nsc.Global#Tree, printerType: PrettyPrinters.PrinterDescriptor = PrettyPrinters.AFTER_TYPER, printMultiline: Boolean = false, decodeNames: Boolean = true) = {
     val buffer = new StringWriter()
     val writer = new PrintWriter(buffer)
 
     var printer = printerType match {
-      case PrettyPrinters.AFTER_NAMER => new PrettyPrinter(writer, printMultiline)
-      case PrettyPrinters.AFTER_TYPER | _ => new AfterTyperPrinter(writer, printMultiline)
+      case PrettyPrinters.AFTER_NAMER => new PrettyPrinter(writer, printMultiline, decodeNames)
+      case PrettyPrinters.AFTER_TYPER | _ => new AfterTyperPrinter(writer, printMultiline, decodeNames)
     }
 
     printer.print(what)
@@ -57,7 +57,7 @@ class PrettyPrinters(val global: Global) {
 //  }
 
   //TODO change printMultiline for option object - to pass all parameters
-  class PrettyPrinter(out: PrintWriter, printMultiline: Boolean = false) extends global.TreePrinter(out) {
+  class PrettyPrinter(out: PrintWriter, printMultiline: Boolean = false, decodeNames: Boolean = true) extends global.TreePrinter(out) {
     //TODO maybe we need to pass this stack when explicitly run show inside print
     val contextStack = scala.collection.mutable.Stack[Tree]()
 
@@ -188,10 +188,18 @@ class PrettyPrinters(val global: Global) {
       }
     }
 
+    private def isIntLitWithDecodedOp(qual: Tree, name: Name) = {
+      lazy val qualIsIntLit = qual match {
+        case Literal(x) => x.value.isInstanceOf[Int]
+        case _ => false
+      }
+      decodeNames && qualIsIntLit && name.isOperatorName
+    }
+
     //Danger while using inheritance: it's hidden (overwritten) method
     def backquotedPath(t: Tree): String = {
       t match {
-        case Select(qual, name) if (name.isTermName && specialTreeContext(qual)(iLabelDef = false)) => "(%s).%s".format(backquotedPath(qual), symName(t, name))
+        case Select(qual, name) if (name.isTermName && specialTreeContext(qual)(iLabelDef = false)) || isIntLitWithDecodedOp(qual, name) => "(%s).%s".format(backquotedPath(qual), symName(t, name))
         case Select(qual, name) if name.isTermName  => "%s.%s".format(backquotedPath(qual), symName(t, name))
         case Select(qual, name) if name.isTypeName  => "%s#%s".format(backquotedPath(qual), symName(t, name))
         case Ident(name)                            => symName(t, name)
@@ -309,7 +317,7 @@ class PrettyPrinters(val global: Global) {
             //get trees without default classes and traits (when they are last)
             val printedParents = removeDefaultTypesFromList(parents)(List("AnyRef"))(if (mods.hasFlag(CASE)) List("Product", "Serializable") else Nil)
 
-            print(if (mods.isDeferred) "<: " else if (!printedParents.isEmpty) "extends "
+            print(if (mods.isDeferred) "<: " else if (!printedParents.isEmpty) " extends "
               else "", impl)
           }
 
@@ -344,7 +352,7 @@ class PrettyPrinters(val global: Global) {
           printModifiers(tree, mods)
           print(if (mods.isMutable) "var " else "val ", symName(tree, name))
           if (name.endsWith("_")) print(" ")
-          
+
           printOpt(
             // place space after symbolic def name (val *: Unit does not compile)
             (if(symName(tree, name) != symName(tree, name,false) || symName(tree, name) != symName(tree, name, true))
@@ -645,7 +653,7 @@ class PrettyPrinters(val global: Global) {
           print(qual)
 
         case Select(qualifier, name) => {
-          val printParantheses = specialTreeContext(qualifier)(iAnnotated = false)
+          val printParantheses = specialTreeContext(qualifier)(iAnnotated = false) || isIntLitWithDecodedOp(qualifier, name)
           if (printParantheses) print("(", backquotedPath(qualifier), ").", symName(tree, name))
           else print(backquotedPath(qualifier), ".", symName(tree, name))
         }
@@ -737,28 +745,38 @@ class PrettyPrinters(val global: Global) {
     }
 
     //Danger: it's overwritten method - can be problems with inheritance)
-    def symName(tree: Tree, name: Name, decoded: Boolean = true): String =
-      if (compareNames(name, nme.CONSTRUCTOR)) "this"
-      else quotedName(name, decoded)
+    def symName(tree: Tree, name: Name, decoded: Boolean = decodeNames): String = {
+      val encName = name.encoded
+      val decName = name.decoded
+      def modifyEncoded(s: String) = if (decoded && (encName.contains("$u") ||
+        (encName.contains("$") && decName.exists(ch => opSym.contains(ch)) && decName.exists(ch => !opSym.contains(ch)) && !excList.exists(str => decName.contains(str)))))
+        "`%s`" format s else s
 
-      override def print(args: Any*): Unit = {
-        args foreach {
-          arg =>
-            //TODO repair issue with pattern matching, trees and vals of type Any
-            if (arg.isInstanceOf[Tree]) { //problem with vars of type Any
-              val treeArg = arg.asInstanceOf[Tree]
-              printTree(treeArg)
-            } else {
-              arg match {
-                case name: Name =>
-                  print(quotedName(name))
-                case other => super.print(other)
-              }
+      if (compareNames(name, nme.CONSTRUCTOR)) "this"
+      else modifyEncoded(quotedName(name, decoded))
+    }
+
+    val opSym = List('~', '=', '<', '>', '!', '#', '%', '^', '&', '|', '*', '/', '+', '-', ':', '\\', '?', '@')
+    val excList = List("\\", "_*")
+
+    override def print(args: Any*): Unit = {
+      args foreach {
+        arg =>
+        //TODO repair issue with pattern matching, trees and vals of type Any
+          if (arg.isInstanceOf[Tree]) { //problem with vars of type Any
+          val treeArg = arg.asInstanceOf[Tree]
+            printTree(treeArg)
+          } else {
+            arg match {
+              case name: Name =>
+                print(quotedName(name))
+              case other => super.print(other)
             }
-        }
+          }
       }
+    }
   }
 
   //TODO change printMultiline for option object - to pass all parameters
-  class AfterTyperPrinter(out: PrintWriter, printMultiline: Boolean = false) extends PrettyPrinter(out, printMultiline)
+  class AfterTyperPrinter(out: PrintWriter, printMultiline: Boolean = false, decodeNames: Boolean = true) extends PrettyPrinter(out, printMultiline, decodeNames)
 }
