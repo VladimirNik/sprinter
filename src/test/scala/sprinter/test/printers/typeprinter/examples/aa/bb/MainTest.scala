@@ -5,6 +5,7 @@ package aa.bb
 //import scala.collection.mutable
 //import scala.collection
 
+import aa.bb.cc._
 import scala.collection.immutable.Map
 
 class OtherClass
