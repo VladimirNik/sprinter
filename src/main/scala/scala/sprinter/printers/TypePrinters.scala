@@ -73,25 +73,12 @@ trait TypePrinters {
               }
 
               def preString(typeName: String, isModuleTypeRef: Boolean = false) = {
-                System.out.println("================================");
-                availImports.foreach{
-                  imp =>
-                    System.out.println("===> " + imp.toString() + " --- depth: " + imp.depth)
-                }
-
-                System.out.println("--------")
-                System.out.println("inType.toString: " + inType.toString())
-                System.out.println("sym.name: " + sym.name)
-                System.out.println("--------")
-
-                //preString implementation
                 //origPreString ends in .
                 val origPreString = pre.prefixString
                 //TODO check if origPreString is shorter or empty
                 if (!isModuleTypeRef && needsPreString)
                   if (!origPreString.isEmpty) {
                     val avImp = getAvailableImport()
-                    System.out.println("availableImport: " + avImp.getOrElse("not found"))
                     avImp match {
                       case Some(imp) => modifyPrefix(origPreString, imp.tree)
                       case None => origPreString
@@ -132,34 +119,14 @@ trait TypePrinters {
 
                 var imports = availImports
                 val name = curSymbol.name
-                System.out.println("=== name: " + name + " ===")
-                System.out.println("=== name.isTermName: " + name.isTermName + " ===")
-                System.out.println("=== name.isTypeName: " + name.isTermName + " ===")
                 var ambigiousError = false
                 var impSym: Symbol = NoSymbol
 
+                //TODO reimplement importedSymbol, and exportedSymbol (to work with T1 => T2)
                 while (!impSym.exists && !imports.isEmpty) {
-                  System.out.println("impSym.name: " + imports.head.tree.selectors.head.name)
-                  System.out.println("impSym.name.name.isTermName: " + imports.head.tree.selectors.head.name.isTermName)
-                  System.out.println("impSym.name.name.isTypeName: " + imports.head.tree.selectors.head.name.isTypeName)
-                  if (imports.head.tree.selectors.head.rename != null) {
-                    System.out.println("impSym.rename.rename.isTermName: " + imports.head.tree.selectors.head.rename.isTermName)
-                    System.out.println("impSym.rename.rename.isTypeName: " + imports.head.tree.selectors.head.rename.isTypeName)
-                  }
-                  System.out.println("imports.head.tree.selectors.head.name == name.toTerm: " + (imports.head.tree.selectors.head.name == name))
-                  System.out.println("imports.head.tree.selectors.head.name == name.toTermName: " + (imports.head.tree.selectors.head.name == name.toTermName))
-                  System.out.println("imports.head.tree.selectors.head.name == name.toTypeName: " + (imports.head.tree.selectors.head.name == name.toTypeName))
-                  if (imports.head.tree.selectors.head.rename != null) {
-                    System.out.println("imports.head.tree.selectors.head.rename == name.toTermName: " + (imports.head.tree.selectors.head.rename == name.toTermName))
-                    System.out.println("imports.head.tree.selectors.head.rename == name.toTypeName: " + (imports.head.tree.selectors.head.rename == name.toTypeName))
-                  }
-
                   impSym = imports.head.importedSymbol(name)
-                  System.out.println("impSym: " + impSym)
-                  System.out.println("---")
                   if (!impSym.exists) imports = imports.tail
                 }
-                //System.out.println("impSym (after): " + impSym)
 
                 val resultOpt =
                   if (impSym.exists) {
@@ -184,13 +151,8 @@ trait TypePrinters {
                     while (!ambigiousError && !imports1.isEmpty &&
                       (!imports.head.isExplicitImport(name) || imports1.head.depth == imports.head.depth)) {
                       impSym1 = imports1.head.importedSymbol(name)
-                      System.out.println("imports1.head.tree.selectors.head.name: " + imports1.head.tree.selectors.head.name)
-                      System.out.println("imports1.head.tree.selectors.head.rename: " + imports1.head.tree.selectors.head.rename)
-                      System.out.println("name: " + name)
-                      System.out.println("impSym1: " + impSym1)
                       if (impSym1.exists) {
                         if (imports1.head.isExplicitImport(name)) {
-                          System.out.println("imports1.head: " + imports1.head.tree + " isExplicitImport")
                           ambigiousError =
                             if (imports.head.isExplicitImport(name) || imports1.head.depth != imports.head.depth)
                               ambiguousImport()
@@ -283,14 +245,7 @@ trait TypePrinters {
               //case typeRef@TypeRef(pre, sym, args) =>
               safeToString
             }
-
-            case ConstantType(t) => "showType(inType: Type):-Constant" //do we need to implement it?
-            case SingleType(pre, name) => "showType(inType: Type):-SingleType"
-            case annTpe @ AnnotatedType(annotations, underlying, selfsym) => "showType(inType: Type):-AnnotatedType" //annotations.mkString(underlying + " @", " @", "") - i think we don't need them in the current state
-            case ext: ExistentialType => "showType(inType: Type):-ExistentialType" //??? - i think we don't need them in the current state
-            case pt: PolyType => "showType(inType: Type):-PolyType" //Do we need to implement it? - it's not a TypeRef but it contains a type
-            case tb: TypeBounds => "showType(inType: Type):-TypeBounds" //??? - i think we don't need them in the current state
-            case _ => "showType(inType: Type):-undefined-type"
+            case _ => inType.toString()
           }
         }
         showType(inType)
@@ -300,11 +255,9 @@ trait TypePrinters {
     def showTypeTree(tr: Tree, context: Context): String = {
       if (tr.isType) {
         val inType = tr.tpe
-        val result = showPrettyType(inType, context)
-        System.out.println("showTypeTree(tr: Tree, context: Context)-RESULT: " + result)
-        result
+        showPrettyType(inType, context)
       } else {
-        "showTypeTree(tr: Tree, context: Context): imports_are_empty"//TODO - change to tr.toString after testing
+        tr.toString()
       }
     }
 

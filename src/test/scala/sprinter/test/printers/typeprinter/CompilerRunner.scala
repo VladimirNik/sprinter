@@ -5,6 +5,7 @@ import java.io.{File, StringWriter, PrintWriter}
 import scala.tools.nsc.interactive.Response
 import scala.sprinter.printers.TypePrinters
 
+//TODO reimplement and create tests
 object CompilerRunner {
   val baseDir: String = System.getProperty("user.dir")
   val col = File.separator
@@ -13,8 +14,8 @@ object CompilerRunner {
   def main(args: Array[String]) {
     val compiler = getCompiler
 
-    System.out.println("baseDir: " + baseDir)
-    System.out.println("testPath: " + testPath)
+    println("baseDir: " + baseDir)
+    println("testPath: " + testPath)
 
     val sourceFiles = List(
       s"${testPath}aa${col}bb${col}MainTest.scala",
