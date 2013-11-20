@@ -737,6 +737,12 @@ class PrettyPrinters(val global: Global){
           print("(", tpt);
           printColumn(whereClauses, " forSome { ", ";", "})")
 
+        case tbt@TypeBoundsTree(lo, hi) => {
+          val loDefault = "_root_.scala.Nothing"
+          val hiDefault = "_root_.scala.Any"
+          if (loDefault != lo.toString()) printOpt(" >: ", lo); if (hiDefault != hi.toString()) printOpt(" <: ", hi)
+        }
+
         case emptyTree if emptyTree.toString == "<empty>" => // workaround as case EmptyTree does not work for all universes because of path depedent types
 
         case tree => super.printTree(tree)
