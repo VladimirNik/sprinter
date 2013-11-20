@@ -60,12 +60,15 @@ trait TypePrinters {
     import interactive.definitions.{isFunctionType, isTupleType, isByNameParamType, parentsString}
     import interactive.definitions.{ByNameParamClass, RepeatedParamClass}
 
+    import interactive.analyzer.ImportInfo
+
     def showPrettyType(inType: Type, context: Context): String = {
       lazy val availImports = context.imports
       if (!Option(context).isEmpty && !availImports.isEmpty) {
 
         def showType(inType: Type): String = {
-
+          var (avImp, symSearch): (Option[ImportInfo], Symbol) = (None, NoSymbol)
+          var typeRename: Option[Name] = None
           inType match {
             case typeRef@TypeRef(pre, sym, args) => {
               def needsPreString = {
@@ -90,10 +93,12 @@ trait TypePrinters {
                 //TODO check if origPreString is shorter or empty
                 if (!isModuleTypeRef && needsPreString)
                   if (!origPreString.isEmpty) {
-                    val avImp = getAvailableImport()
+                    val impInf = getAvailableImport()
+                    avImp = impInf._1
+                    symSearch = impInf._2
                     System.out.println("availableImport: " + avImp.getOrElse("not found"))
                     avImp match {
-                      case Some(imp) => modifyPrefix(origPreString, imp.tree)
+                      case Some(imp) => modifyPrefix(origPreString, imp)
                       case None => origPreString
                     }
                   } else origPreString
@@ -103,12 +108,26 @@ trait TypePrinters {
               //TODO fix quoted / unquoted names
               //TODO fix {X => Y} - type should be renamed if we use such import
               //if result.isEmpty - use name from import
-              def modifyPrefix(origPrefix: String, im: Import): String = {
-                val qual = im.expr.symbol.fullName
+              def modifyPrefix(origPrefix: String, imInf: ImportInfo): String = {
+                val qual = imInf.tree.expr.symbol.fullName
+
                 val result =
-                  if (!qual.isEmpty)
-                    origPrefix.replaceFirst(s"$qual.", "")
-                  else origPrefix
+                  if (!qual.isEmpty) {
+                    importedSelector(symSearch.name, imInf) match {
+                      case Some(imp @ ImportSelector(name,_, rename, _)) =>
+                        System.out.println("-----")
+                        val qualName = s"$qual.$name."
+                        val (replaceQual, valToReplace) = if (!Option(rename).isEmpty && name != rename && origPrefix.startsWith(qualName))
+                          (qualName, s"$rename.")
+                        else {
+                          if (!Option(rename).isEmpty && name != rename)
+                            typeRename = Option(rename)
+                          (s"$qual.", "")
+                        }
+                        origPrefix.replaceFirst(replaceQual, valToReplace)
+                      case _ => origPrefix
+                    }
+                  } else origPrefix
                 result
               }
 
@@ -116,16 +135,56 @@ trait TypePrinters {
                 val impOpt = getImportForSymbol(sym)
                 if (impOpt.isEmpty) {
                   getImportForType(pre)
-                } else impOpt
+                } else (impOpt, sym)
               }
 
-              def getImportForType(tp: Type): Option[interactive.analyzer.ImportInfo] = {
+              def getImportForType(tp: Type): (Option[ImportInfo], Symbol) = {
                 val importOpt = getImportForSymbol(tp.termSymbol)
                 importOpt match {
-                  case Some(imp) => importOpt
-                  case _ if (tp.termSymbol == NoSymbol || tp.termSymbol.isRoot || tp.termSymbol.isRootSymbol) => None
+                  case Some(imp) => (importOpt, tp.termSymbol)
+                  case _ if (tp.termSymbol == NoSymbol || tp.termSymbol.isRoot || tp.termSymbol.isRootSymbol) => (None, NoSymbol)
                   case None => getImportForType(tp.prefix)
                 }
+              }
+
+              /** Is name imported explicitly, not via wildcard?
+                * Here we need to check equality for original import name (not rename)
+                */
+              def isExplicitImport(name: Name, impInf: ImportInfo): Boolean = {
+                val tree = impInf.tree
+                tree.selectors exists (_.name == name.toTermName)
+              }
+
+              /** The symbol with name `name` imported from import clause `tree`.
+                * Here we need to check equality for original import name (not rename)
+                */
+              def importedSymbol(name: Name, impInf: ImportInfo): Symbol =
+                importedSymAndSelector(name, impInf)._1
+
+              def importedSelector(name: Name, impInf: ImportInfo) =
+                importedSymAndSelector(name, impInf)._2
+
+              def importedSymAndSelector(name: Name, impInf: ImportInfo): (Symbol, Option[ImportSelector]) = {
+                var (resSym, resSel): (Symbol, Option[ImportSelector]) = (NoSymbol, None)
+                //var renamed = false
+                val tree = impInf.tree
+                val qual = impInf.qual
+                var selectors = tree.selectors
+                while (selectors != Nil && resSym == NoSymbol) {
+                  val sel = selectors.head
+                  if (sel.name == name.toTermName) {
+                    resSym = qual.tpe.nonLocalMember( // new to address #2733: consider only non-local members for imports
+                      if (name.isTypeName) sel.name.toTypeName else sel.name)
+                  //                  else if (selectors.head.name == name.toTermName)
+                  //                    renamed = true
+                    resSel = Option(sel)
+                  } else if (sel.name == nme.WILDCARD) { // && !renamed)
+                    resSym = qual.tpe.nonLocalMember(name)
+                    resSel = Option(sel)
+                  }
+                  selectors = selectors.tail
+                }  
+                (resSym, resSel)
               }
 
               def getImportForSymbol(curSymbol: Symbol) = {
@@ -154,7 +213,7 @@ trait TypePrinters {
                     System.out.println("imports.head.tree.selectors.head.rename == name.toTypeName: " + (imports.head.tree.selectors.head.rename == name.toTypeName))
                   }
 
-                  impSym = imports.head.importedSymbol(name)
+                  impSym = importedSymbol(name, imports.head)
                   System.out.println("impSym: " + impSym)
                   System.out.println("---")
                   if (!impSym.exists) imports = imports.tail
@@ -182,22 +241,22 @@ trait TypePrinters {
                     }
 
                     while (!ambigiousError && !imports1.isEmpty &&
-                      (!imports.head.isExplicitImport(name) || imports1.head.depth == imports.head.depth)) {
-                      impSym1 = imports1.head.importedSymbol(name)
+                      (!isExplicitImport(name, imports.head) || imports1.head.depth == imports.head.depth)) {
+                      impSym1 = importedSymbol(name, imports1.head)
                       System.out.println("imports1.head.tree.selectors.head.name: " + imports1.head.tree.selectors.head.name)
                       System.out.println("imports1.head.tree.selectors.head.rename: " + imports1.head.tree.selectors.head.rename)
                       System.out.println("name: " + name)
                       System.out.println("impSym1: " + impSym1)
                       if (impSym1.exists) {
-                        if (imports1.head.isExplicitImport(name)) {
+                        if (isExplicitImport(name, imports1.head)) {
                           System.out.println("imports1.head: " + imports1.head.tree + " isExplicitImport")
                           ambigiousError =
-                            if (imports.head.isExplicitImport(name) || imports1.head.depth != imports.head.depth)
+                            if (isExplicitImport(name, imports.head) || imports1.head.depth != imports.head.depth)
                               ambiguousImport()
                             else false
                           impSym = impSym1
                           imports = imports1
-                        } else if (!imports.head.isExplicitImport(name) &&
+                        } else if (!isExplicitImport(name, imports.head) &&
                           imports1.head.depth == imports.head.depth) ambigiousError = ambiguousImport()
                       }
                       imports1 = imports1.tail
@@ -275,7 +334,9 @@ trait TypePrinters {
                     if (custom != "") custom
                     else {
                       val typeName = sym.nameString
-                      finishPrefix(preString(typeName) + typeName + argsString)
+                      finishPrefix(preString(typeName) +
+                        (if (typeRename.isEmpty) typeName else typeRename.get.toString) +
+                        argsString)
                     }
                 }
               }
