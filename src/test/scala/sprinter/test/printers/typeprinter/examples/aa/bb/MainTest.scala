@@ -54,6 +54,7 @@ class MainClass {
   //import aa.bb.cc._
   val a: CHANGE.GType = null
   val test: scala.collection.immutable.Map[Map[Int, aa.bb.cc.dd.G.GType], CHANGE.GType] = null
+  val test2: immutable.Map[Map[Int,FType],FType] = null
   //val a: dd.G.GType = null
   //val zm: scala.collection.mutable.Map[Int, Int] = null
   //val zm: mutable.Map[Int, Int] = null

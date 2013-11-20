@@ -132,6 +132,8 @@ trait TypePrinters {
               }
 
               def getAvailableImport() = {
+                System.out.println("- getAvailableImport -")
+                System.out.println("original Symbol: " + sym.name)
                 val impOpt = getImportForSymbol(sym)
                 if (impOpt.isEmpty) {
                   getImportForType(pre)
@@ -140,9 +142,34 @@ trait TypePrinters {
 
               def getImportForType(tp: Type): (Option[ImportInfo], Symbol) = {
                 val importOpt = getImportForSymbol(tp.termSymbol)
+//                System.out.println("tp: " + tp)
+//                System.out.println("tp.termSymbol.isError: " + tp.termSymbol.isError)
+//                System.out.println("tp.termSymbol.isErroneous: " + tp.termSymbol.isErroneous)
+//                System.out.println("Option(tp.termSymbol).isEmpty: " + Option(tp.termSymbol).isEmpty)
+//                System.out.println("Option(tp).isEmpty: " + Option(tp).isEmpty)
+//                System.out.println("tp == NoType: " + (tp == NoType))
+//                System.out.println("tp =:= NoType: " + (tp =:= NoType))
+//                System.out.println("tp.toString: " + tp.toString())
+//                System.out.println("tp.termSymbol.toString: " + tp.termSymbol.toString())
+//                System.out.println("tp.toString() == \"<root>\": " + (tp.toString() == "<root>"))
+//                System.out.println("tp.termSymbol == \"<none>\": " + (tp.termSymbol.toString() == "<none>"))
+
+//                System.out.println("tp.isError: " + tp.isError)
+//                System.out.println("tp.isErroneous: " + tp.isErroneous)
+//                  System.out.println("tp.isNotNull: " + tp.isNotNull)
+//                System.out.println("tp.termSymbol.isRootPackage: " + tp.termSymbol.isRootPackage)
+//                System.out.println("tp.termSymbol.isEffectiveRoot: " + tp.termSymbol.isEffectiveRoot)
+
+
+
+                val excList = List("<root>", "<none>", "<noprefix>")
+
                 importOpt match {
-                  case Some(imp) => (importOpt, tp.termSymbol)
-                  case _ if (tp.termSymbol == NoSymbol || tp.termSymbol.isRoot || tp.termSymbol.isRootSymbol) => (None, NoSymbol)
+                  case Some(imp) =>
+                    (importOpt, tp.termSymbol)
+                  case _ if (Option(tp).isEmpty || tp == NoType || tp.isError || !tp.isNotNull ||
+                    excList.contains(tp.termSymbol.toString()) || excList.contains(tp.toString()) ||
+                    tp.termSymbol == NoSymbol || tp.termSymbol.isRoot || tp.termSymbol.isRootSymbol) => (None, NoSymbol)
                   case None => getImportForType(tp.prefix)
                 }
               }
@@ -188,34 +215,36 @@ trait TypePrinters {
               }
 
               def getImportForSymbol(curSymbol: Symbol) = {
+                System.out.println("- inside getImportForSymbol -")
+                System.out.println("curSymbol: " + curSymbol.name)
 
                 var imports = availImports
                 val name = curSymbol.name
-                System.out.println("=== name: " + name + " ===")
-                System.out.println("=== name.isTermName: " + name.isTermName + " ===")
-                System.out.println("=== name.isTypeName: " + name.isTermName + " ===")
+//                System.out.println("=== name: " + name + " ===")
+//                System.out.println("=== name.isTermName: " + name.isTermName + " ===")
+//                System.out.println("=== name.isTypeName: " + name.isTermName + " ===")
                 var ambigiousError = false
                 var impSym: Symbol = NoSymbol
 
                 while (!impSym.exists && !imports.isEmpty) {
-                  System.out.println("impSym.name: " + imports.head.tree.selectors.head.name)
-                  System.out.println("impSym.name.name.isTermName: " + imports.head.tree.selectors.head.name.isTermName)
-                  System.out.println("impSym.name.name.isTypeName: " + imports.head.tree.selectors.head.name.isTypeName)
-                  if (imports.head.tree.selectors.head.rename != null) {
-                    System.out.println("impSym.rename.rename.isTermName: " + imports.head.tree.selectors.head.rename.isTermName)
-                    System.out.println("impSym.rename.rename.isTypeName: " + imports.head.tree.selectors.head.rename.isTypeName)
-                  }
-                  System.out.println("imports.head.tree.selectors.head.name == name.toTerm: " + (imports.head.tree.selectors.head.name == name))
-                  System.out.println("imports.head.tree.selectors.head.name == name.toTermName: " + (imports.head.tree.selectors.head.name == name.toTermName))
-                  System.out.println("imports.head.tree.selectors.head.name == name.toTypeName: " + (imports.head.tree.selectors.head.name == name.toTypeName))
-                  if (imports.head.tree.selectors.head.rename != null) {
-                    System.out.println("imports.head.tree.selectors.head.rename == name.toTermName: " + (imports.head.tree.selectors.head.rename == name.toTermName))
-                    System.out.println("imports.head.tree.selectors.head.rename == name.toTypeName: " + (imports.head.tree.selectors.head.rename == name.toTypeName))
-                  }
+//                  System.out.println("impSym.name: " + imports.head.tree.selectors.head.name)
+//                  System.out.println("impSym.name.name.isTermName: " + imports.head.tree.selectors.head.name.isTermName)
+//                  System.out.println("impSym.name.name.isTypeName: " + imports.head.tree.selectors.head.name.isTypeName)
+//                  if (imports.head.tree.selectors.head.rename != null) {
+//                    System.out.println("impSym.rename.rename.isTermName: " + imports.head.tree.selectors.head.rename.isTermName)
+//                    System.out.println("impSym.rename.rename.isTypeName: " + imports.head.tree.selectors.head.rename.isTypeName)
+//                  }
+//                  System.out.println("imports.head.tree.selectors.head.name == name.toTerm: " + (imports.head.tree.selectors.head.name == name))
+//                  System.out.println("imports.head.tree.selectors.head.name == name.toTermName: " + (imports.head.tree.selectors.head.name == name.toTermName))
+//                  System.out.println("imports.head.tree.selectors.head.name == name.toTypeName: " + (imports.head.tree.selectors.head.name == name.toTypeName))
+//                  if (imports.head.tree.selectors.head.rename != null) {
+//                    System.out.println("imports.head.tree.selectors.head.rename == name.toTermName: " + (imports.head.tree.selectors.head.rename == name.toTermName))
+//                    System.out.println("imports.head.tree.selectors.head.rename == name.toTypeName: " + (imports.head.tree.selectors.head.rename == name.toTypeName))
+//                  }
 
                   impSym = importedSymbol(name, imports.head)
-                  System.out.println("impSym: " + impSym)
-                  System.out.println("---")
+//                  System.out.println("impSym: " + impSym)
+//                  System.out.println("---")
                   if (!impSym.exists) imports = imports.tail
                 }
                 //System.out.println("impSym (after): " + impSym)
