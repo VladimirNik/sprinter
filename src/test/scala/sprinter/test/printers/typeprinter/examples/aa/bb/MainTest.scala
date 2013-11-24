@@ -60,4 +60,26 @@ class MainClass {
   //val zm: mutable.Map[Int, Int] = null
   //val bo: Object = null
   //val sm: Manifest[Int] = null
+
+  //val (fa, fy) = (5, "ggg")
+//
+  //val List(first, _*) = List(1,2,3)
+
+  val z: List[Int] = null
+  val f = List(1,2,3)
+  z match {
+     case Nil => println("1")
+     case List(x) => x
+     case List(x,y) => y
+     case List(x,y,z) => z
+     case List(x, _*) => x
+     case _ =>
+  }
+  case class XY
+} 
+
+/*
+class FF {
+  val x: Int = 3
 }
+*/

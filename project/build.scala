@@ -39,5 +39,7 @@ object SprinterBuild extends Build {
   )
 
   def dependencies(sv: String) = Seq(
-    "org.scala-lang" % "scala-compiler" % sv) 
+    "org.scala-lang" % "scala-compiler" % sv,
+    "org.scala-refactoring" % "org.scala-refactoring.library" % "0.6.1"
+  ) 
 }
