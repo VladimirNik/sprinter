@@ -7,13 +7,8 @@ package scala.sprinter.printers
 import java.io.{StringWriter, PrintWriter}
 import scala.reflect.internal.Flags._
 
-import scala.tools.nsc
-import scala.tools.nsc.ast.Printers
-import nsc.Global
+import scala.reflect.internal._
 
-import scala.reflect.internal.Definitions
-import scala.util.control.ControlThrowable
-import scala.annotation.tailrec
 import scala.reflect.internal.util.{SourceFile, Statistics}
 import scala.runtime.ObjectRef
 import scala.reflect.internal.util.ThreeValues._
@@ -25,17 +20,23 @@ object PrettyPrinters{
   object AFTER_NAMER extends PrinterDescriptor
   object AFTER_TYPER extends PrinterDescriptor
 
-  def apply(global: Global) = {
-    new PrettyPrinters(global)
+  def apply(compiler: Reflect) = {
+    new PrettyPrinters {
+      val global = compiler
+    }
   }
+
+  type Reflect = SymbolTable
 }
 
-class PrettyPrinters(val global: Global){
+trait PrettyPrinters {
 
+  import PrettyPrinters.Reflect
+  val global: Reflect
   import global._
 
   //TODO set printMultiline for false
-  def show(what: nsc.Global#Tree, printerType: PrettyPrinters.PrinterDescriptor = PrettyPrinters.AFTER_TYPER, printMultiline: Boolean = false, decodeNames: Boolean = true) = {
+  def show(what: Reflect#Tree, printerType: PrettyPrinters.PrinterDescriptor = PrettyPrinters.AFTER_TYPER, printMultiline: Boolean = false, decodeNames: Boolean = true) = {
     val buffer = new StringWriter()
     val writer = new PrintWriter(buffer)
 
@@ -51,7 +52,7 @@ class PrettyPrinters(val global: Global){
 
 
 
-  protected def compareNames(name1: nsc.Global#Name, name2: nsc.Global#Name) =
+  protected def compareNames(name1: Reflect#Name, name2: Reflect#Name) =
     !Option(name1).isEmpty && !Option(name2).isEmpty && (name1.toString.trim == name2.toString.trim)
 //  {
 //    if (name1 == null || name2 == null) false

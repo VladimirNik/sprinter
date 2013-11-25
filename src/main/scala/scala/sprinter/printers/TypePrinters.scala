@@ -6,16 +6,16 @@ import java.io.{StringWriter, PrintWriter}
 
 object TypePrinters {
   def apply(compiler: Global) = {
-    new PrettyPrinters(compiler) with TypePrinters {
-      override val interactive: Global = compiler
+    new TypePrinters {
+      val global: Global = compiler
     }
   }
 
-  def showType(compiler: nsc.interactive.Global, what: nsc.interactive.Global#Tree, context: nsc.interactive.Global#Context) = {
+  def showType(compiler: Global, what: Global#Tree, context: Global#Context) = {
     apply(compiler).showType(what, context)
   }
 
-  def showType(compiler: nsc.interactive.Global, what: nsc.interactive.Global#Type, context: nsc.interactive.Global#Context) = {
+  def showType(compiler: Global, what: Global#Type, context: Global#Context) = {
     apply(compiler).showType(what, context)
   }
 
@@ -37,29 +37,28 @@ object TypePrinters {
   //  }
 }
 
-trait TypePrinters {
-  self: PrettyPrinters =>
+trait TypePrinters extends PrettyPrinters {
 
-  val interactive: Global
-  import interactive._
+  val global: scala.tools.nsc.interactive.Global
+  import global._
 
-  def showType(what: nsc.Global#Tree, context: nsc.interactive.Global#Context) = {
+  def showType(what: Global#Tree, context: Global#Context) = {
     val printer = new TypePrinter()
     printer.showTypeTree(what.asInstanceOf[Tree], context.asInstanceOf[Context])
   }
 
-  def showType(what: nsc.Global#Type, context: nsc.interactive.Global#Context) = {
+  def showType(what: nsc.Global#Type, context: Global#Context) = {
     val printer = new TypePrinter()
     printer.showPrettyType(what.asInstanceOf[Type], context.asInstanceOf[Context])
   }
 
   class TypePrinter {
 
-    import interactive.shorthands
-    import interactive.definitions.{isFunctionType, isTupleType, isByNameParamType, parentsString}
-    import interactive.definitions.{ByNameParamClass, RepeatedParamClass}
+    import global.{shorthands, Context}
+    import global.definitions.{isFunctionType, isTupleType, isByNameParamType, parentsString}
+    import global.definitions.{ByNameParamClass, RepeatedParamClass}
 
-    import interactive.analyzer.ImportInfo
+    import global.analyzer.ImportInfo
 
     def showPrettyType(inType: Type, context: Context): String = {
       lazy val availImports = context.imports
@@ -84,7 +83,7 @@ trait TypePrinters {
                 //println("inType.toString: " + inType.toString())
                 //println("sym.name: " + sym.name)
                 //println("--------")
-                println("HELLO WORLD!")
+//                println("HELLO WORLD!")
 
                 //preString implementation
                 //origPreString ends in .
