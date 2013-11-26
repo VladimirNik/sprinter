@@ -1,3 +1,6 @@
-package aa.bb
+package aa.bb.cc.dd
 
-class ClassInPackage
+trait C[T] {
+  def cTest
+  def ccTest(x: Int)(y: Double, z: List[T]): T
+}

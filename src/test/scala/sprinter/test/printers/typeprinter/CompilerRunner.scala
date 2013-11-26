@@ -4,10 +4,7 @@ import scala.tools.nsc
 import java.io.{File, StringWriter, PrintWriter}
 import scala.tools.nsc.interactive.Response
 import scala.sprinter.printers.{PrettyPrinters, TypePrinters}
-import scala.tools.refactoring.Refactoring
-import scala.tools.refactoring.util.CompilerProvider
 import scala.reflect.internal.util.BatchSourceFile
-import scala.tools.refactoring.common.CompilerAccess
 import scala.reflect.io.AbstractFile
 import scala.reflect.internal.MissingRequirementError
 
@@ -40,113 +37,12 @@ object CompilerRunner {
       }
 """
 
-  object TestRef extends Refactoring with CompilerProvider with scala.tools.refactoring.common.InteractiveScalaCompiler {
-    import global._
-
-    val file = new BatchSourceFile(randomFileName(), sourceStr)
-    val tree = global.parseTree(file)
-//    val tree = treeFrom(sourceStr)
-
-    def cleanTree(t: global.Tree) = {
-      global.ask{ () =>
-        val removeAuxiliaryTrees = ↓(transform {
-
-          case t: global.Tree if (t.pos == global.NoPosition || t.pos.isRange) => t
-
-          case t: global.ValDef => global.emptyValDef
-
-          // We want to exclude "extends AnyRef" in the pretty printer tests
-          case t: global.Select if t.name.isTypeName && t.name.toString != "AnyRef" => t
-
-          case t => global.EmptyTree
-        })
-
-        (removeAuxiliaryTrees &> topdown(setNoPosition))(t).get
-      }
-    }
-
-    def generatePrint(tree: Tree, changeset: ChangeSet = AllTreesHaveChanged, sourceFile: Option[scala.reflect.internal.util.SourceFile]): String = {
-
-      val initialIndentation = if(tree.hasExistingCode) indentationString(tree) else ""
-      val in = new Indentation(defaultIndentationStep, initialIndentation)
-
-      //      scala.sprinter.printers.PrettyPrinters.apply(global).show(tree)
-      print(tree, PrintingContext(in, changeset, tree, sourceFile)).asText
-    }
-
-    def print(tree: global.Tree): String = {
-//      val res = generatePrint(cleanTree(tree), sourceFile = None)
-            val res = generatePrint(tree, sourceFile = None)
-      res
-    }
-
-    def shutdown() =
-      global.askShutdown()
-  }
-
-  trait TestGlobalSettings extends Refactoring with CompilerAccess {
-    val global: nsc.Global
-    import global._
-
-    def cleanTree(t: global.Tree) = {
-//              global.ask{ () =>
-      val removeAuxiliaryTrees = ↓(transform {
-
-        case t: global.Tree if (t.pos == global.NoPosition || t.pos.isRange) => t
-
-        case t: global.ValDef => global.emptyValDef
-
-        // We want to exclude "extends AnyRef" in the pretty printer tests
-        case t: global.Select if t.name.isTypeName && t.name.toString != "AnyRef" => t
-
-        case t => global.EmptyTree
-      })
-
-      (removeAuxiliaryTrees &> topdown(setNoPosition))(t).get
-      //        }
-    }
-
-    def compilationUnitOfFile(f: AbstractFile): Option[global.CompilationUnit] = Option(global.currentUnit)
-
-    def generatePrint(tree: Tree, changeset: ChangeSet = AllTreesHaveChanged, sourceFile: Option[scala.reflect.internal.util.SourceFile]): String = {
-
-      val initialIndentation = if(tree.hasExistingCode) indentationString(tree) else ""
-      val in = new Indentation(defaultIndentationStep, initialIndentation)
-
-//            scala.sprinter.printers.PrettyPrinters.apply(global).show(tree)
-      print(tree, PrintingContext(in, changeset, tree, sourceFile)).asText
-    }
-
-    def print(tree: global.Tree): String = {
-//            val res = generatePrint(cleanTree(tree), sourceFile = None)
-      val res = generatePrint(tree, sourceFile = None)
-      res
-    }
-  }
-
-  trait TestInterGlobalSettings extends TestGlobalSettings {
-    val global: nsc.interactive.Global
-
-    override def cleanTree(t: global.Tree) = {
-      global.ask{ () =>
-        super.cleanTree(t)
-      }
-    }
-
-    def shutdown() =
-      global.askShutdown()
-  }
-
-  object TestGlobal extends TestGlobalSettings {
-    val global = getCompiler
-  }
-
-  object TestInterGlobal extends TestInterGlobalSettings {
-    val global: nsc.interactive.Global = getInteractiveCompiler(getCompiler)
-  }
-
   def main(args: Array[String]) {
-    val compiler = TestGlobal.global
+    val compiler = getCompiler
+    val interactive = getInteractiveCompiler(getCompiler)
+
+    val file = new BatchSourceFile("testFile", sourceStr)
+    val tree = interactive.parseTree(file)
 
     println("baseDir: " + baseDir)
     println("testPath: " + testPath)
@@ -159,7 +55,6 @@ object CompilerRunner {
     val allSources = sourceFiles map {
       fn => compiler.getSourceFile(fn)
     }
-    val interactive = TestInterGlobal.global
     val typePrinters = TypePrinters(interactive)
     val response = new Response[Unit]()
 
@@ -173,25 +68,69 @@ object CompilerRunner {
     val loadedResponse = new Response[interactive.Tree]
     interactive.askLoadedTyped(allSources(0), loadedResponse)
 
-//    import interactive._
+    import interactive._
 
-    var lTree: compiler.Tree = null
-    loadedResponse.get match {
-      case Right(e) => System.out.println("Failed to get tree in PRINT PLUGIN")
-        "Error during getting interactive compiler"
+    var lTree: Tree = loadedResponse.get match {
+      case Right(e) => throw new Exception("Error during getting interactive compiler")
       case Left(_) => {
-        val loadedTree: interactive.Tree = loadedResponse.get.left.get
-        lTree = loadedTree.asInstanceOf[compiler.Tree]
+        loadedResponse.get.left.get
       }
     }
 
-    val pTree = interactive.parseTree(allSources(0))
-//
-//        val typeTrees = (loadedTree.filter{
-//          case interactive.ValDef(mods, name, tp, rhs) => true
-//          case _ => false
-//        }).asInstanceOf[List[ValDef]].distinct.map(_.tpt)
-//
+//    val pTree = interactive.parseTree(allSources(0))
+
+    val typeTrees = (lTree.filter{
+      case cd: ClassDef if cd.symbol.isAbstractClass && !cd.symbol.isTrait => true
+      case _ => false
+    })
+
+    val abstractTree = typeTrees(0)
+
+    println("Abstract Class: " + abstractTree)
+    println("=================")
+
+    val result = interactive.askForResponse {
+      () =>
+        val atType = abstractTree.symbol.tpe
+        println("abstractTree.symbol.tpe: " + abstractTree.symbol.tpe)
+        println("abstractTree.symbol.tpe.resultType: " + abstractTree.symbol.tpe.resultType)
+        println("abstractTree.symbol.tpe.resultType.underlying: " + abstractTree.symbol.tpe.resultType.underlying)
+        println("abstractTree.tpe: " + abstractTree.tpe)
+        println("abstractTree.tpe.resultType: " + abstractTree.tpe.resultType)
+        println("abstractTree.tpe.resultType.underlying: " + abstractTree.tpe.resultType.underlying)
+        println("--------------------")
+
+        val members = atType.underlying.members
+        members foreach {
+          m =>
+            println("method - " + m.isMethod + ": " + interactive.show(m))
+            println("m.isIncompleteIn(atType.termSymbol): " + m.isIncompleteIn(atType.termSymbol))
+            println("m.isDeferred: " + m.isDeferred)
+            println("m.isVal: " + m.isVal) //false for all
+            println("m.isVal: " + m.isVar) //false for all
+            println("m.isValue: " + m.isValue) //true for val/var
+            println("m.isVariable: " + m.isVariable) //false for all
+            println("m.isSetter: " + m.isSetter)
+            println("m.isGetter: " + m.isGetter)
+
+            println("---")
+            println("m.paramss: " + m.paramss)
+            println("m.typeParams: " + m.typeParams)
+            println("m.typeOfThis: " + m.typeOfThis)
+            println("m.owner: " + m.owner)
+            println("m.typeOfThis.asSeenFrom(abstractTree.symbol.tpe, m.owner): " + m.typeOfThis.asSeenFrom(abstractTree.symbol.tpe, m.owner))
+
+            println("---------------------")
+            "finished"
+        }
+        val nonDefinedMembers = members filter (m => (m.isMethod || m.isValue) && m.isIncompleteIn(atType.termSymbol) && m.isDeferred && !m.isSetter)
+    }
+
+    result.get match {
+      case Left(value) => println("Successfully finished")
+      case Right(_) => println("error")
+    }
+
 //        val resultInfo = interactive.askForResponse(
 //          () =>
 //            typeTrees.map{
@@ -221,12 +160,8 @@ object CompilerRunner {
 //        //TODO try context after askShutdown
 //      }
 
-        System.out.println("Here is result: ")
-        System.out.println(PrettyPrinters.apply(TestRef.global).show(pTree))
-//        System.out.println(TestRef.print(pTree.asInstanceOf[TestRef.global.Tree]))
-    TestRef.shutdown()
-    TestInterGlobal.shutdown()
-
+    System.out.println("Here is result: ")
+    interactive.askShutdown()
   }
 
   def getInteractiveCompiler(global: nsc.Global) = {
@@ -268,3 +203,17 @@ object CompilerRunner {
     new scala.tools.nsc.Global(settings, reporter)
   }
 }
+
+
+//for typer-based printing
+//final def keyString: String =
+//if (isJavaInterface) "interface"
+//else if (isTrait && !isImplClass) "trait"
+//else if (isClass) "class"
+//else if (isType && !isParameter) "type"
+//else if (isVariable) "var"
+//else if (isPackage) "package"
+//else if (isModule) "object"
+//else if (isSourceMethod) "def"
+//else if (isTerm && (!isParameter || isParamAccessor)) "val"
+//else ""
