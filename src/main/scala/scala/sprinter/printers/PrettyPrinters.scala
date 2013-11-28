@@ -6,14 +6,8 @@ package scala.sprinter.printers
 
 import java.io.{StringWriter, PrintWriter}
 import scala.reflect.internal.Flags._
-
 import scala.reflect.internal._
-
 import scala.reflect.internal.util.{SourceFile, Statistics}
-import scala.runtime.ObjectRef
-import scala.reflect.internal.util.ThreeValues._
-import scala.reflect.api.Symbols
-import scala.reflect.api.Types
 
 object PrettyPrinters{
   private[PrettyPrinters] trait PrinterDescriptor

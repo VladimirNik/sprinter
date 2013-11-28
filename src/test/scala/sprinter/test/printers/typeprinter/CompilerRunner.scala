@@ -79,10 +79,10 @@ object CompilerRunner {
 
 //    val pTree = interactive.parseTree(allSources(0))
 
-    val typeTrees = (lTree.filter{
+    val typeTrees: List[ClassDef] = (lTree.filter{
       case cd: ClassDef if cd.symbol.isAbstractClass && !cd.symbol.isTrait => true
       case _ => false
-    })
+    }).asInstanceOf[List[ClassDef]]
 
     val abstractTree = typeTrees(0)
 
@@ -92,38 +92,10 @@ object CompilerRunner {
     val result = interactive.askForResponse {
       () =>
         val atType = abstractTree.symbol.tpe
-        println("abstractTree.symbol.tpe: " + abstractTree.symbol.tpe)
-        println("abstractTree.symbol.tpe.resultType: " + abstractTree.symbol.tpe.resultType)
-        println("abstractTree.symbol.tpe.resultType.underlying: " + abstractTree.symbol.tpe.resultType.underlying)
-        println("abstractTree.tpe: " + abstractTree.tpe)
-        println("abstractTree.tpe.resultType: " + abstractTree.tpe.resultType)
-        println("abstractTree.tpe.resultType.underlying: " + abstractTree.tpe.resultType.underlying)
-        println("--------------------")
-
-        val members = atType.underlying.members
-        members foreach {
-          m =>
-            println("method - " + m.isMethod + ": " + interactive.show(m))
-            println("m.isIncompleteIn(atType.termSymbol): " + m.isIncompleteIn(atType.termSymbol))
-            println("m.isDeferred: " + m.isDeferred)
-            println("m.isVal: " + m.isVal) //false for all
-            println("m.isVal: " + m.isVar) //false for all
-            println("m.isValue: " + m.isValue) //true for val/var
-            println("m.isVariable: " + m.isVariable) //false for all
-            println("m.isSetter: " + m.isSetter)
-            println("m.isGetter: " + m.isGetter)
-
-            println("---")
-            println("m.paramss: " + m.paramss)
-            println("m.typeParams: " + m.typeParams)
-            println("m.typeOfThis: " + m.typeOfThis)
-            println("m.owner: " + m.owner)
-            println("m.typeOfThis.asSeenFrom(abstractTree.symbol.tpe, m.owner): " + m.typeOfThis.asSeenFrom(abstractTree.symbol.tpe, m.owner))
-
-            println("---------------------")
-            "finished"
-        }
-        val nonDefinedMembers = members filter (m => (m.isMethod || m.isValue) && m.isIncompleteIn(atType.termSymbol) && m.isDeferred && !m.isSetter)
+        val tdev = (lTree.filter { _ match {
+          case td:DefDef => true
+          case _ => false
+        }}).last
     }
 
     result.get match {
@@ -160,7 +132,6 @@ object CompilerRunner {
 //        //TODO try context after askShutdown
 //      }
 
-    System.out.println("Here is result: ")
     interactive.askShutdown()
   }
 
