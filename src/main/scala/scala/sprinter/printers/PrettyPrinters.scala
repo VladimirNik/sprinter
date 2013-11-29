@@ -8,6 +8,7 @@ import java.io.{StringWriter, PrintWriter}
 import scala.reflect.internal.Flags._
 import scala.reflect.internal._
 import scala.reflect.internal.util.{SourceFile, Statistics}
+import scala.collection.mutable
 
 object PrettyPrinters{
   private[PrettyPrinters] trait PrinterDescriptor
@@ -30,7 +31,7 @@ trait PrettyPrinters {
   import global._
 
   //TODO set printMultiline for false
-  def show(what: Reflect#Tree, printerType: PrettyPrinters.PrinterDescriptor = PrettyPrinters.AFTER_TYPER, printMultiline: Boolean = false, decodeNames: Boolean = true) = {
+  def show(what: Reflect#Tree, printerType: PrettyPrinters.PrinterDescriptor = PrettyPrinters.AFTER_TYPER, printMultiline: Boolean = false, decodeNames: Boolean = false) = {
     val buffer = new StringWriter()
     val writer = new PrintWriter(buffer)
 
@@ -58,8 +59,8 @@ trait PrettyPrinters {
     //TODO maybe we need to pass this stack when explicitly run show inside print
     val contextStack = scala.collection.mutable.Stack[Tree]()
 
-    private var currentOwner: Symbol = NoSymbol
-    private var selectorType: Type = NoType
+    protected var currentOwner: Symbol = NoSymbol
+    protected var selectorType: Type = NoType
 
     override def printModifiers(tree: Tree, mods: Modifiers): Unit = printModifiers(tree, mods, false)
 
@@ -131,7 +132,7 @@ trait PrettyPrinters {
           if (isConstr) {
             printModifiers(tree, mods, isConstr)
           }
-          print(if (mods.isMutable && isConstr) "var " else if (isConstr) "val " else "", symName(tree, name));
+          print(if (mods.isMutable && isConstr) "var " else if (isConstr) "val " else "", symbName(tree, name));
           if (name.endsWith("_")) print(" ");
           printOpt(": ", tp);
           printOpt(" = ", rhs)
@@ -185,7 +186,7 @@ trait PrettyPrinters {
       }
     }
 
-    private def isIntLitWithDecodedOp(qual: Tree, name: Name) = {
+    protected def isIntLitWithDecodedOp(qual: Tree, name: Name) = {
       lazy val qualIsIntLit = qual match {
         case Literal(x) => x.value.isInstanceOf[Int]
         case _ => false
@@ -196,10 +197,10 @@ trait PrettyPrinters {
     //Danger while using inheritance: it's hidden (overwritten) method
     def backquotedPath(t: Tree): String = {
       t match {
-        case Select(qual, name) if (name.isTermName && specialTreeContext(qual)(iLabelDef = false)) || isIntLitWithDecodedOp(qual, name) => "(%s).%s".format(backquotedPath(qual), symName(t, name))
-        case Select(qual, name) if name.isTermName  => "%s.%s".format(backquotedPath(qual), symName(t, name))
-        case Select(qual, name) if name.isTypeName  => "%s#%s".format(backquotedPath(qual), symName(t, name))
-        case Ident(name)                            => symName(t, name)
+        case Select(qual, name) if (name.isTermName && specialTreeContext(qual)(iLabelDef = false)) || isIntLitWithDecodedOp(qual, name) => "(%s).%s".format(backquotedPath(qual), symbName(t, name))
+        case Select(qual, name) if name.isTermName  => "%s.%s".format(backquotedPath(qual), symbName(t, name))
+        case Select(qual, name) if name.isTypeName  => "%s#%s".format(backquotedPath(qual), symbName(t, name))
+        case Ident(name)                            => symbName(t, name)
         case _                                      => show(t)
       }
     }
@@ -259,7 +260,7 @@ trait PrettyPrinters {
                 "class"
               }
 
-            print(word, " ", symName(tree, name))
+            print(word, " ", symbName(tree, name))
             printTypeParams(tparams)
 
             val Template(parents @ List(_*), self, methods) = impl
@@ -331,7 +332,7 @@ trait PrettyPrinters {
               case _ =>
                 printAnnotations(tree)
                 print("package ", packaged);
-                printColumn(stats, " {", ";", "}")
+                printColumn(stats, " {", "\n", "}")
             }
           }
 
@@ -341,18 +342,18 @@ trait PrettyPrinters {
             printModifiers(tree, mods);
             val Template(parents @ List(_*), self, methods) = impl
             val parentsWAnyRef = removeDefaultClassesFromList(parents, List("AnyRef"))
-            print("object " + symName(tree, name), if (!parentsWAnyRef.isEmpty) " extends " else "", impl)
+            print("object " + symbName(tree, name), if (!parentsWAnyRef.isEmpty) " extends " else "", impl)
           }
 
         case vd@ValDef(mods, name, tp, rhs) =>
           printAnnotations(tree)
           printModifiers(tree, mods)
-          print(if (mods.isMutable) "var " else "val ", symName(tree, name))
+          print(if (mods.isMutable) "var " else "val ", symbName(tree, name))
           if (name.endsWith("_")) print(" ")
 
           printOpt(
             // place space after symbolic def name (val *: Unit does not compile)
-            (if(symName(tree, name) != symName(tree, name,false) || symName(tree, name) != symName(tree, name, true))
+            (if(symbName(tree, name) != symbName(tree, name,false) || symbName(tree, name) != symbName(tree, name, true))
               " "
             else
               "") +
@@ -367,14 +368,14 @@ trait PrettyPrinters {
         case dd@DefDef(mods, name, tparams, vparamss, tp, rhs) =>
           printAnnotations(tree)
           printModifiers(tree, mods)
-          print("def " + symName(tree, name))
+          print("def " + symbName(tree, name))
           printTypeParams(tparams);
           vparamss foreach printValueParams
           if (tparams.isEmpty && (vparamss.isEmpty || vparamss(0).isEmpty) && name.endsWith("_"))
             print(" ")
           printOpt(
             // place space after symbolic def name (def *: Unit does not compile)
-            (if(symName(tree, name) != symName(tree, name,false) || symName(tree, name) != symName(tree, name, true))
+            (if(symbName(tree, name) != symbName(tree, name,false) || symbName(tree, name) != symbName(tree, name, true))
               " "
             else
               "") +
@@ -394,7 +395,7 @@ trait PrettyPrinters {
           } else {
             printAnnotations(tree)
             printModifiers(tree, mods);
-            print("type " + symName(tree, name))
+            print("type " + symbName(tree, name))
             printTypeParams(tparams);
             contextManaged(tree){
               printOpt(" = ", rhs)
@@ -417,7 +418,7 @@ trait PrettyPrinters {
               print(" while (", cond, ") ")
             }
           } else {
-            print(symName(tree, name)); printLabelParams(params);
+            print(symbName(tree, name)); printLabelParams(params);
             contextManaged(tree){
               printBlock(rhs)
             }
@@ -587,12 +588,12 @@ trait PrettyPrinters {
           print(elem, "*")
 
         case Bind(name, t) =>
-          if (t == EmptyTree) print("(", symName(tree, name), ")")
+          if (t == EmptyTree) print("(", symbName(tree, name), ")")
           else if (t.exists{
             case _:Star => true
             case _ => false
-          }) print(symName(tree, name), " @ ", t)
-          else print("(", symName(tree, name), " @ ", t, ")")
+          }) print(symbName(tree, name), " @ ", t)
+          else print("(", symbName(tree, name), " @ ", t, ")")
 
         //almost the same as in original
         case Function(vparams, body) =>
@@ -633,14 +634,14 @@ trait PrettyPrinters {
 
 
         case Super(This(qual), mix) =>
-          if (!qual.isEmpty || tree.symbol != NoSymbol) print(symName(tree, qual) + ".")
+          if (!qual.isEmpty || tree.symbol != NoSymbol) print(symbName(tree, qual) + ".")
           print("super")
           if (!mix.isEmpty)
             print("[" + mix + "]")
 
         case This(qual) =>
           //symName is redefined
-          if (!qual.isEmpty) print(symName(tree, qual) + ".")
+          if (!qual.isEmpty) print(symbName(tree, qual) + ".")
           print("this")
 
         //case Select(apply: Apply, name) if (!settings.debug.value) =>
@@ -651,13 +652,13 @@ trait PrettyPrinters {
 
         case Select(qualifier, name) => {
           val printParantheses = specialTreeContext(qualifier)(iAnnotated = false) || isIntLitWithDecodedOp(qualifier, name)
-          if (printParantheses) print("(", backquotedPath(qualifier), ").", symName(tree, name))
-          else print(backquotedPath(qualifier), ".", symName(tree, name))
+          if (printParantheses) print("(", backquotedPath(qualifier), ").", symbName(tree, name))
+          else print(backquotedPath(qualifier), ".", symbName(tree, name))
         }
 
         case id@Ident(name) =>
           if (!name.isEmpty) {
-            val str = symName(tree, name)
+            val str = symbName(tree, name)
 
             val strIsBackquoted = str.startsWith("`") && str.endsWith("`")
 
@@ -692,7 +693,7 @@ trait PrettyPrinters {
           printAnnot()
 
         case SelectFromTypeTree(qualifier, selector) =>
-          print("(", qualifier, ")#", symName(tree, selector))
+          print("(", qualifier, ")#", symbName(tree, selector))
 
         case CompoundTypeTree(templ) =>
           contextManaged(tree){
@@ -742,13 +743,14 @@ trait PrettyPrinters {
 
         case tree => super.printTree(tree)
       }
+      //TODO remove
       if (printTypes && tree.isTerm && !tree.isEmpty) {
         print("{", if (tree.tpe eq null) "<null>" else tree.tpe.toString, "}")
       }
     }
 
     //Danger: it's overwritten method - can be problems with inheritance)
-    def symName(tree: Tree, name: Name, decoded: Boolean = decodeNames): String = {
+    def symbName(tree: Tree, name: Name, decoded: Boolean = decodeNames) = {
       val encName = name.encoded
       val decName = name.decoded
       def modifyEncoded(s: String) = if (decoded && (encName.contains("$u") ||
@@ -781,5 +783,488 @@ trait PrettyPrinters {
   }
 
   //TODO change printMultiline for option object - to pass all parameters
-  class AfterTyperPrinter(out: PrintWriter, printMultiline: Boolean = false, decodeNames: Boolean = true) extends PrettyPrinter(out, printMultiline, decodeNames)
+  class AfterTyperPrinter(out: PrintWriter, printMultiline: Boolean = false, decodeNames: Boolean = false) extends PrettyPrinter(out, printMultiline, decodeNames) {
+    private val curClassOrModuleStack: mutable.Stack[Symbol] = mutable.Stack()
+    private def pushClassOrModule(sym: Symbol) = curClassOrModuleStack.push(sym)
+    //TODO refactor
+    private def popClassOrModule: Option[Symbol] = if (!curClassOrModuleStack.isEmpty) Option(curClassOrModuleStack.pop) else None
+    private def classContext = if (!curClassOrModuleStack.isEmpty) Option(curClassOrModuleStack.top) else None
+    override def contextManaged(context: Tree)(body: =>Unit) {
+      contextStack.push(context)
+      val contIsClOrMod = context.isInstanceOf[ClassDef] || context.isInstanceOf[ModuleDef]
+      if (contIsClOrMod) curClassOrModuleStack.push(context.symbol)
+      body
+      if (contIsClOrMod) curClassOrModuleStack.pop
+      contextStack.pop()
+    }
+
+    override def symbName(tree: Tree, name: Name, decoded: Boolean = decodeNames) = {
+      if (!compareNames(name, nme.CONSTRUCTOR)) super.symbName(tree, name, decoded).trim else ""
+    }
+
+    override def printTree(tree: Tree) {
+      tree match {
+        case ClassDef(mods, name, tparams, impl) =>
+          contextManaged(tree){
+            printAnnotations(tree)
+            val word =
+              if (mods.isTrait){
+                printModifiers(tree, mods &~ ABSTRACT) // avoid abstract modifier for traits
+                "trait"
+              } else {
+                printModifiers(tree, mods)
+                "class"
+              }
+
+            print(word, " ", symbName(tree, name))
+            printTypeParams(tparams)
+
+            val Template(parents @ List(_*), self, methods) = impl
+            if (!mods.isTrait) {
+              val templateVals = methods collect {
+                case ValDef(mods, name, _, _) => (name, mods)
+              }
+
+              val primaryConstrOpt = getPrimaryConstr(methods)
+
+              primaryConstrOpt map {
+                primaryConstr =>
+
+                  val cstrMods = primaryConstr.mods
+                  val vparamss = primaryConstr.vparamss
+
+                  //combine modifiers
+                  val printParamss =
+                    vparamss map {
+                      vparams =>
+                        if (vparams.isEmpty) vparams
+                        else vparams map {
+                          vparam =>
+                            templateVals find {
+                              tv =>
+                                compareNames(tv._1, vparam.name)
+                            } map {
+                              templateVal =>
+                                ValDef(Modifiers(vparam.mods.flags | templateVal._2.flags, templateVal._2.privateWithin,
+                                  (vparam.mods.annotations ::: templateVal._2.annotations) distinct), vparam.name, vparam.tpt, vparam.rhs)
+                            } getOrElse vparam
+                        }
+                    }
+
+                  //constructor's modifier
+                  if (cstrMods.hasFlag(AccessFlags)) {
+                    print(" ")
+                    printModifiers(primaryConstr, cstrMods)
+                  }
+
+                  //constructor's params
+                  printParamss foreach { printParams =>
+                  //don't print single empty constructor param list
+                    if (!(printParams.isEmpty && printParamss.size == 1) || cstrMods.hasFlag(AccessFlags)) {
+                      printConstrParams(printParams, true)
+                      print(" ")
+                    }
+                  }
+              } getOrElse {print(" ")}
+            }
+
+            //get trees without default classes and traits (when they are last)
+            val printedParents = removeDefaultTypesFromList(parents)(List("AnyRef"))(if (mods.hasFlag(CASE)) List("Product", "Serializable") else Nil)
+
+            print(if (mods.isDeferred) "<: " else if (!printedParents.isEmpty) " extends "
+            else "", impl);
+          }
+
+        case PackageDef(packaged, stats) =>
+          contextManaged(tree){
+            val statsMod = stats.filter{
+              case x => !x.symbol.isSynthetic
+            }
+            packaged match {
+              case Ident(name) if compareNames(name, nme.EMPTY_PACKAGE_NAME) =>
+                printSeq(statsMod) {
+                  print(_)
+                } {
+                  print(";");
+                  println()
+                };
+              case _ =>
+                printAnnotations(tree)
+                print("package ", packaged);
+                printColumn(statsMod, " {", "\n", "}")
+            }
+          }
+
+        case ModuleDef(mods, name, impl) =>
+          contextManaged(tree){
+            printAnnotations(tree)
+            printModifiers(tree, mods);
+            val Template(parents @ List(_*), self, methods) = impl
+            val parentsWAnyRef = removeDefaultClassesFromList(parents, List("AnyRef"))
+            print("object " + symbName(tree, name), if (!parentsWAnyRef.isEmpty) " extends " else "", impl);
+          }
+
+        case vd@ValDef(mods, name, tp, rhs) =>
+          System.out.println("===>vd: " + showRaw(vd))
+          printAnnotations(tree)
+          printModifiers(tree, mods)
+          print(if (mods.isMutable) "var " else "val ", symbName(tree, name))
+          if (name.endsWith("_")) print(" ")
+
+          if (!isTreePrintable(tp)) {
+          printOpt(
+            // place space after symbolic def name (val *: Unit does not compile)
+            returnIfCond(name.decoded.trim != name.encoded.trim)(" ") +
+              ": ",
+            tp
+          )
+          }
+          contextManaged(tree){
+            if (!mods.isDeferred)
+              print(" = ", if (rhs.isEmpty) "_" else rhs);
+          }
+
+//        case dd@DefDef(mods, name, tparams, vparamss, tp, rhs) if dd.symbol.isAccessor =>
+
+        case dd@DefDef(mods, name, tparams, vparamss, tp, rhs) =>
+          System.out.println("===>dd: " + showRaw(dd))
+          printAnnotations(tree)
+          printModifiers(tree, mods)
+          print("def " + symbName(tree, name))
+          printTypeParams(tparams);
+          vparamss foreach printValueParams
+          if (tparams.isEmpty && (vparamss.isEmpty || vparamss(0).isEmpty) && name.endsWith("_"))
+            print(" ")
+
+          if (!isTreePrintable(tp)) printOpt(
+            // place space after symbolic def name (def *: Unit does not compile)
+            returnIfCond(name.decoded.trim != name.encoded.trim)(" ") + ": ", tp)
+          contextManaged(tree){
+            printOpt(" = " + (if (mods.hasFlag(MACRO)) "macro " else ""), rhs);
+          }
+
+        case td@TypeDef(mods, name, tparams, rhs) =>
+          if (mods hasFlag (PARAM | DEFERRED)) {
+            printAnnotations(tree)
+            printModifiers(tree, mods);
+            print("type ");
+            printParam(tree)
+          } else {
+            printAnnotations(tree)
+            printModifiers(tree, mods);
+            print("type " + symbName(tree, name))
+            printTypeParams(tparams);
+            contextManaged(tree){
+              printOpt(" = ", rhs)
+            }
+          }
+
+        case LabelDef(name, params, rhs) =>
+          if (name.contains("while$")) {
+            contextManaged(tree){
+              val If(cond, thenp, elsep) = rhs
+              print("while (", cond, ") ")
+              val Block(list, wh) = thenp
+              printColumn(list, "", ";", "")
+            }
+          } else if (name.contains("doWhile$")) {
+            contextManaged(tree){
+              val Block(bodyList: List[Tree], ifCond @ If(cond, thenp, elsep)) = rhs
+              print("do ")
+              printColumn(bodyList, "", ";", "")
+              print(" while (", cond, ") ")
+            }
+          } else {
+            print(symbName(tree, name)); printLabelParams(params);
+            contextManaged(tree){
+              printBlock(rhs)
+            }
+          }
+
+        case Import(expr, selectors) =>
+          print("import ", backquotedPath(expr), ".")
+          selectors match {
+            case List(s) =>
+              // If there is just one selector and it is not remapping a name, no braces are needed
+              if (isNotRemap(s)) print(selectorToString(s))
+              else print("{", selectorToString(s), "}")
+            // If there is more than one selector braces are always needed
+            case many =>
+              print(many.map(selectorToString).mkString("{", ", ", "}"))
+          }
+
+        case Template(parents, self, body) =>
+          val currentOwner1 = currentOwner
+          //TODO repair using of currentOwner
+          //if (tree.symbol != NoSymbol) currentOwner = tree.symbol.owner
+
+          val printedParents =
+            getCurrentContext() map {
+              //val example: Option[AnyRef => Product1[Any] with AnyRef] = ... - CompoundTypeTree with template
+              case _: CompoundTypeTree => parents
+              case ClassDef(mods, name, _, _) if mods.hasFlag(CASE) => removeDefaultTypesFromList(parents)(List("AnyRef"))(List("Product", "Serializable"))
+              case _ => removeDefaultClassesFromList(parents, List("AnyRef"))
+            } getOrElse(parents)
+
+          val primaryCtrOpt = getPrimaryConstr(body)
+          var ap: Option[Apply] = None
+
+          for (primaryCtr <- primaryCtrOpt) {
+            primaryCtr match {
+              case DefDef(_, _, _, _, _, Block(ctBody @ List(_*), _)) =>
+                ap = ctBody collectFirst {
+                  case apply: Apply => apply
+                }
+
+                //vals in preinit blocks
+                val presuperVals = ctBody filter {
+                  case vd:ValDef => vd.mods.hasFlag(PRESUPER)
+                  case _ => false
+                }
+
+                if (!presuperVals.isEmpty) {
+                  print("{")
+                  printColumn(presuperVals, "", ";", "")
+                  print("} " + (if (!printedParents.isEmpty) "with " else ""))
+                }
+
+              case _ =>
+            }
+          }
+
+          if (!printedParents.isEmpty) {
+            val (clParent :: traits) = printedParents
+            print(clParent)
+
+            def getConstrParams(tree: Tree, cargs: List[List[Tree]]): List[List[Tree]] = {
+              tree match {
+                case Apply(inTree, args) =>
+                  getConstrParams(inTree, cargs):+args
+                case _ => cargs
+              }
+            }
+
+            val applyParamsList = ap map {getConstrParams(_, Nil)} getOrElse Nil
+            applyParamsList foreach {x: List[Tree] => if (!(x.isEmpty && applyParamsList.size == 1)) printRow(x, "(", ", ", ")")}
+
+            if (!traits.isEmpty) {
+              printRow(traits, " with ", " with ", "")
+            }
+          }
+
+          def showDef(dd: DefDef) =
+            (!dd.symbol.isGetter || dd.symbol.isDeferred) && !dd.symbol.isSetter && !dd.symbol.isSynthetic
+
+          //remove primary constr def and constr val and var defs
+          //right contains all constructors
+          //TODO see impl filter on Tree
+          val (left, right) = body.filter {
+            //remove valdefs defined in constructor and pre-init block
+            case vd: ValDef => !vd.mods.hasFlag(PARAMACCESSOR) && !vd.mods.hasFlag(PRESUPER)
+            case dd: DefDef => !compareNames(dd.name, nme.MIXIN_CONSTRUCTOR) && showDef(dd)//remove $this$ from traits
+            case EmptyTree => false
+            case _ => true
+          } span {
+            case dd: DefDef => !compareNames(dd.name, nme.CONSTRUCTOR) && showDef(dd)
+            case _ => true
+          }
+
+          val modBody = left ::: right.drop(1)//List().drop(1) ==> List()
+        val showBody = !(modBody.isEmpty &&
+            (self match {
+              case ValDef(mods, name, TypeTree(), rhs) if (mods & PRIVATE) != 0 && name.decoded == "_" && rhs.isEmpty => true // workaround for superfluous ValDef when parsing class without body using quasi quotes
+              case _ => self.isEmpty
+            }))
+          if (showBody) {
+            if (!compareNames(self.name, nme.WILDCARD)) {
+              print(" { ", self.name);
+              printOpt(": ", self.tpt);
+              print(" =>")
+            } else if (!self.tpt.isEmpty) {
+              print(" { _ : ", self.tpt, " =>")
+            } else {
+              print(" {")
+            }
+            contextManaged(tree) {
+              printColumn(modBody, "", "", "}")
+            }
+          }
+          currentOwner = currentOwner1
+
+        case Block(stats, expr) =>
+          contextManaged(tree){
+            printColumn(stats ::: List(expr), "{", ";", "}")
+          }
+
+        case tt:TypTree =>
+          print(tt.tpe.toString())
+
+        case Match(selector, cases) =>
+          //insert braces if match is inner
+          //make this function available for other casses
+          //passing required type for checking
+          def insertBraces(body: =>Unit) {
+            if (contextStack.exists{
+              _.isInstanceOf[Match]
+            }) {
+              print("(")
+              body
+              print(")")
+            } else body
+          }
+
+          val selectorType1 = selectorType
+          selectorType = selector.tpe
+
+          val printParantheses = specialTreeContext(selector)(iLabelDef = false)
+          tree match {
+            case Match(EmptyTree, cs) =>
+              printColumn(cases, "{", "", "}")
+            case _ =>
+              insertBraces {
+                contextManaged(tree){
+                  codeInParantheses(printParantheses) {
+                    print(selector);
+                  }
+                }
+                printColumn(cases, " match {", "", "}")
+              }
+          }
+          selectorType = selectorType1
+
+        case CaseDef(pat, guard, body) =>
+          print("case ")
+          def patConstr(pat: Tree): Tree = pat match {
+            case Apply(fn, args) => patConstr(fn)
+            case _ => pat
+          }
+          if (showOuterTests &&
+            needsOuterTest(
+              patConstr(pat).tpe.finalResultType, selectorType, currentOwner))
+            print("???")
+          print(pat);
+          printOpt(" if ", guard)
+          contextManaged(tree) {
+            print(" => ", body)
+          }
+
+        case Star(elem) =>
+          print(elem, "*")
+
+        case Bind(name, t) =>
+          if (t == EmptyTree) print("(", symbName(tree, name), ")")
+          else if (t.exists{
+            case _:Star => true
+            case _ => false
+          }) print(symbName(tree, name), " @ ", t)
+          else print("(", symbName(tree, name), " @ ", t, ")")
+
+        //almost the same as in original
+        case Function(vparams, body) =>
+          print("(");
+          printValueParams(vparams, true);
+          print(" => ", body, ")")
+
+        case Typed(expr, tp) =>
+          tp match {
+            case Function(List(), EmptyTree) => print("(", expr, " _)") //func _
+            case _ => print("((", expr, "): ", tp, ")") //parenteses required when (a match {}) : Type
+          }
+
+        case Apply(fun, vargs) =>
+          System.out.println("tree (Apply): " + tree)
+          tree match {
+            //TODO change for ch search (when there are several TypeApply)
+            case Apply(ta @ TypeApply(ch @ Select(res, _),_), List(Ident(name))) if name.toString() == "<unapply-selector>" => print(res)
+            case _ => super.printTree(tree)
+          }
+
+        //TODO try to change it on previous printer
+        case Super(This(qual), mix) =>
+          print("super")
+
+        case This(qual) =>
+          //symName is redefined
+          System.out.println("This symbol: " + tree.symbol)
+          System.out.println("This tpe: " + tree.tpe)
+
+          if (!qual.isEmpty)
+            print(symbName(tree, qual) + ".")
+          print("this")
+
+        case Select(qual@New(tpe), name) =>
+          print(qual)
+
+        case Select(t@This(name), res) =>
+          System.out.println("\n!!!t.symbol: " + t.symbol)
+//          System.out.println("s.symbol.owner: " + s.symbol.owner)
+//          System.out.println("t.symbol: " + t.symbol)
+//          System.out.println("t.name: " + name)
+          System.out.println("classContext.getOrElse(NoSymbol): " + classContext.getOrElse(NoSymbol))
+          System.out.println("tree.symbol: " + t.symbol)
+          System.out.println("(classContext.getOrElse(NoSymbol) == tree.symbol): " + (classContext.getOrElse(NoSymbol) == t.symbol))
+          System.out.println("(classContext.getOrElse(NoSymbol) == tree.symbol) && !name.isEmpty: " + ((classContext.getOrElse(NoSymbol) == t.symbol) && !name.isEmpty))
+          System.out.println("showRaw: " + showRaw(t) + "\n")
+          super.printTree(mkThis(tree))
+//          if (s.symbol.owner == t.symbol) print(resTree)
+//          else super.printTree(s)
+
+        case s@Select(qualifier, name) => {
+          val printParantheses = specialTreeContext(qualifier)(iAnnotated = false) || isIntLitWithDecodedOp(qualifier, name)
+          if (printParantheses) print("(", backquotedPath(qualifier), ").", symbName(tree, name))
+          else print(backquotedPath(qualifier), ".", symbName(tree, name))
+        }
+
+        case l@Literal(x) =>
+          if (x.value.isInstanceOf[String] && printMultiline && x.stringValue.contains("\n") && !x.stringValue.contains("\"\"\"") && x.stringValue.size > 1) {
+            super.printTree(l)
+          } else {
+            //processing Float constants
+            val printValue = x.escapedStringValue + (if (x.value.isInstanceOf[Float]) "F" else "") //correct printing of Float
+            print(printValue.trim)
+          }
+
+        case UnApply(fun, args) =>
+          print(fun); printRow(args, "(", ", ", ")")
+
+        case ta @ TypeApply(fun, targs) =>
+          print(fun); printRow(targs, "[", ", ", "]")
+
+        case emptyTree if emptyTree.toString == "<empty>" => // workaround as case EmptyTree does not work for all universes because of path depedent types
+
+        case tree => super.printTree(tree)
+      }
+    }
+    def returnIfCond(cond: Boolean)(printVal: String) = if (cond) printVal else ""
+
+    def isTreePrintable(tree: Tree) = tree match {
+      case tt: TypeTree => Option(tt.original).isEmpty
+      case _ => false
+    }
+
+    //Danger while using inheritance: it's hidden (overwritten) method
+    override def backquotedPath(t: Tree): String = {
+      t match {
+        case Select(This(name), res: Name) if (!name.isEmpty) =>
+          System.out.println("--- backquotedPath")
+          System.out.println("name: " + name)
+          System.out.println("name.isEmpty: " + name.isEmpty)
+          super.backquotedPath(mkThis(t))
+//          "just value"
+        case _ => super.backquotedPath(t)
+      }
+    }
+
+    def mkThis(tree: Tree) = tree match {
+        case Select(th @ This(name), res) if (classContext.getOrElse(NoSymbol) == th.symbol) && !name.isEmpty =>
+          System.out.println("inside mkThis1")
+          Select(This(newFreeTypeSymbol(newTypeName(""), origin = "")), res)
+        case Select(th @ This(_), res) if (th.symbol.isPackage) =>
+          System.out.println("inside mkThis2")
+          Ident(res)
+        case _ =>
+          System.out.println("inside mkThis3")
+          tree
+    }
+  }
 }

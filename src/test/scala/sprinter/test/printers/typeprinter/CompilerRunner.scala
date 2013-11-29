@@ -77,31 +77,34 @@ object CompilerRunner {
       }
     }
 
+    val result = PrettyPrinters(interactive).show(lTree, PrettyPrinters.AFTER_TYPER)
+    System.out.println(result)
+
 //    val pTree = interactive.parseTree(allSources(0))
 
-    val typeTrees: List[ClassDef] = (lTree.filter{
-      case cd: ClassDef if cd.symbol.isAbstractClass && !cd.symbol.isTrait => true
-      case _ => false
-    }).asInstanceOf[List[ClassDef]]
-
-    val abstractTree = typeTrees(0)
-
-    println("Abstract Class: " + abstractTree)
-    println("=================")
-
-    val result = interactive.askForResponse {
-      () =>
-        val atType = abstractTree.symbol.tpe
-        val tdev = (lTree.filter { _ match {
-          case td:DefDef => true
-          case _ => false
-        }}).last
-    }
-
-    result.get match {
-      case Left(value) => println("Successfully finished")
-      case Right(_) => println("error")
-    }
+//    val typeTrees: List[ClassDef] = (lTree.filter{
+//      case cd: ClassDef if cd.symbol.isAbstractClass && !cd.symbol.isTrait => true
+//      case _ => false
+//    }).asInstanceOf[List[ClassDef]]
+//
+//    val abstractTree = typeTrees(0)
+//
+//    println("Abstract Class: " + abstractTree)
+//    println("=================")
+//
+//    val result = interactive.askForResponse {
+//      () =>
+//        val atType = abstractTree.symbol.tpe
+//        val tdev = (lTree.filter { _ match {
+//          case td:DefDef => true
+//          case _ => false
+//        }}).last
+//    }
+//
+//    result.get match {
+//      case Left(value) => println("Successfully finished")
+//      case Right(_) => println("error")
+//    }
 
 //        val resultInfo = interactive.askForResponse(
 //          () =>
