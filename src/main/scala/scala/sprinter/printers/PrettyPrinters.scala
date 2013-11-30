@@ -825,6 +825,10 @@ trait PrettyPrinters {
                 case ValDef(mods, name, _, _) => (name, mods)
               }
 
+              val accessors = methods collect {
+                case dd@DefDef(mods, name, _, _, _, _) if dd.symbol.isGetter => (dd.name.decode.trim, dd.mods.flags)
+              } toMap
+
               val primaryConstrOpt = getPrimaryConstr(methods)
 
               primaryConstrOpt map {
@@ -845,7 +849,12 @@ trait PrettyPrinters {
                                 compareNames(tv._1, vparam.name)
                             } map {
                               templateVal =>
-                                ValDef(Modifiers(vparam.mods.flags | templateVal._2.flags, templateVal._2.privateWithin,
+                                //if found in map remove private local and set flag
+                                val vparName = vparam.name.toString.trim
+                                val flags = if (accessors.contains(vparName))
+                                  ((vparam.mods | templateVal._2.flags) &~ Flags.PrivateLocal | accessors(vparName)).flags
+                                else (vparam.mods.flags | templateVal._2.flags)
+                                ValDef(Modifiers(flags, templateVal._2.privateWithin,
                                   (vparam.mods.annotations ::: templateVal._2.annotations) distinct), vparam.name, vparam.tpt, vparam.rhs)
                             } getOrElse vparam
                         }
@@ -994,7 +1003,6 @@ trait PrettyPrinters {
           }
 
         case Template(parents, self, body) =>
-          System.out.println("template: " + showRaw(tree))
           val currentOwner1 = currentOwner
           //TODO repair using of currentOwner
           //if (tree.symbol != NoSymbol) currentOwner = tree.symbol.owner
@@ -1055,8 +1063,7 @@ trait PrettyPrinters {
             }
           }
 
-          def showDef(dd: DefDef) =
-            (!dd.symbol.isGetter || dd.symbol.isDeferred) && !dd.symbol.isSetter && !dd.symbol.isSynthetic
+          def showDef(dd: DefDef) = (!dd.symbol.isGetter || dd.symbol.isDeferred) && !dd.symbol.isSetter && !dd.symbol.isSynthetic
 
           //remove primary constr def and constr val and var defs
           //right contains all constructors
@@ -1172,7 +1179,6 @@ trait PrettyPrinters {
           }
 
         case Apply(fun, vargs) =>
-          System.out.println("tree (Apply): " + tree)
           tree match {
 //            case Apply(x, List(Ident(name))) if name.toString == "<unapply-selector>" =>
 //              val res = x.find{
@@ -1191,8 +1197,6 @@ trait PrettyPrinters {
 
         case This(qual) =>
           //symName is redefined
-          System.out.println("This symbol: " + tree.symbol)
-          System.out.println("This tpe: " + tree.tpe)
 
           if (!qual.isEmpty)
             print(symbName(tree, qual) + ".")
@@ -1202,15 +1206,15 @@ trait PrettyPrinters {
           print(qual)
 
         case Select(t@This(name), res) =>
-          System.out.println("\n!!!t.symbol: " + t.symbol)
+//          System.out.println("\n!!!t.symbol: " + t.symbol)
 //          System.out.println("s.symbol.owner: " + s.symbol.owner)
 //          System.out.println("t.symbol: " + t.symbol)
 //          System.out.println("t.name: " + name)
-          System.out.println("classContext.getOrElse(NoSymbol): " + classContext.getOrElse(NoSymbol))
-          System.out.println("tree.symbol: " + t.symbol)
-          System.out.println("(classContext.getOrElse(NoSymbol) == tree.symbol): " + (classContext.getOrElse(NoSymbol) == t.symbol))
-          System.out.println("(classContext.getOrElse(NoSymbol) == tree.symbol) && !name.isEmpty: " + ((classContext.getOrElse(NoSymbol) == t.symbol) && !name.isEmpty))
-          System.out.println("showRaw: " + showRaw(t) + "\n")
+//          System.out.println("classContext.getOrElse(NoSymbol): " + classContext.getOrElse(NoSymbol))
+//          System.out.println("tree.symbol: " + t.symbol)
+//          System.out.println("(classContext.getOrElse(NoSymbol) == tree.symbol): " + (classContext.getOrElse(NoSymbol) == t.symbol))
+//          System.out.println("(classContext.getOrElse(NoSymbol) == tree.symbol) && !name.isEmpty: " + ((classContext.getOrElse(NoSymbol) == t.symbol) && !name.isEmpty))
+//          System.out.println("showRaw: " + showRaw(t) + "\n")
           super.printTree(mkThis(tree))
 //          if (s.symbol.owner == t.symbol) print(resTree)
 //          else super.printTree(s)
@@ -1260,11 +1264,7 @@ trait PrettyPrinters {
     override def backquotedPath(t: Tree): String = {
       t match {
         case Select(This(name), res: Name) if (!name.isEmpty) =>
-          System.out.println("--- backquotedPath")
-          System.out.println("name: " + name)
-          System.out.println("name.isEmpty: " + name.isEmpty)
           super.backquotedPath(mkThis(t))
-//          "just value"
         case _ => super.backquotedPath(t)
       }
     }
@@ -1287,13 +1287,10 @@ trait PrettyPrinters {
 
     def mkThis(tree: Tree) = tree match {
         case Select(th @ This(name), res) if (classContext.getOrElse(NoSymbol) == th.symbol) && !name.isEmpty =>
-          System.out.println("inside mkThis1")
           Select(This(newFreeTypeSymbol(newTypeName(""), origin = "")), res)
         case Select(th @ This(_), res) if (th.symbol.isPackage) =>
-          System.out.println("inside mkThis2")
           Ident(res)
         case _ =>
-          System.out.println("inside mkThis3")
           tree
     }
   }
