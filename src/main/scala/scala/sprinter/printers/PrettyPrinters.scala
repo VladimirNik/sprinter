@@ -799,7 +799,7 @@ trait PrettyPrinters {
     }
 
     override def symbName(tree: Tree, name: Name, decoded: Boolean = decodeNames) = {
-      if (!compareNames(name, nme.CONSTRUCTOR)) super.symbName(tree, name, decoded).trim else ""
+      if (!compareNames(name, nme.CONSTRUCTOR)) super.symbName(tree, name, decoded).trim else "this"
     }
 
     override def printTree(tree: Tree) {
@@ -994,6 +994,7 @@ trait PrettyPrinters {
           }
 
         case Template(parents, self, body) =>
+          System.out.println("template: " + showRaw(tree))
           val currentOwner1 = currentOwner
           //TODO repair using of currentOwner
           //if (tree.symbol != NoSymbol) currentOwner = tree.symbol.owner
@@ -1017,14 +1018,16 @@ trait PrettyPrinters {
                 }
 
                 //vals in preinit blocks
-                val presuperVals = ctBody filter {
+                //TODO typeDef not found
+                val presuper = ctBody filter {
                   case vd:ValDef => vd.mods.hasFlag(PRESUPER)
+                  case td: TypeDef => td.mods.hasFlag(PRESUPER)
                   case _ => false
                 }
 
-                if (!presuperVals.isEmpty) {
+                if (!presuper.isEmpty) {
                   print("{")
-                  printColumn(presuperVals, "", ";", "")
+                  printColumn(presuper, "", ";", "")
                   print("} " + (if (!printedParents.isEmpty) "with " else ""))
                 }
 
@@ -1095,9 +1098,6 @@ trait PrettyPrinters {
           contextManaged(tree){
             printColumn(stats ::: List(expr), "{", ";", "}")
           }
-
-        case tt:TypTree =>
-          print(tt.tpe.toString())
 
         case Match(selector, cases) =>
           //insert braces if match is inner
@@ -1174,6 +1174,12 @@ trait PrettyPrinters {
         case Apply(fun, vargs) =>
           System.out.println("tree (Apply): " + tree)
           tree match {
+//            case Apply(x, List(Ident(name))) if name.toString == "<unapply-selector>" =>
+//              val res = x.find{
+//                case Select(q, _:Name) => true
+//                case _ => false
+//              }
+//              if (res.isDefined) print(res.get.asInstanceOf[Select].qualifier)
             //TODO change for ch search (when there are several TypeApply)
             case Apply(ta @ TypeApply(ch @ Select(res, _),_), List(Ident(name))) if name.toString() == "<unapply-selector>" => print(res)
             case _ => super.printTree(tree)
@@ -1230,6 +1236,14 @@ trait PrettyPrinters {
         case ta @ TypeApply(fun, targs) =>
           print(fun); printRow(targs, "[", ", ", "]")
 
+        case CompoundTypeTree(templ) =>
+          contextManaged(tree){
+            print(templ)
+          }
+
+        case tt:TypTree =>
+          print(tt.tpe.toString())
+
         case emptyTree if emptyTree.toString == "<empty>" => // workaround as case EmptyTree does not work for all universes because of path depedent types
 
         case tree => super.printTree(tree)
@@ -1254,6 +1268,22 @@ trait PrettyPrinters {
         case _ => super.backquotedPath(t)
       }
     }
+
+    override def removeDefaultClassesFromList(trees: List[Tree], classesToRemove: List[String]) = trees filter {
+      case t:TypeTree => !((classesToRemove.contains(t.toString)))
+      case Select(Ident(sc), name) => !((classesToRemove.contains(name.toString)) && (sc.toString == "scala"))
+      case _ => false
+    }
+
+    override def removeDefaultTraitsFromList(trees: List[Tree], traitsToRemove: List[String]): List[Tree] =
+      trees match {
+        case Nil => trees
+        case list : List[Tree] => list.last match {
+          case t:TypeTree if ((traitsToRemove.contains(t.toString)))
+          => removeDefaultTraitsFromList(list.init, traitsToRemove)
+          case _ => super.removeDefaultTraitsFromList(trees, traitsToRemove)
+        }
+      }
 
     def mkThis(tree: Tree) = tree match {
         case Select(th @ This(name), res) if (classContext.getOrElse(NoSymbol) == th.symbol) && !name.isEmpty =>
