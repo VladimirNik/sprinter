@@ -1063,7 +1063,8 @@ trait PrettyPrinters {
             }
           }
 
-          def showDef(dd: DefDef) = (!dd.symbol.isGetter || dd.symbol.isDeferred) && !dd.symbol.isSetter && !dd.symbol.isSynthetic
+          def showDef(dd: DefDef) = (((!dd.symbol.isGetter || dd.symbol.isDeferred)
+            || dd.symbol.isLazy) && !dd.symbol.isSynthetic && !dd.symbol.isSetter)
 
           //remove primary constr def and constr val and var defs
           //right contains all constructors
@@ -1075,17 +1076,23 @@ trait PrettyPrinters {
             case EmptyTree => false
             case _ => true
           } span {
-            case dd: DefDef => !compareNames(dd.name, nme.CONSTRUCTOR)
+            case dd: DefDef => System.out.println("dd: " + showRaw(dd)); !compareNames(dd.name, nme.CONSTRUCTOR)
             case _ => true
           }
 
-          val dds = left filter {
+          System.out.println("left: " + left)
+          System.out.println("right: " + right)
+
+          val allBody = left ::: right.drop(1) //List().drop(1) ==> List() - remove default constr
+
+          val dds = allBody filter {
               case dd:DefDef => dd.symbol.isAccessor
               case _ => false
             }
 
-          val modLeft = left filter {
+          val modBody = allBody filter {
             case dd: DefDef => showDef(dd)
+            case vd: ValDef => !vd.symbol.isLazy //we transform lazy defs to val => remove lazy
             case _ => true
           } map {
             case vd @ ValDef(mods, name, tpt, rhs) =>
@@ -1098,15 +1105,21 @@ trait PrettyPrinters {
                 val defaultFlags = mods &~ Flags.PrivateLocal | dmods.flags
                 val flags = if (df.symbol.isSetter) defaultFlags | Flags.MUTABLE else defaultFlags
                 //TODO remove method flags
-                ValDef(flags, name, tpt, if (flags.hasFlag(Flags.LAZY)) drhs else rhs).setSymbol(vd.symbol) //set symbol of old valdef
+                ValDef(flags, name, tpt, rhs).setSymbol(vd.symbol) //set symbol of old valdef
               } getOrElse(vd)
             case dd @ DefDef(flags, name, _, _, tpt, rhs) if dd.symbol.isDeferred && dd.symbol.isAccessor => //abstract val and var processing
 //              val isVar = dd.symbol.owner.tpe.members.find(sym => sym.isSetter && (sym.name.encode.toString == dd.name.encode + "_=")).isDefined  //java.lang.AssertionError: assertion failed: Race condition detected
               ValDef(dd.mods &~ Flags.METHOD &~ Flags.ACCESSOR | (if (dd.symbol.isSetter) Flags.MUTABLE else 0L), name, tpt, rhs).setSymbol(dd.symbol) //set symbol of old defdef
+            case dd @ DefDef(flags, name, _, _, tpt, rhs) if dd.symbol.isLazy =>
+              val newRhs = rhs match {  //most of lazy vals results in var and def that assign value to val
+                  //but unit values result in only def
+                case Block(List(Assign(lhs, res)), expr) => res //rewire
+                case _ => rhs
+              }
+              ValDef(flags, name, tpt, newRhs).setSymbol(dd.symbol)
             case o@_ =>o
           }
 
-          val modBody = modLeft ::: right.drop(1)//List().drop(1) ==> List()
         val showBody = !(modBody.isEmpty &&
             (self match {
               case ValDef(mods, name, TypeTree(), rhs) if (mods & PRIVATE) != 0 && name.decoded == "_" && rhs.isEmpty => true // workaround for superfluous ValDef when parsing class without body using quasi quotes
@@ -1314,7 +1327,8 @@ trait PrettyPrinters {
 
     def mkThis(tree: Tree) = tree match {
         case Select(th @ This(name), res) if (classContext.getOrElse(NoSymbol) == th.symbol) && !name.isEmpty =>
-          Select(This(newFreeTypeSymbol(newTypeName(""), origin = "")), res)
+          def selectThisTree(name: String) = Select(This(newFreeTypeSymbol(newTypeName(""), origin = "")), name)
+          if (compareNames(res, nme.CONSTRUCTOR)) Ident(res) else selectThisTree(res.decode).setSymbol(tree.symbol) //TODO fix for encoded names
         case Select(th @ This(_), res) if (th.symbol.isPackage) =>
           Ident(res)
         case _ =>
