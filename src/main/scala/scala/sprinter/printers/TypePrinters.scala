@@ -91,11 +91,13 @@ trait TypePrinters extends PrettyPrinters {
                 //TODO check if origPreString is shorter or empty
                 if (!isModuleTypeRef && needsPreString)
                   if (!origPreString.isEmpty) {
-                    val impInf = getAvailableImport()
-                    avImp = impInf._1
-                    symSearch = impInf._2
+                    //impExist - if there are possible imports for type (not parts of it prefix)
+                    val (impInf, fSym, impExist) = getAvailableImport()
+                    avImp = impInf
+                    symSearch = fSym
                     avImp match {
                       case Some(imp) => modifyPrefix(origPreString, imp)
+                      case None if (!impExist) => removePackagePrefix(origPreString)
                       case None => origPreString
                     }
                   } else origPreString
@@ -126,11 +128,22 @@ trait TypePrinters extends PrettyPrinters {
                 result
               }
 
+              def removePackagePrefix(origPrefix: String): String = {
+                val enclPackage = try {
+                  Option(context.enclClass.tree.symbol.enclosingPackage)
+                } catch {
+                  case e => None
+                }
+                val enclPackageStr = if (enclPackage.isDefined) enclPackage.get.fullName else ""
+                origPrefix.replaceFirst(s"$enclPackageStr.", "")
+              }
+
               def getAvailableImport() = {
-                val impOpt = getImportForSymbol(sym)
+                val (impOpt, flag) = getImportForSymbolWithFlag(sym)
                 if (impOpt.isEmpty) {
-                  getImportForType(pre)
-                } else (impOpt, sym)
+                  val (i, s) = getImportForType(pre)
+                  (i, s, flag)
+                } else (impOpt, sym, flag)
               }
 
               def getImportForType(tp: Type): (Option[ImportInfo], Symbol) = {
@@ -187,7 +200,10 @@ trait TypePrinters extends PrettyPrinters {
                 (resSym, resSel)
               }
 
-              def getImportForSymbol(curSymbol: Symbol) = {
+              def getImportForSymbol(curSymbol: Symbol): Option[ImportInfo] = getImportForSymbolWithFlag(curSymbol)._1
+
+              def getImportForSymbolWithFlag(curSymbol: Symbol): (Option[ImportInfo], Boolean) = {
+                var importExists = false
                 var imports = availImports
                 val name = curSymbol.name
                 var ambigiousError = false
@@ -200,6 +216,7 @@ trait TypePrinters extends PrettyPrinters {
 
                 val resultOpt =
                   if (impSym.exists) {
+                    importExists = true
                     var impSym1: Symbol = NoSymbol
                     var imports1 = imports.tail
 
@@ -241,9 +258,9 @@ trait TypePrinters extends PrettyPrinters {
 
                 resultOpt match {
                   //TODO - fix and test (problem with =:= and synchronization)
-                  case Some(impInfo) if (!ambigiousError && (curSymbol.fullName.startsWith(impInfo.qual.symbol.fullName))) => // && (impInfo.qual.tpe =:= curType.prefix)) =>
-                    resultOpt
-                  case _ => None
+                  case Some(impInfo) if (!ambigiousError && (curSymbol.fullName.startsWith(impInfo.qual.symbol.fullName)) && (impInfo.qual.tpe =:= curSymbol.tpe.prefix)) =>
+                    (resultOpt, importExists)
+                  case _ => (None, importExists)
                 }
               }
 
