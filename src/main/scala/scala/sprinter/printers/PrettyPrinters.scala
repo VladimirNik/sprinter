@@ -1071,15 +1071,42 @@ trait PrettyPrinters {
           val (left, right) = body.filter {
             //remove valdefs defined in constructor and pre-init block
             case vd: ValDef => !vd.mods.hasFlag(PARAMACCESSOR) && !vd.mods.hasFlag(PRESUPER)
-            case dd: DefDef => !compareNames(dd.name, nme.MIXIN_CONSTRUCTOR) && showDef(dd)//remove $this$ from traits
+            case dd: DefDef => !compareNames(dd.name, nme.MIXIN_CONSTRUCTOR) //remove $this$ from traits
             case EmptyTree => false
             case _ => true
           } span {
-            case dd: DefDef => !compareNames(dd.name, nme.CONSTRUCTOR) && showDef(dd)
+            case dd: DefDef => !compareNames(dd.name, nme.CONSTRUCTOR)
             case _ => true
           }
 
-          val modBody = left ::: right.drop(1)//List().drop(1) ==> List()
+          val dds = left filter {
+              case dd:DefDef => dd.symbol.isAccessor
+              case _ => false
+            }
+
+          val modLeft = left filter {
+            case dd: DefDef => showDef(dd)
+            case _ => true
+          } map {
+            case vd @ ValDef(mods, name, tpt, rhs) =>
+              dds find {
+                case dd:DefDef => compareNames(vd.name, dd.name) && dd.symbol.isGetter
+                case _ => false
+              } map { dd =>
+                val df@DefDef(dmods, _, _, _, _, drhs) = dd
+                //clean dds specific options
+                val defaultFlags = mods &~ Flags.PrivateLocal | dmods.flags
+                val flags = if (df.symbol.isSetter) defaultFlags | Flags.MUTABLE else defaultFlags
+                //TODO remove method flags
+                ValDef(flags, name, tpt, if (flags.hasFlag(Flags.LAZY)) drhs else rhs).setSymbol(vd.symbol) //set symbol of old valdef
+              } getOrElse(vd)
+            case dd @ DefDef(flags, name, _, _, tpt, rhs) if dd.symbol.isDeferred && dd.symbol.isAccessor => //abstract val and var processing
+//              val isVar = dd.symbol.owner.tpe.members.find(sym => sym.isSetter && (sym.name.encode.toString == dd.name.encode + "_=")).isDefined  //java.lang.AssertionError: assertion failed: Race condition detected
+              ValDef(dd.mods &~ Flags.METHOD &~ Flags.ACCESSOR | (if (dd.symbol.isSetter) Flags.MUTABLE else 0L), name, tpt, rhs).setSymbol(dd.symbol) //set symbol of old defdef
+            case o@_ =>o
+          }
+
+          val modBody = modLeft ::: right.drop(1)//List().drop(1) ==> List()
         val showBody = !(modBody.isEmpty &&
             (self match {
               case ValDef(mods, name, TypeTree(), rhs) if (mods & PRIVATE) != 0 && name.decoded == "_" && rhs.isEmpty => true // workaround for superfluous ValDef when parsing class without body using quasi quotes
