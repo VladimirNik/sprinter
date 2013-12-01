@@ -135,7 +135,7 @@ trait TypePrinters extends PrettyPrinters {
                   case e => None
                 }
                 val enclPackageStr = if (enclPackage.isDefined) enclPackage.get.fullName else ""
-                origPrefix.replaceFirst(s"$enclPackageStr.", "")
+                if (origPrefix.startsWith(enclPackageStr)) origPrefix.replaceFirst(s"$enclPackageStr.", "") else origPrefix
               }
 
               def getAvailableImport() = {
