@@ -36,7 +36,7 @@ object PrettyPrinter {
   val printers = PrettyPrinters(global)
 
   def show(tree: Universe#Tree): String = {
-    printers.show(tree.asInstanceOf[Global#Tree], PrettyPrinters.AFTER_NAMER)
+    printers.show(tree.asInstanceOf[Global#Tree], PrettyPrinters.AFTER_NAMER, printMultiline = true, decodeNames = true)
   }
 
   def showNsc(tree: Universe#Tree): String = {

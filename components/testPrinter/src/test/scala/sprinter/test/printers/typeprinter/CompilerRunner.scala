@@ -76,9 +76,10 @@ object CompilerRunner {
         loadedResponse.get.left.get
       }
     }
-
-    val result = PrettyPrinters(interactive).show(lTree, PrettyPrinters.AFTER_TYPER)
-    System.out.println(result)
+             //==================
+//    val result = PrettyPrinters(interactive).show(lTree, PrettyPrinters.AFTER_TYPER)
+//    System.out.println(result)
+            //==================
 
 //    val pTree = interactive.parseTree(allSources(0))
 
@@ -92,19 +93,40 @@ object CompilerRunner {
 //    println("Abstract Class: " + abstractTree)
 //    println("=================")
 //
-//    val result = interactive.askForResponse {
-//      () =>
+    val result = interactive.askForResponse {
+      () =>
 //        val atType = abstractTree.symbol.tpe
-//        val tdev = (lTree.filter { _ match {
-//          case td:DefDef => true
-//          case _ => false
-//        }}).last
-//    }
-//
-//    result.get match {
-//      case Left(value) => println("Successfully finished")
-//      case Right(_) => println("error")
-//    }
+        val tdev = (lTree.filter { _ match {
+          case td:TypeTree => if (!td.symbol.isModule && (td.symbol.name.decode == "Test")) true else false
+          case _ => false
+        }}).last
+        tdev
+    }
+
+//    val result = TypePrinters(interactive).showType(result, PrettyPrinters.AFTER_TYPER)
+//    System.out.println(result)
+
+    val tt = result.get match {
+      case Left(value) => value
+      case Right(_) => null
+    }
+
+    val resultInfo = interactive.askForResponse(
+      () => {
+            val context = interactive.locateContext(tt.pos)
+            val result = typePrinters.showType(tt, context.get)
+            System.out.println("RESULT (PRINT_PLUGIN) = " + result)
+            //add list of imports
+            //add first type
+            System.out.println(s"(tt: $tt, context: $context)")
+      }
+    )
+
+    resultInfo.get match {
+      case Left(value) =>
+            System.out.println("Executed successfully!!!")
+      case Right(_) => System.out.println("Test is not workable")
+    }
 
 //        val resultInfo = interactive.askForResponse(
 //          () =>
