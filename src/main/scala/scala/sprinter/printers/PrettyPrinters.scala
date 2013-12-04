@@ -201,7 +201,9 @@ trait PrettyPrinters {
         case Select(qual, name) if name.isTermName  => "%s.%s".format(backquotedPath(qual), symbName(t, name))
         case Select(qual, name) if name.isTypeName  => "%s#%s".format(backquotedPath(qual), symbName(t, name))
         case Ident(name)                            => symbName(t, name)
-        case _                                      => show(t)
+        case _                                      =>
+          val typeOfPrinter = if (this.isInstanceOf[AfterTyperPrinter]) PrettyPrinters.AFTER_TYPER else PrettyPrinters.AFTER_NAMER
+            show(t, typeOfPrinter, printMultiline, decodeNames)
       }
     }
 

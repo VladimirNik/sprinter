@@ -168,6 +168,14 @@ trait TypePrinters extends PrettyPrinters {
                 tree.selectors exists (_.name == name.toTermName)
               }
 
+              def isExplicitImportWithRename(name: Name, impInf: ImportInfo): Boolean = {
+                val tree = impInf.tree
+                tree.selectors exists (im => im.name == name.toTermName && !im.rename.isEmpty && im.name != im.rename)
+              }
+
+              //this import can't be used but it should be processed during ambigious ref checking
+              //import scala.{Int=>Map}
+
               /** The symbol with name `name` imported from import clause `tree`.
                 * Here we need to check equality for original import name (not rename)
                 */
@@ -247,8 +255,10 @@ trait TypePrinters extends PrettyPrinters {
                             else false
                           impSym = impSym1
                           imports = imports1
-                        } else if (!isExplicitImport(name, imports.head) &&
-                          imports1.head.depth == imports.head.depth) ambigiousError = ambiguousImport()
+                        } else if (!isExplicitImport(name, imports.head) && imports1.head.depth == imports.head.depth) {
+                          //impSym - not explicit, impSym1 - not explicit
+                            ambigiousError = ambiguousImport()
+                        }
                       }
                       imports1 = imports1.tail
                     }
@@ -335,6 +345,15 @@ trait TypePrinters extends PrettyPrinters {
               //case typeRef@TypeRef(pre, sym, args) =>
               safeToString
             }
+            case t : CompoundType =>
+              val parents = t.parents
+              def parentsString(parents: List[Type]) =
+                global.definitions.normalizedParents(parents) map (t => {val r = showPrettyType(t, context); System.out.println(">>>tree: " + r); r}) mkString " with "
+
+              def safeToString: String = parentsString(parents) + (if (parents.isEmpty || (t.decls.elems ne null))
+                global.definitions.fullyInitializeScope(t.decls).mkString("{", "; ", "}") else "")
+
+              safeToString
 
             //TODO process not TypeRef: ConstantType, SingleType, AnnotatedType, ExistentialType, PolyType, TypeBounds
             case _ => inType.toString()
