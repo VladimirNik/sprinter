@@ -77,13 +77,12 @@ trait TypePrinters extends PrettyPrinters {
                 //println("================================");
                 //availImports.foreach{
                 //  imp =>
-                //    System.out.println("===> " + imp.toString() + " --- depth: " + imp.depth)
+                //    println("===> " + imp.toString() + " --- depth: " + imp.depth)
                 //}
                 //println("--------")
                 //println("inType.toString: " + inType.toString())
                 //println("sym.name: " + sym.name)
                 //println("--------")
-//                println("HELLO WORLD!")
 
                 //preString implementation
                 //origPreString ends in .
@@ -196,8 +195,8 @@ trait TypePrinters extends PrettyPrinters {
                   if (sel.name == name.toTermName) {
                     resSym = qual.tpe.nonLocalMember( // new to address #2733: consider only non-local members for imports
                       if (name.isTypeName) sel.name.toTypeName else sel.name)
-                  //else if (selectors.head.name == name.toTermName)
-                  //   renamed = true
+                    //else if (selectors.head.name == name.toTermName)
+                    //renamed = true
                     resSel = Option(sel)
                   } else if (sel.name == nme.WILDCARD) { // && !renamed)
                     resSym = qual.tpe.nonLocalMember(name)
@@ -229,6 +228,7 @@ trait TypePrinters extends PrettyPrinters {
                     var imports1 = imports.tail
 
                     def ambiguousImport() = {
+                      //from compiler
                       // The types of the qualifiers from which the ambiguous imports come.
                       // If the ambiguous name is a value, these must be the same.
                       def t1  = imports.head.qual.tpe
@@ -239,7 +239,7 @@ trait TypePrinters extends PrettyPrinters {
                       def mt2 = t2 memberType impSym1
 
                       !(impSym.fullName == impSym1.fullName && impSym.name == impSym1.name) && !(mt1.toString() == mt2.toString() && name.isTypeName && impSym.isMonomorphicType && impSym1.isMonomorphicType)
-                      //TODO resolve problems with context and JVM instances
+                      //TODO resolve problems with context and interactive compiler instance
                       //!(t1 =:= t2 && impSym.name == impSym1.name) && !(mt1 =:= mt2 && name.isTypeName && impSym.isMonomorphicType && impSym1.isMonomorphicType)
                     }
 
@@ -299,6 +299,7 @@ trait TypePrinters extends PrettyPrinters {
                   def targs = inType.normalize.typeArgs
 
                   if (isFunctionType(inType)) {
+                    //from scala-reflect:
                     // Aesthetics: printing Function1 as T => R rather than (T) => R
                     // ...but only if it's not a tuple, so ((T1, T2)) => R is distinguishable
                     // from (T1, T2) => R.
@@ -348,14 +349,14 @@ trait TypePrinters extends PrettyPrinters {
             case t : CompoundType =>
               val parents = t.parents
               def parentsString(parents: List[Type]) =
-                global.definitions.normalizedParents(parents) map (t => {val r = showPrettyType(t, context); System.out.println(">>>tree: " + r); r}) mkString " with "
+                global.definitions.normalizedParents(parents) map (t => showPrettyType(t, context)) mkString " with "
 
               def safeToString: String = parentsString(parents) + (if (parents.isEmpty || (t.decls.elems ne null))
                 global.definitions.fullyInitializeScope(t.decls).mkString("{", "; ", "}") else "")
 
               safeToString
 
-            //TODO process not TypeRef: ConstantType, SingleType, AnnotatedType, ExistentialType, PolyType, TypeBounds
+            //TODO process ConstantType, SingleType, AnnotatedType, ExistentialType, PolyType, TypeBounds
             case _ => inType.toString()
           }
         }

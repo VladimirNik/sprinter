@@ -49,18 +49,11 @@ trait PrettyPrinters {
 
   protected def compareNames(name1: Reflect#Name, name2: Reflect#Name) =
     !Option(name1).isEmpty && !Option(name2).isEmpty && (name1.toString.trim == name2.toString.trim)
-//  {
-//    if (name1 == null || name2 == null) false
-//    else name1.toString.trim == name2.toString.trim
-//  }
 
-  //TODO change printMultiline for option object - to pass all parameters
+  //TODO change printMultiline (introduce class for settings) - to pass all parameters
   class PrettyPrinter(out: PrintWriter, printMultiline: Boolean = false, decodeNames: Boolean = true) extends global.TreePrinter(out) {
     //TODO maybe we need to pass this stack when explicitly run show inside print
     val contextStack = scala.collection.mutable.Stack[Tree]()
-
-    protected var currentOwner: Symbol = NoSymbol
-    protected var selectorType: Type = NoType
 
     override def printModifiers(tree: Tree, mods: Modifiers): Unit = printModifiers(tree, mods, false)
 
@@ -127,7 +120,7 @@ trait PrettyPrinters {
     def printParam(tree: Tree, isConstr: Boolean) {
       tree match {
         case ValDef(mods, name, tp, rhs) =>
-          printPosition(tree)
+//          printPosition(tree)
           printAnnotations(tree)
           if (isConstr) {
             printModifiers(tree, mods, isConstr)
@@ -439,9 +432,6 @@ trait PrettyPrinters {
           }
 
         case Template(parents, self, body) =>
-          val currentOwner1 = currentOwner
-          //TODO repair using of currentOwner
-          //if (tree.symbol != NoSymbol) currentOwner = tree.symbol.owner
 
           val printedParents =
             getCurrentContext() map {
@@ -530,7 +520,6 @@ trait PrettyPrinters {
               printColumn(modBody, "", ";", "}")
             }
           }
-          currentOwner = currentOwner1
 
         case Block(stats, expr) =>
           contextManaged(tree){
@@ -551,9 +540,6 @@ trait PrettyPrinters {
             } else body
           }
 
-          val selectorType1 = selectorType
-          selectorType = selector.tpe
-
           val printParantheses = specialTreeContext(selector)(iLabelDef = false)
           tree match {
             case Match(EmptyTree, cs) =>
@@ -568,7 +554,6 @@ trait PrettyPrinters {
                 printColumn(cases, " match {", "", "}")
               }
           }
-          selectorType = selectorType1
 
         case CaseDef(pat, guard, body) =>
           print("case ")
@@ -576,10 +561,7 @@ trait PrettyPrinters {
             case Apply(fn, args) => patConstr(fn)
             case _ => pat
           }
-          if (showOuterTests &&
-            needsOuterTest(
-              patConstr(pat).tpe.finalResultType, selectorType, currentOwner))
-            print("???")
+
           print(pat);
           printOpt(" if ", guard)
           contextManaged(tree) {
@@ -784,8 +766,8 @@ trait PrettyPrinters {
     }
   }
 
-  //TODO change printMultiline for option object - to pass all parameters
   class AfterTyperPrinter(out: PrintWriter, printMultiline: Boolean = false, decodeNames: Boolean = false) extends PrettyPrinter(out, printMultiline, decodeNames) {
+
     private val curClassOrModuleStack: mutable.Stack[Symbol] = mutable.Stack()
     private def pushClassOrModule(sym: Symbol) = curClassOrModuleStack.push(sym)
     //TODO refactor
@@ -916,7 +898,6 @@ trait PrettyPrinters {
           }
 
         case vd@ValDef(mods, name, tp, rhs) =>
-          System.out.println("===>vd: " + showRaw(vd))
           printAnnotations(tree)
           printModifiers(tree, mods)
           print(if (mods.isMutable) "var " else "val ", symbName(tree, name))
@@ -935,10 +916,7 @@ trait PrettyPrinters {
               print(" = ", if (rhs.isEmpty) "_" else rhs);
           }
 
-//        case dd@DefDef(mods, name, tparams, vparamss, tp, rhs) if dd.symbol.isAccessor =>
-
         case dd@DefDef(mods, name, tparams, vparamss, tp, rhs) =>
-          System.out.println("===>dd: " + showRaw(dd))
           printAnnotations(tree)
           printModifiers(tree, mods)
           print("def " + symbName(tree, name))
@@ -1005,9 +983,6 @@ trait PrettyPrinters {
           }
 
         case Template(parents, self, body) =>
-          val currentOwner1 = currentOwner
-          //TODO repair using of currentOwner
-          //if (tree.symbol != NoSymbol) currentOwner = tree.symbol.owner
 
           val printedParents =
             getCurrentContext() map {
@@ -1078,12 +1053,9 @@ trait PrettyPrinters {
             case EmptyTree => false
             case _ => true
           } span {
-            case dd: DefDef => System.out.println("dd: " + showRaw(dd)); !compareNames(dd.name, nme.CONSTRUCTOR)
+            case dd: DefDef => !compareNames(dd.name, nme.CONSTRUCTOR)
             case _ => true
           }
-
-          System.out.println("left: " + left)
-          System.out.println("right: " + right)
 
           val allBody = left ::: right.drop(1) //List().drop(1) ==> List() - remove default constr
 
@@ -1110,7 +1082,7 @@ trait PrettyPrinters {
                 ValDef(flags, name, tpt, rhs).setSymbol(vd.symbol) //set symbol of old valdef
               } getOrElse(vd)
             case dd @ DefDef(flags, name, _, _, tpt, rhs) if dd.symbol.isDeferred && dd.symbol.isAccessor => //abstract val and var processing
-//              val isVar = dd.symbol.owner.tpe.members.find(sym => sym.isSetter && (sym.name.encode.toString == dd.name.encode + "_=")).isDefined  //java.lang.AssertionError: assertion failed: Race condition detected
+              //val isVar = dd.symbol.owner.tpe.members.find(sym => sym.isSetter && (sym.name.encode.toString == dd.name.encode + "_=")).isDefined  //java.lang.AssertionError: assertion failed: Race condition detected
               ValDef(dd.mods &~ Flags.METHOD &~ Flags.ACCESSOR | (if (dd.symbol.isSetter) Flags.MUTABLE else 0L), name, tpt, rhs).setSymbol(dd.symbol) //set symbol of old defdef
             case dd @ DefDef(flags, name, _, _, tpt, rhs) if dd.symbol.isLazy =>
               val newRhs = rhs match {  //most of lazy vals results in var and def that assign value to val
@@ -1141,7 +1113,6 @@ trait PrettyPrinters {
               printColumn(modBody, "", "", "}")
             }
           }
-          currentOwner = currentOwner1
 
         case Block(stats, expr) =>
           contextManaged(tree){
@@ -1162,9 +1133,6 @@ trait PrettyPrinters {
             } else body
           }
 
-          val selectorType1 = selectorType
-          selectorType = selector.tpe
-
           val printParantheses = specialTreeContext(selector)(iLabelDef = false)
           tree match {
             case Match(EmptyTree, cs) =>
@@ -1179,7 +1147,6 @@ trait PrettyPrinters {
                 printColumn(cases, " match {", "", "}")
               }
           }
-          selectorType = selectorType1
 
         case CaseDef(pat, guard, body) =>
           print("case ")
@@ -1187,10 +1154,6 @@ trait PrettyPrinters {
             case Apply(fn, args) => patConstr(fn)
             case _ => pat
           }
-          if (showOuterTests &&
-            needsOuterTest(
-              patConstr(pat).tpe.finalResultType, selectorType, currentOwner))
-            print("???")
           print(pat);
           printOpt(" if ", guard)
           contextManaged(tree) {
@@ -1248,18 +1211,7 @@ trait PrettyPrinters {
           print(qual)
 
         case Select(t@This(name), res) =>
-//          System.out.println("\n!!!t.symbol: " + t.symbol)
-//          System.out.println("s.symbol.owner: " + s.symbol.owner)
-//          System.out.println("t.symbol: " + t.symbol)
-//          System.out.println("t.name: " + name)
-//          System.out.println("classContext.getOrElse(NoSymbol): " + classContext.getOrElse(NoSymbol))
-//          System.out.println("tree.symbol: " + t.symbol)
-//          System.out.println("(classContext.getOrElse(NoSymbol) == tree.symbol): " + (classContext.getOrElse(NoSymbol) == t.symbol))
-//          System.out.println("(classContext.getOrElse(NoSymbol) == tree.symbol) && !name.isEmpty: " + ((classContext.getOrElse(NoSymbol) == t.symbol) && !name.isEmpty))
-//          System.out.println("showRaw: " + showRaw(t) + "\n")
           super.printTree(mkThis(tree))
-//          if (s.symbol.owner == t.symbol) print(resTree)
-//          else super.printTree(s)
 
         case s@Select(qualifier, name) => {
           val printParantheses = specialTreeContext(qualifier)(iAnnotated = false) || isIntLitWithDecodedOp(qualifier, name)
@@ -1302,7 +1254,6 @@ trait PrettyPrinters {
       case _ => false
     }
 
-    //Danger while using inheritance: it's hidden (overwritten) method
     override def backquotedPath(t: Tree): String = {
       t match {
         case Select(This(name), res: Name) if (!name.isEmpty) =>
