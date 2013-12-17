@@ -16,7 +16,13 @@ object CompilerRunner {
 
   val sourceStr = """
       package aa.bb.cc.dd
-        class X
+      class NN{
+      class X(val a: Int, val b: Int)
+        def nnn = {
+          class Y(a: Int, b: Int)
+          5
+        }
+      }
       trait YYY {
         protected def aaa: Int
       }
