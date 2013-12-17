@@ -61,29 +61,13 @@ trait PrettyPrinters {
       if (getCurrentContext().isEmpty || modsAccepted)
         printFlags(mods, isCtr)
       else
-        List(IMPLICIT, CASE, LAZY).foreach{flag => if(mods.hasFlag(flag)) printFlags(mods, isCtr)}
+        List(IMPLICIT, CASE, LAZY, SEALED).foreach{flag =>
+          if(mods.hasFlag(flag)) print(s"${mods.flagBitsToString(flag)} ")}
 
     def modsAccepted = getCurrentContext() map {
       case _:ClassDef | _:ModuleDef | _:Template | _:PackageDef => true
       case _ => false
     } getOrElse false
-
-//    override def printFlags(flags: Long, privateWithin: String) =
-//      printFlags(flags, privateWithin, false)
-//
-//    def printFlags(flags: Long, privateWithin: String, isCtr: Boolean) {
-//      val base = PROTECTED | OVERRIDE | PRIVATE | ABSTRACT | FINAL | SEALED | LAZY | LOCAL
-//      val mask = if (isCtr) base else base | IMPLICIT
-//
-//      val s = flagsToString(flags & mask, privateWithin)
-//      if (s != "") print(s + " ")
-//      //case flag should be the last
-//      val caseFlag = flagsToString(flags & CASE)
-//      if (!caseFlag.isEmpty) print(caseFlag + " ")
-//      //abs override flag should be the last
-//      val absOverrideFlag = flagsToString(flags & ABSOVERRIDE)
-//      if (!absOverrideFlag.isEmpty) print("abstract override ")
-//    }
 
     def printFlags(mods: Modifiers, isCtr: Boolean = false) {
       val base = PROTECTED | OVERRIDE | PRIVATE | ABSTRACT | FINAL | SEALED | LAZY | LOCAL
@@ -98,7 +82,7 @@ trait PrettyPrinters {
 
     def printConstrParams(ts: List[ValDef], isConstr: Boolean) {
       codeInParantheses(){
-        if (!ts.isEmpty) printFlags(ts.head.mods & IMPLICIT)
+        if (!ts.isEmpty && ts.head.mods.isImplicit) print(s"${ts.head.mods.flagBitsToString(IMPLICIT)} ")
         printSeq(ts) {
           printParam(_, true)
         } { print(", ") }
@@ -113,7 +97,7 @@ trait PrettyPrinters {
       //val a: Int => Int = implicit x => x //parantheses are not allowed here
       val printParanthesis = !isFuncTree || {
         ts match {
-          case List(vd: ValDef) => !vd.mods.hasFlag(IMPLICIT)
+          case List(vd: ValDef) => !vd.mods.isImplicit
           case _ => true
         }
       }
@@ -121,7 +105,7 @@ trait PrettyPrinters {
       if (printParanthesis)
         super.printValueParams(ts)
       else {
-        if (!ts.isEmpty) printFlags(ts.head.mods.&(IMPLICIT))
+        if (!ts.isEmpty && ts.head.mods.isImplicit) print(s"${ts.head.mods.flagBitsToString(IMPLICIT)} ")
         printSeq(ts) {
           printParam
         } { print(", ") }
@@ -131,7 +115,6 @@ trait PrettyPrinters {
     def printParam(tree: Tree, isConstr: Boolean) {
       tree match {
         case ValDef(mods, name, tp, rhs) =>
-//          printPosition(tree)
           printAnnotations(tree)
           if (isConstr) {
             printModifiers(mods, isConstr)

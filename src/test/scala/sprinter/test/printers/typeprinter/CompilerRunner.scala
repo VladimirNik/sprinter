@@ -15,6 +15,8 @@ object CompilerRunner {
   val testPath = s"${baseDir}${col}src${col}test${col}scala${col}sprinter${col}test${col}printers${col}typeprinter${col}examples${col}"
 
   val sourceStr = """
+      package aa.bb.cc.dd
+
       trait YYY {
         protected def aaa: Int
       }
@@ -23,13 +25,24 @@ object CompilerRunner {
        abstract override protected def aaa: Int = 5
       }
 
-      abstract protected class Test(x: Int, var z: Double)(implicit y: Float, m: String) {
+      abstract protected class Test(protected[dd] val x: Int, var z: Double)(protected[dd] val ff: Int)(implicit val y: Float, protected[dd] var m: String) {
 
-        val z: List[Int] = null
+        implicit val z: List[Int] = null
         val f = List(1,2,3)
 
-        protected def a(x: String)(implicit v: Int): Int
+        protected def a(x: String)(implicit v: Int): Int = 5
         protected[this] val x: Map[Int, Int] = null
+      }
+
+      abstract class ZZZ(implicit val n: Int = 5)
+
+      trait EEE {
+        val c = new ZZZ{}()
+        implicit val m = c.n
+        def bbb = {
+          implicit val yyy = 5
+          5
+        }
       }
                   """
 
