@@ -200,7 +200,7 @@ trait PrettyPrinters {
       contextStack.pop()
     }
 
-    def getCurrentContext() = if (!contextStack.isEmpty && contextStack.length > 1) Some(contextStack(1)) else None
+    def getCurrentContext() = if (contextStack.length > 1) Some(contextStack(1)) else None
 
     def removeDefaultTypesFromList(trees: List[Tree])(classesToRemove: List[String])(traitsToRemove: List[String]) =
       removeDefaultTraitsFromList(removeDefaultClassesFromList(trees, classesToRemove), traitsToRemove)
