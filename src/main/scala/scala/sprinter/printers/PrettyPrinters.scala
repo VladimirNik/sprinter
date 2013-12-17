@@ -505,7 +505,7 @@ trait PrettyPrinters {
           //make this function available for other casses
           //passing required type for checking
           def insertBraces(body: =>Unit) {
-            if (contextStack.exists{
+            if (!contextStack.isEmpty && contextStack.tail.exists{
               _.isInstanceOf[Match]
             }) {
                 print("(")
