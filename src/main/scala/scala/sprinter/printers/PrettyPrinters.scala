@@ -200,7 +200,7 @@ trait PrettyPrinters {
       contextStack.pop()
     }
 
-    def getCurrentContext() = if (!contextStack.isEmpty) Some(contextStack.top) else None
+    def getCurrentContext() = if (!contextStack.isEmpty && contextStack.length > 1) Some(contextStack(1)) else None
 
     def removeDefaultTypesFromList(trees: List[Tree])(classesToRemove: List[String])(traitsToRemove: List[String]) =
       removeDefaultTraitsFromList(removeDefaultClassesFromList(trees, classesToRemove), traitsToRemove)
@@ -236,9 +236,9 @@ trait PrettyPrinters {
     }
 
     override def printTree(tree: Tree) {
+      contextManaged(tree){
       tree match {
         case ClassDef(mods, name, tparams, impl) =>
-          contextManaged(tree){
             printAnnotations(tree)
             val word =
               if (mods.isTrait){
@@ -306,10 +306,8 @@ trait PrettyPrinters {
 
             print(if (mods.isDeferred) "<: " else if (!printedParents.isEmpty) " extends "
               else "", impl)
-          }
 
         case PackageDef(packaged, stats) =>
-          contextManaged(tree){
             packaged match {
               case Ident(name) if compareNames(name, nme.EMPTY_PACKAGE_NAME) =>
                 printSeq(stats) {
@@ -323,16 +321,13 @@ trait PrettyPrinters {
                 print("package ", packaged);
                 printColumn(stats, " {", "\n", "}")
             }
-          }
 
         case ModuleDef(mods, name, impl) =>
-          contextManaged(tree){
             printAnnotations(tree)
             printModifiers(tree, mods);
             val Template(parents @ List(_*), self, methods) = impl
             val parentsWAnyRef = removeDefaultClassesFromList(parents, List("AnyRef"))
             print("object " + symbName(tree, name), if (!parentsWAnyRef.isEmpty) " extends " else "", impl)
-          }
 
         case vd@ValDef(mods, name, tp, rhs) =>
           printAnnotations(tree)
@@ -349,10 +344,8 @@ trait PrettyPrinters {
             ": ",
             tp
           )
-          contextManaged(tree){
             if (!mods.isDeferred)
               print(" = ", if (rhs.isEmpty) "_" else rhs)
-          }
 
         case dd@DefDef(mods, name, tparams, vparamss, tp, rhs) =>
           printAnnotations(tree)
@@ -371,9 +364,7 @@ trait PrettyPrinters {
             ": ",
             tp
           )
-          contextManaged(tree){
             printOpt(" = " + (if (mods.hasFlag(MACRO)) "macro " else ""), rhs)
-          }
 
         case td@TypeDef(mods, name, tparams, rhs) =>
           if (mods hasFlag (PARAM | DEFERRED)) {
@@ -386,31 +377,23 @@ trait PrettyPrinters {
             printModifiers(tree, mods);
             print("type " + symbName(tree, name))
             printTypeParams(tparams);
-            contextManaged(tree){
               printOpt(" = ", rhs)
-            }
           }
 
         case LabelDef(name, params, rhs) =>
           if (name.contains("while$")) {
-            contextManaged(tree){
               val If(cond, thenp, elsep) = rhs
               print("while (", cond, ") ")
               val Block(list, wh) = thenp
               printColumn(list, "", ";", "")
-            }
           } else if (name.contains("doWhile$")) {
-            contextManaged(tree){
               val Block(bodyList: List[Tree], ifCond @ If(cond, thenp, elsep)) = rhs
               print("do ")
               printColumn(bodyList, "", ";", "")
               print(" while (", cond, ") ")
-            }
           } else {
             print(symbName(tree, name)); printLabelParams(params);
-            contextManaged(tree){
               printBlock(rhs)
-            }
           }
 
         case Import(expr, selectors) =>
@@ -510,15 +493,11 @@ trait PrettyPrinters {
             } else {
               print(" {")
             }
-            contextManaged(tree) {
               printColumn(modBody, "", ";", "}")
-            }
           }
 
         case Block(stats, expr) =>
-          contextManaged(tree){
             printColumn(stats ::: List(expr), "{", ";", "}")
-          }
 
         case Match(selector, cases) =>
           //insert braces if match is inner
@@ -540,13 +519,11 @@ trait PrettyPrinters {
               printColumn(cases, "{", "", "}")
             case _ =>
               insertBraces {
-                contextManaged(tree){
                   codeInParantheses(printParantheses) {
                     print(selector);
                   }
                 }
                 printColumn(cases, " match {", "", "}")
-              }
           }
 
         case CaseDef(pat, guard, body) =>
@@ -558,9 +535,7 @@ trait PrettyPrinters {
 
           print(pat);
           printOpt(" if ", guard)
-          contextManaged(tree) {
             print(" => ", body)
-          }
 
         case Star(elem) =>
           print(elem, "*")
@@ -674,9 +649,7 @@ trait PrettyPrinters {
           print("(", qualifier, ")#", symbName(tree, selector))
 
         case CompoundTypeTree(templ) =>
-          contextManaged(tree){
             print(templ)
-          }
 
         case AppliedTypeTree(tp, args) =>
           //it's possible to have (=> String) => String type but Function1[=> String, String] is not correct
@@ -721,9 +694,6 @@ trait PrettyPrinters {
 
         case tree => super.printTree(tree)
       }
-      //TODO remove
-      if (printTypes && tree.isTerm && !tree.isEmpty) {
-        print("{", if (tree.tpe eq null) "<null>" else tree.tpe.toString, "}")
       }
     }
 
