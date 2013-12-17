@@ -31,7 +31,7 @@ trait PrettyPrinters {
   import global._
 
   //TODO set printMultiline for false
-  def show(what: Reflect#Tree, printerType: PrettyPrinters.PrinterDescriptor = PrettyPrinters.AFTER_TYPER, printMultiline: Boolean = false, decodeNames: Boolean = false) = {
+  def show(what: Reflect#Tree, printerType: PrettyPrinters.PrinterDescriptor = PrettyPrinters.AFTER_NAMER, printMultiline: Boolean = false, decodeNames: Boolean = false) = {
     val buffer = new StringWriter()
     val writer = new PrintWriter(buffer)
 
@@ -55,39 +55,50 @@ trait PrettyPrinters {
     //TODO maybe we need to pass this stack when explicitly run show inside print
     val contextStack = scala.collection.mutable.Stack[Tree]()
 
-    override def printModifiers(tree: Tree, mods: Modifiers): Unit = printModifiers(tree, mods, false)
+    override def printModifiers(tree: Tree, mods: Modifiers): Unit = printModifiers(mods, false)
 
-    def printModifiers(tree: Tree, mods: Modifiers, isCtr: Boolean): Unit =
+    def printModifiers(mods: Modifiers, isCtr: Boolean): Unit =
       if (getCurrentContext().isEmpty || modsAccepted)
-        printFlags(mods.flags, "" + mods.privateWithin, isCtr)
+        printFlags(mods, isCtr)
       else
-        List(IMPLICIT, CASE, LAZY).foreach{flag => if(mods.hasFlag(flag))  printFlags(flag, "", isCtr)}
+        List(IMPLICIT, CASE, LAZY).foreach{flag => if(mods.hasFlag(flag)) printFlags(mods, isCtr)}
 
     def modsAccepted = getCurrentContext() map {
       case _:ClassDef | _:ModuleDef | _:Template | _:PackageDef => true
       case _ => false
     } getOrElse false
 
-    override def printFlags(flags: Long, privateWithin: String) =
-      printFlags(flags, privateWithin, false)
+//    override def printFlags(flags: Long, privateWithin: String) =
+//      printFlags(flags, privateWithin, false)
+//
+//    def printFlags(flags: Long, privateWithin: String, isCtr: Boolean) {
+//      val base = PROTECTED | OVERRIDE | PRIVATE | ABSTRACT | FINAL | SEALED | LAZY | LOCAL
+//      val mask = if (isCtr) base else base | IMPLICIT
+//
+//      val s = flagsToString(flags & mask, privateWithin)
+//      if (s != "") print(s + " ")
+//      //case flag should be the last
+//      val caseFlag = flagsToString(flags & CASE)
+//      if (!caseFlag.isEmpty) print(caseFlag + " ")
+//      //abs override flag should be the last
+//      val absOverrideFlag = flagsToString(flags & ABSOVERRIDE)
+//      if (!absOverrideFlag.isEmpty) print("abstract override ")
+//    }
 
-    def printFlags(flags: Long, privateWithin: String, isCtr: Boolean) {
+    def printFlags(mods: Modifiers, isCtr: Boolean = false) {
       val base = PROTECTED | OVERRIDE | PRIVATE | ABSTRACT | FINAL | SEALED | LAZY | LOCAL
       val mask = if (isCtr) base else base | IMPLICIT
 
-      val s = flagsToString(flags & mask, privateWithin)
+      val s = mods.flagString(mask)
       if (s != "") print(s + " ")
       //case flag should be the last
-      val caseFlag = flagsToString(flags & CASE)
-      if (!caseFlag.isEmpty) print(caseFlag + " ")
-      //abs override flag should be the last
-      val absOverrideFlag = flagsToString(flags & ABSOVERRIDE)
-      if (!absOverrideFlag.isEmpty) print("abstract override ")
+      if (mods.isCase) print(mods.flagBitsToString(CASE) + " ")
+      if (mods.isAbstractOverride) print("abstract override ")
     }
 
     def printConstrParams(ts: List[ValDef], isConstr: Boolean) {
       codeInParantheses(){
-        if (!ts.isEmpty) printFlags(ts.head.mods.flags & IMPLICIT, "")
+        if (!ts.isEmpty) printFlags(ts.head.mods & IMPLICIT)
         printSeq(ts) {
           printParam(_, true)
         } { print(", ") }
@@ -110,7 +121,7 @@ trait PrettyPrinters {
       if (printParanthesis)
         super.printValueParams(ts)
       else {
-        if (!ts.isEmpty) printFlags(ts.head.mods.flags & IMPLICIT, "")
+        if (!ts.isEmpty) printFlags(ts.head.mods.&(IMPLICIT))
         printSeq(ts) {
           printParam
         } { print(", ") }
@@ -123,7 +134,7 @@ trait PrettyPrinters {
 //          printPosition(tree)
           printAnnotations(tree)
           if (isConstr) {
-            printModifiers(tree, mods, isConstr)
+            printModifiers(mods, isConstr)
           }
           print(if (mods.isMutable && isConstr) "var " else if (isConstr) "val " else "", symbName(tree, name));
           if (name.endsWith("_")) print(" ");
