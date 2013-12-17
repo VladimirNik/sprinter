@@ -64,7 +64,7 @@ trait PrettyPrinters {
         List(IMPLICIT, CASE, LAZY, SEALED).foreach{flag =>
           if(mods.hasFlag(flag)) print(s"${mods.flagBitsToString(flag)} ")}
 
-    def modsAccepted = getCurrentContext() map {
+    def modsAccepted = currentTree map {
       case _:ClassDef | _:ModuleDef | _:Template | _:PackageDef => true
       case _ => false
     } getOrElse false
@@ -201,6 +201,8 @@ trait PrettyPrinters {
     }
 
     def getCurrentContext() = if (contextStack.length > 1) Some(contextStack(1)) else None
+
+    def currentTree = if (!contextStack.isEmpty) Some(contextStack.top) else None
 
     def removeDefaultTypesFromList(trees: List[Tree])(classesToRemove: List[String])(traitsToRemove: List[String]) =
       removeDefaultTraitsFromList(removeDefaultClassesFromList(trees, classesToRemove), traitsToRemove)
