@@ -16,7 +16,13 @@ object CompilerRunner {
 
   val sourceStr = """
       package aa.bb.cc.dd
-
+      class NN{
+      class X(val a: Int, val b: Int)
+        def nnn = {
+          class Y(a: Int, b: Int)
+          5
+        }
+      }
       trait YYY {
         protected def aaa: Int
       }
@@ -37,7 +43,7 @@ object CompilerRunner {
       abstract class ZZZ(implicit val n: Int = 5)
 
       trait EEE {
-        val c = new ZZZ{}()
+        val c = new ZZZ{}
         implicit val m = c.n
         def bbb = {
           implicit val yyy = 5
