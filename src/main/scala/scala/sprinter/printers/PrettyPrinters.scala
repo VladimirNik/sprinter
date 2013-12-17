@@ -64,10 +64,11 @@ trait PrettyPrinters {
         List(IMPLICIT, CASE, LAZY, SEALED).foreach{flag =>
           if(mods.hasFlag(flag)) print(s"${mods.flagBitsToString(flag)} ")}
 
-    def modsAccepted = currentTree map {
+    //for classes we need to check currentTree, for ValDef inside classes - parents
+    def modsAccepted = List(currentTree, getCurrentContext()) exists (_ map {
       case _:ClassDef | _:ModuleDef | _:Template | _:PackageDef => true
       case _ => false
-    } getOrElse false
+    } getOrElse false)
 
     def printFlags(mods: Modifiers, isCtr: Boolean = false) {
       val base = PROTECTED | OVERRIDE | PRIVATE | ABSTRACT | FINAL | SEALED | LAZY | LOCAL
