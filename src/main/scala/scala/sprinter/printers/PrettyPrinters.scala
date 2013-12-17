@@ -236,7 +236,8 @@ trait PrettyPrinters {
     }
 
     override def printTree(tree: Tree) {
-      contextManaged(tree){
+      contextStack.push(tree)
+//      contextManaged(tree){
       tree match {
         case ClassDef(mods, name, tparams, impl) =>
             printAnnotations(tree)
@@ -694,7 +695,8 @@ trait PrettyPrinters {
 
         case tree => super.printTree(tree)
       }
-      }
+//      }
+      contextStack.pop()
     }
 
     //Danger: it's overwritten method - can be problems with inheritance)
