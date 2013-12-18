@@ -16,40 +16,43 @@ object CompilerRunner {
 
   val sourceStr = """
       package aa.bb.cc.dd
-      class NN{
-      class X(val a: Int, val b: Int)
-        def nnn = {
-          class Y(a: Int, b: Int)
-          5
-        }
+      class FFF extends java.lang.Object{
+        val a = new java.lang.Object()
       }
-      trait YYY {
-        protected def aaa: Int
-      }
-
-      trait ZZZ extends YYY {
-       abstract override protected def aaa: Int = 5
-      }
-
-      abstract protected class Test(protected[dd] val x: Int, var z: Double)(protected[dd] val ff: Int)(implicit val y: Float, protected[dd] var m: String) {
-
-        implicit val z: List[Int] = null
-        val f = List(1,2,3)
-
-        protected def a(x: String)(implicit v: Int): Int = 5
-        protected[this] val x: Map[Int, Int] = null
-      }
-
-      abstract class ZZZ(implicit val n: Int = 5)
-
-      trait EEE {
-        val c = new ZZZ{}
-        implicit val m = c.n
-        def bbb = {
-          implicit val yyy = 5
-          5
-        }
-      }
+//      class NN{
+//      class X(val a: Int, val b: Int)
+//        def nnn = {
+//          class Y(a: Int, b: Int)
+//          5
+//        }
+//      }
+//      trait YYY {
+//        protected def aaa: Int
+//      }
+//
+//      trait ZZZ extends YYY {
+//       abstract override protected def aaa: Int = 5
+//      }
+//
+//      abstract protected class Test(protected[dd] val x: Int, var z: Double)(protected[dd] val ff: Int)(implicit val y: Float, protected[dd] var m: String) {
+//
+//        implicit val z: List[Int] = null
+//        val f = List(1,2,3)
+//
+//        protected def a(x: String)(implicit v: Int): Int = 5
+//        protected[this] val x: Map[Int, Int] = null
+//      }
+//
+//      abstract class ZZZ(implicit val n: Int = 5)
+//
+//      trait EEE {
+//        val c = new ZZZ{}
+//        implicit val m = c.n
+//        def bbb = {
+//          implicit val yyy = 5
+//          5
+//        }
+//      }
                   """
 
   def main(args: Array[String]) {
