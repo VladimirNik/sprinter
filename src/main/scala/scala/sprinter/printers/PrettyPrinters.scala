@@ -181,12 +181,15 @@ trait PrettyPrinters {
       decodeNames && qualIsIntLit && name.isOperatorName
     }
 
+    protected def blankBeforeOperatorName(name: Name) =
+      if (name.isOperatorName) " " else ""
+
     //Danger while using inheritance: it's hidden (overwritten) method
     def backquotedPath(t: Tree): String = {
       t match {
         case Select(qual, name) if (name.isTermName && specialTreeContext(qual)(iLabelDef = false)) || isIntLitWithDecodedOp(qual, name) => "(%s).%s".format(backquotedPath(qual), symbName(t, name))
         case Select(qual, name) if name.isTermName  => "%s.%s".format(backquotedPath(qual), symbName(t, name))
-        case Select(qual, name) if name.isTypeName  => "%s#%s".format(backquotedPath(qual), symbName(t, name))
+        case Select(qual, name) if name.isTypeName  => s"%s#${blankBeforeOperatorName(name)}%s".format(backquotedPath(qual), symbName(t, name))
         case Ident(name)                            => symbName(t, name)
         case _                                      =>
           val typeOfPrinter = if (this.isInstanceOf[AfterTyperPrinter]) PrettyPrinters.AFTER_TYPER else PrettyPrinters.AFTER_NAMER
@@ -671,7 +674,7 @@ trait PrettyPrinters {
           printAnnot()
 
         case SelectFromTypeTree(qualifier, selector) =>
-          print("(", qualifier, ")#", symbName(tree, selector))
+          print("(", qualifier, ")#", blankBeforeOperatorName(selector),symbName(tree, selector))
 
         case CompoundTypeTree(templ) =>
           contextManaged(tree){
