@@ -25,9 +25,8 @@
         <div class="vcontainer container">
           <a class="vbrand brand" href="index.html"><span style="color: red">S</span>printer</a>
           <ul class="vnav nav">
-           <li><a target="_self" href="sprinter-guide.html">Build and usage</a></li>
-           <li><a target="_blank" href="latest/api/index.html">Scaladoc</a></li>
-           <li><a target="_blank" href="https://github.com/vladimirnik/sprinter">Code</a></li>
+           <li><a target="_self" href="sprinter-guide.html">Getting Started</a></li>
+           <li><a target="_blank" href="https://github.com/VladimirNik/scala/blob/typedTreesPrinter-2.11.0/src/reflect/scala/reflect/internal/Printers.scala#L538">Code</a></li>
            <li><a target="_blank" href="https://github.com/vladimirnik/sprinter/issues">Bug Tracker</a></li>
            <li><a target="_self" href="sprinter-examples.html">Examples</a></li>
           </ul>
@@ -40,9 +39,17 @@
   <div class="container columns content">
     <h1 id='sprinter_guide'>Sprinter Guide</h1>
 
-<h2 id='build_process'>Build process</h2>
+<h2 id='usage_scala_211x'>Usage (Scala 2.11.x)</h2>
 
-<p>To publish library to local repo run (from project&#8217;s root directory):</p>
+<p>Pass the tree to showCode method from universe:</p>
+
+<pre><code>import scala.reflect.runtime.universe
+val tree = ... // unattributed or attributed AST
+universe.showCode(tree)</code></pre>
+
+<h2 id='build_process_scala_210x'>Build process (Scala 2.10.x)</h2>
+
+<p>All information below is relevant for Scala 2.10.x. To publish library to local repo run (from project&#8217;s root directory):</p>
 
 <pre><code>$ sbt publish-local</code></pre>
 

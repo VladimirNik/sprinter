@@ -25,9 +25,8 @@
         <div class="vcontainer container">
           <a class="vbrand brand" href="index.html"><span style="color: red">S</span>printer</a>
           <ul class="vnav nav">
-           <li><a target="_self" href="sprinter-guide.html">Build and usage</a></li>
-           <li><a target="_blank" href="latest/api/index.html">Scaladoc</a></li>
-           <li><a target="_blank" href="https://github.com/vladimirnik/sprinter">Code</a></li>
+           <li><a target="_self" href="sprinter-guide.html">Getting Started</a></li>
+           <li><a target="_blank" href="https://github.com/VladimirNik/scala/blob/typedTreesPrinter-2.11.0/src/reflect/scala/reflect/internal/Printers.scala#L538">Code</a></li>
            <li><a target="_blank" href="https://github.com/vladimirnik/sprinter/issues">Bug Tracker</a></li>
            <li><a target="_self" href="sprinter-examples.html">Examples</a></li>
           </ul>
@@ -46,18 +45,20 @@
   }
 }</code></pre>
 
-<p>Sprinter currently generates correct Scala code from untyped ASTs. This is verified by regenerating source code of numerous community projects and successfully executing their test suites. The list of project includes <a href='https://github.com/milessabin/shapeless'>Shapeless</a>, <a href='https://github.com/scalaz/scalaz'>Scalaz</a>, <a href='http://akka.io'>Akka</a>, <a href='http://squeryl.org/'>Squeryl</a>, etc. Future versions will support typed Scala ASTs and will revert transformations performed by the Scala typer phase.</p>
+<p>Sprinter currently generates correct Scala code from untyped ASTs. This is verified by regenerating source code of numerous community projects and successfully executing their test suites. The list of project includes <a href='https://github.com/milessabin/shapeless'>Shapeless</a>, <a href='https://github.com/scalaz/scalaz'>Scalaz</a>, <a href='http://akka.io'>Akka</a>, <a href='http://squeryl.org/'>Squeryl</a>, etc. Future versions will improve typed Scala ASTs printing and will revert transformations performed by the Scala typer phase.</p>
 
-<p>Sprinter can be used in many different contexts. The most important use cases are: * Showing macro expansions in IDEs. For example, users will be able to expand macro invocations to see generated code.</p>
+<p>Sprinter can be used in many different contexts. The most important use cases are:</p>
 
 <ul>
+<li>Showing macro expansions in IDEs. For example, users will be able to expand macro invocations to see generated code.</li>
+
 <li>Enable debugging of macros by generating source code with all macros expanded.</li>
 
-<li>Debugging and error messages in the scalac compiler</li>
+<li>Debugging and error messages in the scalac compiler.</li>
 
-<li>Generate source code from trees before macro annotations arrive</li>
+<li>Generate source code from trees before macro annotations arrive.</li>
 
-<li>Generate source of refactored code</li>
+<li>Generate source of refactored code.</li>
 </ul>
 
 <p>Library is in active development. All ideas, bug reports, and contributions are very welcome. If you have an interesting use case for the library do not hesitate to contact the authors.</p>
@@ -65,16 +66,18 @@
 <p>The road map for Sprinter is:</p>
 
 <ol>
-<li>Support code generation from typed Scala ASTs</li>
+<li>Improve code generation for typed Scala ASTs.</li>
 
-<li>Integrate with the Scala IDE to provide macro expansion and debugging</li>
+<li>Integrate with the Scala IDE to provide macro expansion and debugging.</li>
 
-<li>Beautify the code by removing unnecessary qualifiers (type prefixes)</li>
+<li>Beautify the code by removing unnecessary qualifiers (type prefixes).</li>
 
-<li>Integrate the library into <code>scalac</code> for debugging and nicer error messages</li>
+<li>Integrate the library into <code>scalac</code> for debugging and nicer error messages.</li>
 </ol>
+
+<p>Beginning with 2.11-RC1 Sprinter&#8217;s tree-based code generator is a part of Scala.</p>
 <br />
-<p>The <a href='sprinter-guide.html'>Guide</a> will explain how to use Sprinter. <a href='latest/api/index.html'>Scaladoc API</a> can also be helpful. In <a href='sprinter-examples.html'>Examples</a> you can see examples of code generated with Sprinter. Source code of the project can be found <a href='https://github.com/vladimirnik/sprinter'>here</a>.</p>   
+<p>The <a href='sprinter-guide.html'>Guide</a> will explain how to use Sprinter. In <a href='sprinter-examples.html'>Examples</a> you can see code snippets generated with Sprinter. Sprinter&#8217;s code generator can be found <a href='https://github.com/VladimirNik/scala/blob/typedTreesPrinter-2.11.0/src/reflect/scala/reflect/internal/Printers.scala#L538'>here</a>. Original project <a href='https://github.com/vladimirnik/sprinter'>repository</a> (before Scala 2.11).</p>   
   </div>
 </div>
 
