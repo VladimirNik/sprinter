@@ -5,7 +5,15 @@ title: Sprinter Guide
 
 # Sprinter Guide
 
-## Build process
+## Usage (Scala 2.11.x)
+Pass the tree to showCode method from universe:
+
+	import scala.reflect.runtime.universe
+	val tree = ... // unattributed or attributed AST
+	universe.showCode(tree)
+
+## Build process (Scala 2.10.x)
+All information below is relevant for Scala 2.10.x.
 To publish library to local repo run (from project's root directory):
 
     $ sbt publish-local
