@@ -115,3 +115,4 @@ package hello.world {
  - <https://github.com/VladimirNik/printPlugin> - plugin that uses sprinter to regenerate project's sources based on ASTs.
  - <https://github.com/VladimirNik/treePrintTester> - example of printPlugin usage.
  - <http://scala-sbt.org/release/docs/Getting-Started/Setup.html> - sbt setup
+ - site template is based on <https://github.com/jsuereth/jsuereth.github.com>
